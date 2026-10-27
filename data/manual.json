@@ -7,5 +7,12 @@
     { "time": "14:00", "pct": 44.9, "prev2022": null, "source": "CEC, relayé par NBC News", "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979" },
     { "time": "18:00", "pct": 66.7, "prev2022": 57.7, "source": "CEC, relayé par NBC News", "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979" }
   ],
-  "exit_polls": []
+  "exit_polls": [
+    { "channel": "Kan 11", "url": "https://www.inn.co.il/news/709477",
+      "seats": {"likud": 25, "yashar": 21, "together": 14, "democrats": 10, "joint": 10, "yb": 8, "otzma": 7, "raam": 7, "rzp": 6, "shas": 6, "utj": 6} },
+    { "channel": "Channel 12", "url": "https://www.ynet.co.il/news/article/s1l0l0002mg",
+      "seats": {"likud": 24, "yashar": 22, "together": 12, "joint": 11, "democrats": 9, "yb": 9, "shas": 8, "raam": 7, "utj": 6, "otzma": 6, "rzp": 6} },
+    { "channel": "Channel 13", "url": "https://www.inn.co.il/news/709477",
+      "seats": {"likud": 25, "yashar": 23, "together": 14, "joint": 10, "democrats": 9, "yb": 7, "raam": 7, "utj": 7, "shas": 6, "otzma": 6, "rzp": 6} }
+  ]
 }

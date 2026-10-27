@@ -3,6 +3,7 @@ import contextlib
 import io
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -225,6 +226,21 @@ class Turnout(unittest.TestCase):
             self.assertEqual(c["digest"], b["digest"])     # rien n'a changé : pas de republication inutile
         finally:
             shutil.rmtree(tmp)
+
+
+class ManualFile(unittest.TestCase):
+    """data/manual.json est saisi à la main, souvent dans l'urgence : la page écarte en silence un identifiant de parti inconnu."""
+    ROOT = os.path.join(os.path.dirname(__file__), "..")
+
+    def test_exit_polls_use_known_parties_and_total_120(self):
+        with open(os.path.join(self.ROOT, "index.html"), encoding="utf-8") as f:
+            ids = set(re.findall(r'\{ id: "(\w+)",\s+fr:', f.read()))
+        with open(os.path.join(self.ROOT, "data", "manual.json"), encoding="utf-8") as f:
+            manual = json.load(f)
+        self.assertGreater(len(ids), 10)
+        for e in manual["exit_polls"]:
+            self.assertFalse(set(e["seats"]) - ids, f"{e['channel']} : parti inconnu {set(e['seats']) - ids}")
+            self.assertEqual(sum(e["seats"].values()), 120, e["channel"])
 
 
 if __name__ == "__main__":
