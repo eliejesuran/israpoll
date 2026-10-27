@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Installe le collecteur israpoll sur la machine courante (sans sudo).
-# Écrit sur le disque : ~/israpoll-collector (quelques Ko : script + clé de déploiement) et deux lignes de crontab.
-# Le clone du dépôt, les fichiers temporaires et les logs vivent dans /dev/shm (RAM).
+# Écrit sur le disque : ~/israpoll-collector (script, clé de déploiement, clone et logs : quelques Ko écrits par relevé)
+# et deux lignes de crontab.
+# Le clone, les fichiers temporaires et les logs vivent dans ~/israpoll-collector/work (pas /dev/shm : systemd-logind le vide).
 set -euo pipefail
 DIR="$HOME/israpoll-collector"
 mkdir -p "$DIR"
