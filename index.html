@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>IsraPoll — Élections israéliennes 2026 en direct</title>
+<meta name="description" content="Résultats officiels des élections israéliennes du 27 octobre 2026 (Commission électorale centrale), blocs pressentis et simulateur de coalitions. Open source.">
+<meta property="og:title" content="IsraPoll — Élections israéliennes 2026 en direct">
+<meta property="og:description" content="Résultats officiels, blocs pressentis et simulateur de coalitions pour la 26e Knesset.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1020'/%3E%3Cpath d='M10 46a22 22 0 0 1 44 0' fill='none' stroke='%234aa8ff' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M19 46a13 13 0 0 1 26 0' fill='none' stroke='%2312b8a6' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Heebo:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6fb; --bg2:#eaeef7; --card:#ffffff; --card2:#f6f8fc; --line:#dfe4ef; --text:#0d1428; --muted:#5b6785;
+  --accent:#1e6fe0; --accent2:#0c9c8c; --good:#128a52; --warn:#b36b00; --bad:#c42b3d; --seat-off:#d3d9e6;
+  --glow1:rgba(74,168,255,.22); --glow2:rgba(18,184,166,.16); --shadow:0 10px 30px rgba(20,32,70,.08);
+  --font-display:"Bricolage Grotesque","Inter",system-ui,sans-serif; --font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#080d1b; --bg2:#0d1428; --card:#0f1830; --card2:#131e3b; --line:#222f52; --text:#eef2ff; --muted:#93a0c4;
+    --accent:#59adff; --accent2:#2fd4c0; --good:#3ddc97; --warn:#ffc15a; --bad:#ff6b7d; --seat-off:#1d2a4a;
+    --glow1:rgba(74,168,255,.20); --glow2:rgba(47,212,192,.12); --shadow:0 14px 40px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#080d1b; --bg2:#0d1428; --card:#0f1830; --card2:#131e3b; --line:#222f52; --text:#eef2ff; --muted:#93a0c4;
+  --accent:#59adff; --accent2:#2fd4c0; --good:#3ddc97; --warn:#ffc15a; --bad:#ff6b7d; --seat-off:#1d2a4a;
+  --glow1:rgba(74,168,255,.20); --glow2:rgba(47,212,192,.12); --shadow:0 14px 40px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.55 var(--font);-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(900px 500px at 12% -5%,var(--glow1),transparent 60%),radial-gradient(800px 460px at 95% 0%,var(--glow2),transparent 60%);
+  background-repeat:no-repeat}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+a:hover{text-decoration-thickness:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+.he{font-family:"Heebo","Inter",sans-serif}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- barre du haut ---------- */
+.top{position:sticky;top:0;z-index:50;backdrop-filter:saturate(1.4) blur(14px);background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font:800 19px var(--font-display);letter-spacing:-.01em;color:var(--text);text-decoration:none}
+.brand svg{width:30px;height:30px}
+.nav{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{white-space:nowrap;padding:8px 13px;border-radius:99px;color:var(--muted);text-decoration:none;font-weight:600;font-size:14px}
+.nav a:hover,.nav a.on{color:var(--text);background:var(--card2)}
+.icon-btn{border:1px solid var(--line);background:var(--card);color:var(--text);width:38px;height:38px;border-radius:12px;cursor:pointer;font-size:17px;flex:none}
+.icon-btn:hover{border-color:var(--accent)}
+
+/* ---------- héros ---------- */
+.hero{padding:34px 0 8px}
+.pill{display:inline-flex;align-items:center;gap:9px;padding:7px 14px 7px 12px;border-radius:99px;background:var(--card);border:1px solid var(--line);font-weight:600;font-size:14px;box-shadow:var(--shadow)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--good);box-shadow:0 0 0 0 currentColor;color:var(--good);animation:pulse 1.8s infinite}
+.pill.wait .dot{background:var(--warn);color:var(--warn)}
+.pill.demo .dot{background:var(--bad);color:var(--bad)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,currentColor 55%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
+@media (prefers-reduced-motion: reduce){.dot{animation:none}html{scroll-behavior:auto}}
+h1{font:800 clamp(34px,6.2vw,66px)/1.02 var(--font-display);letter-spacing:-.03em;margin:16px 0 10px}
+h1 .grad{background:linear-gradient(95deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{max-width:680px;color:var(--muted);font-size:clamp(16px,2vw,19px);margin:0}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:22px;margin-top:24px;align-items:stretch}
+@media (max-width:900px){.hero-grid{grid-template-columns:minmax(0,1fr)}}
+.card{min-width:0;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 4px;font:700 17px var(--font-display)}
+.card.flat{box-shadow:none;background:var(--card2)}
+.hemi-card{display:flex;flex-direction:column;justify-content:center}
+.hemi{width:100%;height:auto;display:block}
+.hemi circle{transition:fill .35s ease,opacity .35s ease}
+.hemi-cap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;margin-top:4px}
+.hemi-center{font:800 clamp(34px,5vw,54px)/1 var(--font-display);letter-spacing:-.03em}
+.src-chip{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:99px;border:1px solid var(--line);background:var(--card2);color:var(--muted)}
+.src-chip.official{color:var(--good);border-color:color-mix(in srgb,var(--good) 45%,var(--line))}
+.src-chip.calc{color:var(--accent)}
+.src-chip.nonoff{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{padding:16px;border-radius:18px;background:var(--card);border:1px solid var(--line)}
+.stat .k{font-size:12.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.stat .v{font:800 clamp(26px,3.4vw,38px)/1.1 var(--font-display);letter-spacing:-.02em;margin-top:2px}
+.stat .s{font-size:13px;color:var(--muted)}
+.stat.wide{grid-column:1/-1}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:700px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.step{padding:12px 13px;border-radius:16px;border:1px solid var(--line);background:var(--card2);font-size:13.5px;color:var(--muted)}
+.step b{display:block;color:var(--text);font-size:14.5px}
+.step.done{opacity:.72}
+.step.now{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--card));color:var(--text)}
+.step.now b::before{content:"● ";color:var(--accent)}
+
+/* ---------- sections ---------- */
+section.block{padding:54px 0 6px}
+.eyebrow{font:700 12.5px var(--font);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h2{font:800 clamp(26px,4vw,40px)/1.1 var(--font-display);letter-spacing:-.025em;margin:6px 0 8px}
+.sub{color:var(--muted);max-width:760px;margin:0 0 20px}
+.src{margin-top:14px;font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;border-top:1px dashed var(--line);padding-top:11px}
+.src b{color:var(--text)}
+.notice{border-radius:16px;padding:14px 16px;border:1px solid var(--line);background:var(--card2);font-size:14.5px}
+.notice.warn{border-color:color-mix(in srgb,var(--warn) 50%,var(--line));background:color-mix(in srgb,var(--warn) 9%,var(--card))}
+.notice.bad{border-color:color-mix(in srgb,var(--bad) 55%,var(--line));background:color-mix(in srgb,var(--bad) 9%,var(--card))}
+.notice b{font-weight:700}
+.stack{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+
+/* participation */
+.turnout{display:flex;flex-wrap:wrap;gap:10px}
+.tchip{padding:10px 14px;border-radius:14px;background:var(--card2);border:1px solid var(--line);min-width:118px}
+.tchip .t{font-size:12.5px;color:var(--muted);font-weight:600}
+.tchip .p{font:800 24px var(--font-display);letter-spacing:-.02em}
+.tchip .d{font-size:12px;color:var(--muted)}
+.d.up{color:var(--good)}.d.down{color:var(--bad)}
+
+/* tableau */
+.tbl-wrap{overflow-x:auto;border-radius:16px;border:1px solid var(--line);background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{padding:11px 14px;text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;background:var(--card2);position:sticky;top:0}
+tbody tr{border-top:1px solid var(--line)}
+tbody tr:hover{background:var(--card2)}
+td.lst{display:flex;align-items:center;gap:11px;white-space:normal;min-width:260px}
+.sw{width:12px;height:36px;border-radius:6px;flex:none}
+.nm{font-weight:700;line-height:1.2}
+.nm small{display:block;font-weight:500;color:var(--muted);font-size:12.5px;margin-top:2px}
+.ltr{display:inline-block;min-width:26px;text-align:center;padding:1px 7px;border-radius:7px;background:var(--card2);border:1px solid var(--line);font-weight:600;font-size:13px;color:var(--text);margin-left:6px}
+.bar{height:8px;border-radius:99px;background:var(--seat-off);position:relative;min-width:120px;overflow:visible}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:99px}
+.bar u{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--text);opacity:.55;border-radius:2px}
+tr.under td{opacity:.62}
+.tag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:6px;vertical-align:middle}
+.tag.in{color:var(--good);background:color-mix(in srgb,var(--good) 14%,transparent)}
+.tag.out{color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent)}
+tfoot td{border-top:2px solid var(--line);font-weight:700;background:var(--card2)}
+
+/* blocs */
+.blocs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:16px}
+.bloc{position:relative;overflow:hidden}
+.bloc::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:var(--bc)}
+.bloc .tot{font:800 54px/1 var(--font-display);letter-spacing:-.03em;margin:8px 0 2px}
+.bloc .tot small{font:600 15px var(--font);color:var(--muted);letter-spacing:0}
+.meter{height:12px;border-radius:99px;background:var(--seat-off);position:relative;margin:10px 0 6px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:99px;background:var(--bc);transition:width .5s}
+.meter u{position:absolute;top:0;bottom:0;width:3px;background:var(--text);left:calc(61/120*100%)}
+.pl{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:7px}
+.pl li{display:flex;align-items:center;gap:9px;font-size:14.5px}
+.pl .dotc{width:10px;height:10px;border-radius:50%;flex:none}
+.pl .sn{margin-left:auto;font-weight:700}
+.pl .sn.zero{color:var(--muted);font-weight:500}
+.verdict{margin-top:18px}
+.verdict ul{margin:6px 0 0;padding-left:20px}
+
+/* constructeur */
+.builder{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:960px){.builder{grid-template-columns:minmax(0,1fr)}}
+.pick-group{margin-bottom:18px}
+.pick-group h4{margin:0 0 9px;font:700 13px var(--font);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.pick-group h4::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--bc)}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(205px,100%),1fr));gap:9px}
+.pchip{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:16px;border:1.5px solid var(--line);background:var(--card);transition:transform .12s,border-color .12s,background .12s}
+.pchip:hover{transform:translateY(-1px);border-color:var(--pc)}
+.pchip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pchip .box{width:22px;height:22px;border-radius:7px;border:2px solid var(--line);display:grid;place-items:center;flex:none;font-size:13px;color:transparent;background:var(--card2)}
+.pchip[aria-pressed="true"]{border-color:var(--pc);background:color-mix(in srgb,var(--pc) 13%,var(--card))}
+.pchip[aria-pressed="true"] .box{background:var(--pc);border-color:var(--pc);color:#fff}
+.pchip .t{min-width:0;line-height:1.2}
+.pchip .t b{display:block;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pchip .t span{font-size:12.5px;color:var(--muted)}
+.pchip .s{margin-left:auto;font:800 22px var(--font-display);letter-spacing:-.02em}
+.pchip[disabled]{opacity:.4;cursor:not-allowed}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-weight:600;font-size:13.5px}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.on{background:color-mix(in srgb,var(--accent) 16%,var(--card));border-color:var(--accent)}
+.sticky{position:sticky;top:76px}
+.score{font:800 clamp(56px,9vw,92px)/1 var(--font-display);letter-spacing:-.04em}
+.score small{font:600 20px var(--font);color:var(--muted);letter-spacing:0}
+.maj{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border-radius:99px;font-weight:700;font-size:14px}
+.maj.yes{color:var(--good);background:color-mix(in srgb,var(--good) 14%,transparent)}
+.maj.no{color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent)}
+.sug{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.sug li{padding:9px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--line);font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sug button{all:unset;cursor:pointer;margin-left:auto;font-weight:700;color:var(--accent);font-size:13px}
+
+/* sondages */
+.heat td.c{text-align:center;font-weight:700;border-left:1px solid var(--line)}
+.heat th.c{text-align:center}
+.heat td.avg{background:var(--card2)}
+.heat tr.sumrow td{font-weight:700;background:var(--card2);border-top:2px solid var(--line)}
+.out-flag{font-size:11px;font-weight:700;color:var(--warn);display:block;text-transform:none;letter-spacing:0}
+
+footer{margin-top:70px;padding:34px 0 60px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+footer .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:24px}
+footer h4{color:var(--text);margin:0 0 8px;font:700 15px var(--font-display)}
+footer ul{margin:0;padding-left:18px}
+.skip{position:absolute;left:-999px}
+.skip:focus{left:10px;top:10px;background:var(--card);padding:8px 12px;z-index:99}
+.empty{padding:26px;text-align:center}
+.empty .big{font:800 24px var(--font-display);letter-spacing:-.02em}
+details summary{cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+<a class="skip" href="#resultats">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="IsraPoll — accueil">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="var(--card)" stroke="var(--line)"/><path d="M10 46a22 22 0 0 1 44 0" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"/><path d="M19 46a13 13 0 0 1 26 0" fill="none" stroke="var(--accent2)" stroke-width="6" stroke-linecap="round"/></svg>
+      IsraPoll
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#resultats">Résultats</a><a href="#blocs">Blocs</a><a href="#coalitions">Coalitions</a><a href="#sondages">Sondages</a><a href="#sources">Sources</a>
+    </nav>
+    <button class="icon-btn" id="theme" title="Changer de thème" aria-label="Changer de thème">◐</button>
+  </div>
+</header>
+
+<main id="top">
+<div class="wrap">
+  <section class="hero" aria-labelledby="h1">
+    <div id="statusPill"></div>
+    <h1 id="h1">Élections israéliennes&nbsp;: <span class="grad">la 26<sup style="font-size:.5em">e</sup> Knesset</span>, en direct.</h1>
+    <p class="lead">Les chiffres <b>officiels</b> de la Commission électorale centrale, les blocs qui s’en dégagent, et un simulateur pour construire <em>ta</em> coalition. Chaque chiffre est sourcé.</p>
+
+    <div class="hero-grid">
+      <div class="card hemi-card" aria-live="polite">
+        <div class="hemi-cap"><div><div class="eyebrow">Les 120 sièges</div><div class="hemi-center" id="heroTitle">—</div></div><div id="heroSrc"></div></div>
+        <svg class="hemi" id="heroHemi" viewBox="-1.1 -1.08 2.2 1.16" role="img" aria-label="Hémicycle de la Knesset"></svg>
+        <div id="heroLegend" class="pl" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
+      </div>
+      <div class="stack">
+        <div class="stats" id="heroStats"></div>
+        <ol class="steps" id="steps"></ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 1. RÉSULTATS BRUTS ===================== -->
+  <section class="block" id="resultats" aria-labelledby="h-res">
+    <div class="eyebrow">1 · Résultat brut</div>
+    <h2 id="h-res">Ce que dit la Commission électorale</h2>
+    <p class="sub">Voix et sièges tels que publiés par la CEC, sans interprétation. Tant que le dépouillement n’a pas commencé, ce tableau reste vide : on n’affiche jamais un sondage à la place d’un résultat.</p>
+    <div class="stack">
+      <div id="resNotice"></div>
+      <div class="card"><h3>Participation</h3><p class="sub" style="margin:0 0 12px">Taux de participation national relevé par la CEC dans la journée.</p><div class="turnout" id="turnout"></div><div class="src" id="turnoutSrc"></div></div>
+      <div id="exitBox"></div>
+      <div>
+        <div class="tbl-wrap"><table id="resTable"></table></div>
+        <div class="src" id="resSrc"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 2. BLOCS ===================== -->
+  <section class="block" id="blocs" aria-labelledby="h-blocs">
+    <div class="eyebrow">2 · Blocs pressentis</div>
+    <h2 id="h-blocs">Qui peut gouverner&nbsp;?</h2>
+    <p class="sub">Il faut <b>61 sièges sur 120</b>. Les blocs reprennent les camps annoncés avant le scrutin (coalition sortante, opposition menée par Eisenkot, partis arabes). C’est un cadre de lecture éditorial&nbsp;: les alliances réelles se décideront après le vote.</p>
+    <div class="blocs" id="blocsGrid"></div>
+    <div class="card verdict" id="verdict"></div>
+    <div class="src" id="blocsSrc"></div>
+  </section>
+
+  <!-- ===================== 3. COALITIONS ===================== -->
+  <section class="block" id="coalitions" aria-labelledby="h-coal">
+    <div class="eyebrow">3 · À toi de jouer</div>
+    <h2 id="h-coal">Construis ta coalition</h2>
+    <p class="sub">Coche les partis que tu veux voir gouverner ensemble. Le compteur utilise les meilleurs chiffres disponibles — résultats officiels dès qu’ils existent, sinon les sorties des urnes, sinon les derniers sondages.</p>
+    <div class="builder">
+      <div>
+        <div class="toolbar" id="srcPicker" role="group" aria-label="Base de calcul"></div>
+        <div class="toolbar" id="presets" role="group" aria-label="Coalitions types"></div>
+        <div id="picker"></div>
+      </div>
+      <div class="sticky">
+        <div class="card">
+          <div class="eyebrow">Ta coalition</div>
+          <div class="score num" id="score">0<small> / 120</small></div>
+          <div id="majBadge" style="margin:4px 0 8px"></div>
+          <div class="meter" id="coalMeter" style="--bc:var(--accent)"><i style="width:0"></i><u title="Majorité : 61"></u></div>
+          <svg class="hemi" id="coalHemi" viewBox="-1.1 -1.08 2.2 1.16" role="img" aria-label="Hémicycle de ta coalition"></svg>
+          <ul class="sug" id="suggest"></ul>
+          <div class="toolbar" style="margin:14px 0 0"><button class="btn" id="resetCoal">Tout décocher</button><button class="btn primary" id="shareCoal">Copier le lien</button></div>
+          <div class="src" id="coalSrc"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 4. SONDAGES ===================== -->
+  <section class="block" id="sondages" aria-labelledby="h-poll">
+    <div class="eyebrow">Pour mémoire</div>
+    <h2 id="h-poll">Derniers sondages avant le scrutin</h2>
+    <p class="sub">Ce ne sont <b>pas des résultats</b>. Dernière vague publiée avant la clôture, en sièges. La moyenne exclut la Chaîne 14, nettement plus favorable à Netanyahou que tous les autres instituts.</p>
+    <div class="tbl-wrap"><table class="heat" id="pollTable"></table></div>
+    <div class="src" id="pollSrc"></div>
+  </section>
+
+  <!-- ===================== SOURCES ===================== -->
+  <section class="block" id="sources" aria-labelledby="h-src">
+    <div class="eyebrow">Transparence</div>
+    <h2 id="h-src">Sources et méthode</h2>
+    <div class="blocs" style="grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))">
+      <div class="card flat"><h3>D’où viennent les chiffres</h3><ul style="padding-left:18px;margin:8px 0 0">
+        <li><b>Voix et sièges</b> : fichier officiel des résultats par localité de la <a href="https://votes26.bechirot.gov.il/nationalresults" rel="noopener">Commission électorale centrale</a> (<code>media26.bechirot.gov.il/files/expc.csv</code>), additionné commune par commune.</li>
+        <li><b>Participation</b> : relevés de la CEC, relayés par la presse (lien à chaque ligne).</li>
+        <li><b>Sorties des urnes</b> : Kan 11, Channel 12, Channel 13 — <i>non officielles</i>.</li>
+        <li><b>Sondages</b> : dernière vague publiée le 21–23 octobre.</li></ul></div>
+      <div class="card flat"><h3>Comment sont calculés les sièges</h3><p style="margin:8px 0 0">Seuil de 3,25&nbsp;%, quotient national, puis méthode <b>Bader-Ofer</b> avec les accords de surplus déclarés (Ensemble–Israël Beiteinou, Yashar–Démocrates, Liste commune–Ra’am, Likoud–Sionisme religieux, Shas–UTJ). La même méthode reproduit exactement les résultats officiels de 2022 (test automatique dans le dépôt). Tant que la CEC n’a pas attribué les sièges, ils sont marqués <i>estimation</i>.</p></div>
+      <div class="card flat"><h3>Limites</h3><p style="margin:8px 0 0">Les premiers bureaux dépouillés ne sont pas représentatifs (communes arabes, kibboutzim, localités ultra-orthodoxes arrivent par vagues). Les résultats définitifs seront publiés au journal officiel d’ici le <b>4 novembre 2026</b> et peuvent encore bouger. Les blocs sont une lecture éditoriale, modifiable dans le simulateur.</p></div>
+    </div>
+  </section>
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div><h4>IsraPoll</h4>Projet indépendant, <b>non affilié</b> à la Commission électorale centrale ni à un parti. Code libre (MIT)&nbsp;: <a id="repoLink" href="https://github.com/eliejesuran/israpoll" rel="noopener">github.com/eliejesuran/israpoll</a>. Les contributions sont bienvenues.</div>
+      <div><h4>Vérifier soi-même</h4><ul><li><a href="https://votes26.bechirot.gov.il/nationalresults" rel="noopener">Résultats nationaux (CEC)</a></li><li><a href="https://votes26.bechirot.gov.il/cityresults" rel="noopener">Par localité (CEC)</a></li><li><a href="https://www.bechirot.gov.il/" rel="noopener">bechirot.gov.il</a></li></ul></div>
+      <div><h4>Cette page</h4><div id="footStatus"></div></div>
+    </div>
+  </div>
+</footer>
+
+<noscript><div class="wrap"><div class="notice bad">Cette page a besoin de JavaScript pour afficher les résultats. Les résultats officiels sont sur <a href="https://votes26.bechirot.gov.il/nationalresults">votes26.bechirot.gov.il</a>.</div></div></noscript>
+
+<script src="js/seats.js"></script>
+<script>
+"use strict";
+/* =====================================================================
+   Configuration
+   ===================================================================== */
+const REPO = "eliejesuran/israpoll";
+const LIVE_URLS = [`https://raw.githubusercontent.com/${REPO}/data/live.json`, "data/live.json"];
+const POLLS_CLOSE = new Date("2026-10-27T20:00:00Z");         // 22:00 à Jérusalem (UTC+2)
+const FINAL_BY = "4 novembre 2026";
+const CEC = {
+  national: "https://votes26.bechirot.gov.il/nationalresults",
+  csv: "https://media26.bechirot.gov.il/files/expc.csv",
+};
+
+const BLOCS = {
+  eisenkot:  { name: "Bloc Eisenkot",   sub: "Opposition « du changement »",  color: "#12b8a6" },
+  arab:      { name: "Partis arabes",   sub: "Ni dans l’un, ni dans l’autre bloc", color: "#1f9d55" },
+  netanyahu: { name: "Bloc Netanyahou", sub: "Coalition sortante",             color: "#2f6df6" },
+  other:     { name: "Hors blocs",      sub: "Autres listes",                  color: "#8b93a1" },
+};
+const BLOC_ORDER = ["eisenkot", "arab", "other", "netanyahu"];
+
+// letters = lettres de vote officielles (bulletin) ; ordre = placement dans l'hémicycle
+const PARTIES = [
+  { id: "democrats",  fr: "Les Démocrates",           he: "הדמוקרטים",   letters: "אמת", leader: "Yair Golan",                bloc: "eisenkot",  color: "#ec4899" },
+  { id: "together",   fr: "Ensemble (Beyahad)",       he: "ביחד",        letters: "רק",  leader: "Naftali Bennett · Yair Lapid", bloc: "eisenkot", color: "#38b6ff" },
+  { id: "yashar",     fr: "Yashar",                   he: "דרך / ישר",   letters: "דרך", leader: "Gadi Eisenkot",              bloc: "eisenkot",  color: "#12b8a6" },
+  { id: "yb",         fr: "Israël Beiteinou",         he: "ישראל ביתנו", letters: "ל",   leader: "Avigdor Liberman",           bloc: "eisenkot",  color: "#94a3b8" },
+  { id: "reservists", fr: "Réservistes–Économique",   he: "המילואימניקים", letters: "די", leader: "Yoaz Hendel · Yaron Zelekha", bloc: "eisenkot", color: "#a3d63a" },
+  { id: "joint",      fr: "Liste commune",            he: "הרשימה המשותפת", letters: "ודם", leader: "Yousef Jabareen",        bloc: "arab",      color: "#1f9d55" },
+  { id: "raam",       fr: "Ra’am",                    he: "רע״ם",        letters: "עם",  leader: "Mansour Abbas",              bloc: "arab",      color: "#8fd14f" },
+  { id: "amcha",      fr: "Amcha Israël",             he: "עמך ישראל",   letters: "ך",   leader: "Ofer Winter",                bloc: "other",     color: "#b6a07a" },
+  { id: "haredi",     fr: "Public haredi",            he: "הציבור החרדי", letters: "זך", leader: "Moti Litner",                bloc: "other",     color: "#9b8cc4" },
+  { id: "noam",       fr: "Noam",                     he: "נעם",         letters: "ני",  leader: "Avi Maoz",                   bloc: "netanyahu", color: "#a0785a" },
+  { id: "rzp",        fr: "Sionisme religieux–Zehut", he: "הציונות הדתית", letters: "ט", leader: "Bezalel Smotrich",           bloc: "netanyahu", color: "#f2762e" },
+  { id: "otzma",      fr: "Otzma Yehudit",            he: "עוצמה יהודית", letters: "ב",  leader: "Itamar Ben-Gvir",            bloc: "netanyahu", color: "#c8322f" },
+  { id: "utj",        fr: "Judaïsme unifié de la Torah", he: "יהדות התורה", letters: "ג", leader: "Yitzhak Goldknopf",         bloc: "netanyahu", color: "#7c5cf0" },
+  { id: "shas",       fr: "Shas",                     he: "ש״ס",         letters: "שס",  leader: "Aryeh Deri",                 bloc: "netanyahu", color: "#f2a900" },
+  { id: "likud",      fr: "Likoud",                   he: "הליכוד",      letters: "מחל", leader: "Benjamin Netanyahou",        bloc: "netanyahu", color: "#2f6df6" },
+];
+// Listes mineures (nom indicatif si la CEC n'en donne pas)
+const MINOR = {
+  "כן": "Kakhol Lavan (Gantz, retiré)", "בד": "Ensemble nous réussirons", "בי": "Tzomet–Beit Yisrael", "בקר": "Orot HaShachar",
+  "ד": "Partenariat pour tous", "ה": "Gan Eden", "ז": "Bitahon (sécurité sociale)", "זץ": "Brit Olam", "י": "Israël d’abord",
+  "יק": "Bloc biblique", "נף": "Shema", "נץ": "Bitahon Ishi", "נקי": "HaTikoun", "נר": "La couleur noire", "פה": "Ani VeAta",
+  "צבי": "Ahi (retiré)", "צדק": "Sharshar", "צף": "Pirates", "ק": "Tekouma", "קה": "Kol HaNashim", "קך": "Nouvel ordre",
+  "קץ": "Mishpat Tzedek", "רץ": "HaKahal",
+};
+const BY_ID = Object.fromEntries(PARTIES.map(p => [p.id, p]));
+const BY_LETTERS = Object.fromEntries(PARTIES.map(p => [p.letters, p]));
+// Accords de surplus déclarés (la paire Eternal Covenant–Fixing est trop petite pour compter)
+const PACTS = [["together", "yb"], ["yashar", "democrats"], ["joint", "raam"], ["likud", "rzp"], ["shas", "utj"]];
+
+const PRESETS = [
+  { name: "Coalition sortante", ids: ["likud", "shas", "utj", "otzma", "rzp", "noam"] },
+  { name: "Bloc Eisenkot", ids: ["yashar", "together", "democrats", "yb", "reservists"] },
+  { name: "Bloc Eisenkot + Ra’am", ids: ["yashar", "together", "democrats", "yb", "reservists", "raam"] },
+  { name: "Bloc Eisenkot + partis arabes", ids: ["yashar", "together", "democrats", "yb", "reservists", "raam", "joint"] },
+  { name: "Union nationale", ids: ["likud", "yashar", "together"] },
+];
+
+// Dernière vague de sondages (sièges). Voir la section « Sources ».
+const POLLS = [
+  { name: "Kan 11 · Kantar", date: "23 oct.", seats: { yashar: 22, likud: 20, together: 14, democrats: 8, yb: 8, shas: 7, otzma: 8, utj: 8, rzp: 7, raam: 5, joint: 9, reservists: 4 } },
+  { name: "Channel 12 · Midgam", date: "23 oct.", seats: { yashar: 23, likud: 21, together: 15, democrats: 10, yb: 8, shas: 8, otzma: 8, utj: 7, rzp: 6, raam: 5, joint: 9 } },
+  { name: "Channel 13", date: "23 oct.", seats: { yashar: 22, likud: 19, together: 14, democrats: 10, yb: 8, shas: 7, otzma: 8, utj: 8, rzp: 8, raam: 7, joint: 9 } },
+  { name: "Maariv · Lazar", date: "23 oct.", seats: { yashar: 21, likud: 19, together: 15, democrats: 10, yb: 8, shas: 8, otzma: 7, utj: 7, rzp: 7, raam: 5, joint: 9, reservists: 4 } },
+  { name: "Israel Hayom · Kantar", date: "22 oct.", seats: { yashar: 23, likud: 21, together: 14, democrats: 8, yb: 7, shas: 8, otzma: 8, utj: 7, rzp: 6, raam: 5, joint: 9, reservists: 4 } },
+  { name: "Channel 14 · Next Data", date: "21 oct.", outlier: true, seats: { yashar: 20, likud: 30, together: 10, democrats: 9, yb: 5, shas: 10, otzma: 8, utj: 7, rzp: 7, raam: 6, joint: 8 } },
+];
+const POLL_SOURCES = [
+  { label: "israel2026.co.il — compilation des sondages", url: "https://israel2026.co.il/en/election-polls.html" },
+  { label: "Haaretz, 23 oct.", url: "https://www.haaretz.com/israel-news/elections/2026-10-23/ty-article/last-polls-before-election-day-put-eisenkot-ahead-both-sides-short-of-majority/000001a1-69fe-d34e-a1b9-ffff12940000" },
+  { label: "Arutz Sheva, sondages finaux", url: "https://www.israelnationalnews.com/news/435074" },
+];
+
+/* =====================================================================
+   Outils
+   ===================================================================== */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const nf = new Intl.NumberFormat("fr-FR");
+const fmt = (n) => nf.format(Math.round(n));
+const pc = (x, d = 1) => (x * 100).toFixed(d).replace(".", ",") + " %";
+const sum = (a) => a.reduce((s, x) => s + x, 0);
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch { /* navigation privée */ } },
+};
+const tz = (d, zone) => new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: zone }).format(d);
+const hhmmss = (d) => new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(d);
+const srcLine = (links, extra = "") =>
+  `<span><b>Source :</b> ${links.map(l => `<a href="${esc(l.url)}" rel="noopener" target="_blank">${esc(l.label)}</a>`).join(" · ")}</span>${extra}`;
+
+/* =====================================================================
+   État
+   ===================================================================== */
+const state = {
+  live: null,            // JSON du collecteur (CEC)
+  liveAt: 0,             // date du dernier chargement réussi
+  demo: new URLSearchParams(location.search).get("demo"),
+  seatSource: null,      // choix manuel de la base de calcul du simulateur
+  sel: new Set(),
+};
+let model = null;        // données dérivées
+
+/* =====================================================================
+   Chargement des données
+   ===================================================================== */
+async function fetchJson(url) {
+  const sep = url.includes("?") ? "&" : "?";
+  const r = await fetch(`${url}${sep}t=${Date.now()}`, { cache: "no-store" });
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+async function loadLive() {
+  if (state.demo) { state.live = makeDemo(state.demo); state.liveAt = Date.now(); return; }
+  const res = await Promise.allSettled(LIVE_URLS.map(fetchJson));
+  const ok = res.filter(r => r.status === "fulfilled").map(r => r.value);
+  if (!ok.length) return;
+  ok.sort((a, b) => String(b.checked_at || "").localeCompare(String(a.checked_at || "")));
+  state.live = ok[0];
+  state.liveAt = Date.now();
+}
+
+// Mode démo (?demo=1 | exit | final) : chiffres SIMULÉS à partir de la moyenne des sondages, pour tester l'interface.
+function makeDemo(kind) {
+  const avg = pollAverage().seats;
+  const quota = 37500;
+  const votes = {};
+  let k = 7;
+  Object.entries(avg).forEach(([id, s]) => { votes[BY_ID[id].letters] = Math.round(s * quota * (0.96 + ((k = (k * 37 + 11) % 100) / 1250))); });
+  votes["כן"] = 41000; votes["ך"] = 118000; votes["זך"] = 62000; votes["ני"] = 38000;
+  const share = kind === "final" ? 1 : 0.58;
+  Object.keys(votes).forEach(l => (votes[l] = Math.round(votes[l] * share)));
+  const valid = sum(Object.values(votes));
+  const live = {
+    status: kind === "exit" ? "waiting" : kind === "final" ? "final" : "counting",
+    totals: kind === "exit" ? null : { eligible: 6900000, voters: valid + 30000, valid, invalid: 30000 },
+    votes: kind === "exit" ? null : votes,
+    checked_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+    official_seats: null, source: { name: "DÉMO — chiffres simulés" },
+    manual: {
+      final: kind === "final",
+      turnout: [{ time: "10:00", pct: 16.7, prev2022: 15.9, source: "démo" }, { time: "14:00", pct: 44.9, prev2022: null, source: "démo" }, { time: "20:00", pct: 66.1, prev2022: 63.4, source: "démo" }],
+      exit_polls: kind === "exit" ? [
+        { channel: "Kan 11 (démo)", seats: { yashar: 24, likud: 22, together: 13, democrats: 9, yb: 8, shas: 8, otzma: 7, utj: 7, rzp: 6, raam: 5, joint: 9, reservists: 2 }, url: "#" },
+        { channel: "Channel 12 (démo)", seats: { yashar: 23, likud: 23, together: 13, democrats: 10, yb: 8, shas: 8, otzma: 8, utj: 7, rzp: 5, raam: 5, joint: 8, reservists: 2 }, url: "#" },
+      ] : [],
+    },
+  };
+  if (kind === "final") {
+    const v = {}; Object.entries(votes).forEach(([l, n]) => { const p = BY_LETTERS[l]; v[p ? p.id : "x_" + l] = n; });
+    const r = Seats.allocate(v, PACTS).seats;
+    live.official_seats = {}; Object.entries(r).forEach(([id, n]) => { if (n) live.official_seats[id.startsWith("x_") ? id.slice(2) : BY_ID[id].letters] = n; });
+  }
+  return live;
+}
+
+/* =====================================================================
+   Modèle dérivé
+   ===================================================================== */
+function pollAverage() {
+  const used = POLLS.filter(p => !p.outlier);
+  const ids = [...new Set(used.flatMap(p => Object.keys(p.seats)))];
+  const frac = {};
+  ids.forEach(id => {
+    const v = used.map(p => p.seats[id]).filter(Boolean);
+    if (v.length >= used.length / 2) frac[id] = sum(v) / v.length;     // doit passer le seuil dans la moitié des sondages
+  });
+  const tot = sum(Object.values(frac));
+  Object.keys(frac).forEach(id => (frac[id] = (frac[id] * 120) / tot));
+  return { seats: Seats.roundToTotal(frac), frac, n: used.length };
+}
+function exitAverage(list) {
+  if (!list || !list.length) return null;
+  const ids = [...new Set(list.flatMap(p => Object.keys(p.seats || {})))];
+  const frac = {};
+  ids.forEach(id => {
+    const v = list.map(p => (p.seats || {})[id]).filter(Boolean);
+    if (v.length >= list.length / 2) frac[id] = sum(v) / v.length;
+  });
+  const tot = sum(Object.values(frac));
+  if (!tot) return null;
+  Object.keys(frac).forEach(id => (frac[id] = (frac[id] * 120) / tot));
+  return { seats: Seats.roundToTotal(frac), n: list.length };
+}
+
+function derive() {
+  const live = state.live || {};
+  const manual = live.manual || {};
+  const totals = live.totals && live.totals.valid > 0 ? live.totals : null;
+
+  // listes de la CEC
+  const lists = [];
+  if (live.votes && totals) {
+    const names = live.names || {};
+    Object.entries(live.votes).forEach(([letters, votes]) => {
+      const p = BY_LETTERS[letters];
+      lists.push(p
+        ? { ...p, votes, letters }
+        : { id: "x_" + letters, fr: MINOR[letters] || names[letters] || `Liste ${letters}`, he: names[letters] || "", letters, leader: "", bloc: "other", color: "#8b93a1", votes });
+    });
+    lists.sort((a, b) => b.votes - a.votes);
+  }
+  const valid = totals ? totals.valid : 0;
+  lists.forEach(l => (l.pct = valid ? l.votes / valid : 0));
+
+  const sources = {};
+  // 1. sièges officiels
+  if (live.official_seats) {
+    const seats = {};
+    Object.entries(live.official_seats).forEach(([letters, n]) => { const p = BY_LETTERS[letters]; seats[p ? p.id : "x_" + letters] = n; });
+    sources.official = { key: "official", label: "Sièges attribués par la CEC", chip: "Officiel", cls: "official", seats };
+  }
+  // 2. estimation Bader-Ofer sur les voix comptées
+  if (lists.length) {
+    const votes = {}; lists.forEach(l => (votes[l.id] = l.votes));
+    const r = Seats.allocate(votes, PACTS);
+    const turnRef = (manual.final_turnout_est || 68) / 100;
+    const share = totals ? totals.voters / (totals.eligible * turnRef) : 0;
+    sources.cec = { key: "cec", label: "Estimation sur les voix CEC", chip: live.status === "final" ? "Calcul · CEC" : "Calcul · dépouillement partiel", cls: "calc", seats: r.seats, passed: r.passed, share: Math.min(share, 1) };
+  }
+  // 3. sorties des urnes
+  const ex = exitAverage(manual.exit_polls);
+  if (ex) sources.exit = { key: "exit", label: `Sorties des urnes (moyenne de ${ex.n})`, chip: "Non officiel", cls: "nonoff", seats: ex.seats };
+  // 4. sondages
+  const pa = pollAverage();
+  sources.polls = { key: "polls", label: `Sondages du 21–23 oct. (moyenne de ${pa.n})`, chip: "Sondage — pas un résultat", cls: "nonoff", seats: pa.seats };
+
+  // base par défaut : officiel > dépouillement (si assez avancé) > sorties des urnes > sondages
+  let def = "polls";
+  if (sources.exit) def = "exit";
+  if (sources.cec && (sources.cec.share >= 0.25 || !sources.exit)) def = "cec";
+  if (sources.official) def = "official";
+  const chosen = state.seatSource && sources[state.seatSource] ? state.seatSource : def;
+
+  return { live, manual, totals, lists, sources, def, chosen, seats: sources[chosen].seats, active: sources[chosen] };
+}
+
+/* =====================================================================
+   Hémicycle
+   ===================================================================== */
+function hemiPoints(total = 120, rows = 8) {
+  const r0 = 0.42;
+  const radii = Array.from({ length: rows }, (_, i) => r0 + ((1 - r0) * i) / (rows - 1));
+  const R = sum(radii);
+  const counts = radii.map(r => Math.round((total * r) / R));
+  let diff = total - sum(counts);
+  for (let i = rows - 1; diff !== 0; i = (i - 1 + rows) % rows) { counts[i] += Math.sign(diff); diff -= Math.sign(diff); }
+  const pts = [];
+  radii.forEach((r, i) => {
+    const n = counts[i];
+    for (let k = 0; k < n; k++) {
+      const a = Math.PI - (k * Math.PI) / (n - 1);
+      pts.push({ a, r, x: Math.cos(a) * r, y: -Math.sin(a) * r });
+    }
+  });
+  pts.sort((p, q) => q.a - p.a || p.r - q.r);
+  return pts;
+}
+const HEMI = hemiPoints();
+function partyOrder(seats) {
+  // ordre d'affichage : blocs gauche→droite, partis connus puis listes inconnues
+  const ids = Object.keys(seats).filter(id => seats[id] > 0);
+  const meta = id => BY_ID[id] || model.lists.find(l => l.id === id) || { id, fr: id, color: "#8b93a1", bloc: "other" };
+  const rank = id => { const m = meta(id); const bi = BLOC_ORDER.indexOf(m.bloc); const pi = PARTIES.findIndex(p => p.id === id); return bi * 100 + (pi < 0 ? 99 : pi); };
+  return ids.sort((a, b) => rank(a) - rank(b)).map(meta);
+}
+function drawHemi(svg, seats, opts = {}) {
+  const order = partyOrder(seats);
+  const colors = [];
+  order.forEach(p => { for (let i = 0; i < seats[p.id]; i++) colors.push({ c: p.color, name: p.fr, id: p.id }); });
+  while (colors.length < 120) colors.push({ c: null, name: "Siège non attribué", id: null });
+  const dim = opts.selected;       // Set d'ids sélectionnés (simulateur)
+  const rad = 0.036;
+  svg.innerHTML = HEMI.map((pt, i) => {
+    const s = colors[i];
+    const on = s.c && (!dim || dim.has(s.id));
+    return `<circle cx="${pt.x.toFixed(4)}" cy="${pt.y.toFixed(4)}" r="${rad}" fill="${on ? s.c : "var(--seat-off)"}" ${s.c && dim && !on ? 'opacity=".55"' : ""}><title>${esc(s.name)}</title></circle>`;
+  }).join("");
+}
+
+/* =====================================================================
+   Rendu
+   ===================================================================== */
+function render() {
+  model = derive();
+  renderStatus();
+  renderHero();
+  renderResults();
+  renderBlocs();
+  renderBuilder();
+  renderPolls();
+  renderFoot();
+}
+
+function phase() {
+  const live = model.live;
+  if (live.status === "final") return "final";
+  if (model.totals) return "counting";
+  return Date.now() < POLLS_CLOSE.getTime() ? "voting" : "closed";
+}
+
+function renderStatus() {
+  const ph = phase();
+  const demo = state.demo ? ` <span class="src-chip nonoff">DÉMO · chiffres simulés</span>` : "";
+  const map = {
+    voting: ["wait", "Bureaux de vote ouverts", `fermeture dans <b class="num" id="cd">—</b>`],
+    closed: ["wait", "Bureaux fermés", "dépouillement en attente — les premiers chiffres officiels arrivent"],
+    counting: ["", "Dépouillement en cours", "résultats partiels de la CEC, susceptibles d’évoluer"],
+    final: ["", "Résultats publiés", "chiffres définitifs de la CEC"],
+  };
+  const [cls, a, b] = map[ph];
+  $("#statusPill").innerHTML = `<span class="pill ${state.demo ? "demo" : cls}"><span class="dot"></span><span><b>${a}</b> · ${b}</span></span>${demo}`;
+
+  const stepsNow = { voting: 0, closed: 1, counting: 2, final: 3 }[ph];
+  const closeIL = tz(POLLS_CLOSE, "Asia/Jerusalem"), closeLocal = tz(POLLS_CLOSE);
+  const steps = [
+    ["Vote", "Bureaux ouverts de 7 h à 22 h (Israël)"],
+    ["Clôture · 22:00", `Sorties des urnes à ${closeIL} (Israël) · ${closeLocal} chez toi`],
+    ["Dépouillement", "Fichiers officiels de la CEC, mis à jour en continu"],
+    ["Certification", `Journal officiel au plus tard le ${FINAL_BY}`],
+  ];
+  $("#steps").innerHTML = steps.map(([t, d], i) => `<li class="step ${i < stepsNow ? "done" : i === stepsNow ? "now" : ""}"><b>${t}</b>${d}</li>`).join("");
+}
+
+function tickCountdown() {
+  const el = $("#cd");
+  if (!el) return;
+  const ms = Math.max(0, POLLS_CLOSE - Date.now());
+  const h = Math.floor(ms / 3.6e6), m = Math.floor((ms % 3.6e6) / 6e4), s = Math.floor((ms % 6e4) / 1e3);
+  el.textContent = [h, m, s].map(x => String(x).padStart(2, "0")).join(":");
+  if (ms === 0) render();
+}
+
+function chipFor(src) { return `<span class="src-chip ${src.cls}">${esc(src.chip)}</span>`; }
+
+function renderHero() {
+  const a = model.active, ph = phase();
+  const seats = model.seats;
+  drawHemi($("#heroHemi"), seats);
+  const top = partyOrder(seats).sort((x, y) => seats[y.id] - seats[x.id]);
+  $("#heroTitle").textContent = a.key === "polls" ? "Dernier état des sondages" : a.key === "exit" ? "Sorties des urnes" : a.key === "official" ? "Sièges attribués" : "Estimation en cours";
+  $("#heroSrc").innerHTML = chipFor(a);
+  $("#heroLegend").innerHTML = top.slice(0, 9).map(p => `<li style="list-style:none;display:flex;gap:8px;align-items:center;font-size:13.5px"><span class="dotc" style="width:10px;height:10px;border-radius:50%;background:${p.color};flex:none"></span>${esc(p.fr)}<b style="margin-left:auto">${seats[p.id]}</b></li>`).join("");
+
+  const t = model.manual.turnout || [];
+  const last = t[t.length - 1];
+  const tot = model.totals;
+  const cec = model.sources.cec;
+  const stats = [];
+  stats.push(`<div class="stat"><div class="k">Participation</div><div class="v num">${last ? String(last.pct).replace(".", ",") + " %" : "—"}</div><div class="s">${last ? `à ${esc(last.time)} · CEC` : "en attente du premier relevé"}</div></div>`);
+  stats.push(`<div class="stat"><div class="k">Dépouillement</div><div class="v num">${cec ? "≈ " + Math.round(cec.share * 100) + " %" : "0 %"}</div><div class="s">${tot ? fmt(tot.valid) + " bulletins valides" : "aucun bulletin compté"}</div></div>`);
+  const lead = top[0];
+  stats.push(`<div class="stat wide"><div class="k">${a.key === "official" || a.key === "cec" ? "En tête" : "En tête (hors résultat)"}</div><div class="v">${lead ? esc(lead.fr) + ` <span class="num" style="color:var(--muted)">· ${seats[lead.id]}</span>` : "—"}</div><div class="s">${esc(a.label)}</div></div>`);
+  $("#heroStats").innerHTML = stats.join("");
+}
+
+function turnoutBlock() {
+  const t = model.manual.turnout || [];
+  if (!t.length) return `<span class="sub" style="margin:0">Pas encore de relevé.</span>`;
+  return t.map(x => {
+    const d = x.prev2022 != null ? x.pct - x.prev2022 : null;
+    return `<div class="tchip"><div class="t">${esc(x.time)}</div><div class="p num">${String(x.pct).replace(".", ",")} %</div><div class="d ${d == null ? "" : d >= 0 ? "up" : "down"}">${d == null ? "&nbsp;" : (d >= 0 ? "▲ +" : "▼ ") + d.toFixed(1).replace(".", ",") + " pt vs 2022"}</div></div>`;
+  }).join("");
+}
+
+function renderResults() {
+  const ph = phase(), live = model.live, tot = model.totals;
+  // bandeau
+  let notice = "";
+  if (!tot) {
+    notice = `<div class="notice warn"><b>Aucun résultat officiel publié pour l’instant.</b> Le site de la CEC affiche « <span class="he" dir="rtl">ממתינים לספירת הקולות</span> » (en attente du décompte). Ce tableau se remplira tout seul, sans recharger la page.</div>`;
+  } else if (live.status !== "final") {
+    const c = model.sources.cec;
+    notice = `<div class="notice warn"><b>Résultats partiels.</b> ≈ ${Math.round(c.share * 100)} % du vote attendu est dépouillé. Les premiers bureaux (kibboutzim, communes arabes ou ultra-orthodoxes) ne reflètent pas le pays : un classement provisoire peut s’inverser.</div>`;
+  } else {
+    notice = `<div class="notice"><b>Résultats publiés par la CEC.</b> Les chiffres définitifs sont proclamés au journal officiel d’ici le ${FINAL_BY}.</div>`;
+  }
+  if (live.stale) notice += `<div class="notice warn" style="margin-top:10px">Le collecteur n’a pas pu joindre la CEC au dernier relevé : ces chiffres datent de ${esc(live.updated_at || "?")}.</div>`;
+  $("#resNotice").innerHTML = notice;
+
+  $("#turnout").innerHTML = turnoutBlock();
+  const tsrc = [...new Map((model.manual.turnout || []).filter(x => x.url).map(x => [x.url, { label: x.source || "CEC", url: x.url }])).values()];
+  $("#turnoutSrc").innerHTML = tsrc.length ? srcLine(tsrc) : srcLine([{ label: "CEC", url: CEC.national }]);
+
+  // sorties des urnes
+  const ex = model.manual.exit_polls || [];
+  if (!ex.length) {
+    $("#exitBox").innerHTML = `<div class="card flat"><h3>Sorties des urnes</h3><p class="sub" style="margin:4px 0 0">Attendues à la fermeture des bureaux (<b>22:00 en Israël</b>, ${tz(POLLS_CLOSE)} chez toi) sur Kan 11, Channel 12 et Channel 13. <i>Estimations télévisées, non officielles</i> : elles s’afficheront ici dès leur publication.</p></div>`;
+  } else {
+    const rows = Object.keys(BY_ID).filter(id => ex.some(e => (e.seats || {})[id])).sort((a, b) => (model.sources.exit.seats[b] || 0) - (model.sources.exit.seats[a] || 0));
+    $("#exitBox").innerHTML = `<div class="card"><h3>Sorties des urnes <span class="src-chip nonoff">non officiel</span></h3><div class="tbl-wrap" style="margin-top:10px"><table class="heat"><thead><tr><th>Liste</th>${ex.map(e => `<th class="c">${esc(e.channel)}</th>`).join("")}<th class="c">Moyenne</th></tr></thead><tbody>${rows.map(id => `<tr><td><b>${esc(BY_ID[id].fr)}</b></td>${ex.map(e => `<td class="c num">${(e.seats || {})[id] ?? "—"}</td>`).join("")}<td class="c avg num">${model.sources.exit.seats[id] || "—"}</td></tr>`).join("")}</tbody></table></div><div class="src">${srcLine(ex.filter(e => e.url && e.url !== "#").map(e => ({ label: e.channel, url: e.url })))}</div></div>`;
+  }
+
+  // tableau
+  const head = `<thead><tr><th>Liste</th><th>Voix</th><th>%</th><th style="min-width:150px">Seuil 3,25 %</th><th>Sièges</th></tr></thead>`;
+  if (!tot) {
+    const rows = PARTIES.slice().sort((a, b) => (model.sources.polls.seats[b.id] || 0) - (model.sources.polls.seats[a.id] || 0));
+    $("#resTable").innerHTML = head + `<tbody>${rows.map(p => `<tr><td class="lst"><span class="sw" style="background:${p.color}"></span><span class="nm">${esc(p.fr)}<small>${esc(p.leader)} · <span class="he">${p.he}</span> <span class="ltr he">${p.letters}</span></small></span></td><td class="num">—</td><td class="num">—</td><td><div class="bar"><u style="left:${3.25 / 15 * 100}%"></u></div></td><td class="num">—</td></tr>`).join("")}</tbody>`;
+    $("#resSrc").innerHTML = srcLine([{ label: "CEC — résultats nationaux", url: CEC.national }, { label: "fichier par localité (CSV)", url: CEC.csv }], `<span>Relevé : ${live.checked_at ? hhmmss(new Date(live.checked_at)) : "—"} · aucune donnée à afficher</span>`);
+    return;
+  }
+  const seatsOf = model.sources.official ? model.sources.official.seats : model.sources.cec.seats;
+  const isOff = !!model.sources.official;
+  const passed = new Set(model.sources.cec.passed);
+  $("#resTable").innerHTML = head + `<tbody>${model.lists.filter(l => l.votes > 0).slice(0, 40).map(l => {
+    const ok = l.pct >= 0.0325;
+    return `<tr class="${ok ? "" : "under"}"><td class="lst"><span class="sw" style="background:${l.color}"></span><span class="nm">${esc(l.fr)}<small>${esc(l.leader)}${l.leader ? " · " : ""}<span class="he">${esc(l.he)}</span> <span class="ltr he">${esc(l.letters)}</span></small></span></td>
+      <td class="num">${fmt(l.votes)}</td><td class="num">${pc(l.pct, 2)}</td>
+      <td><div class="bar"><i style="width:${Math.min(l.pct / 0.15, 1) * 100}%;background:${l.color}"></i><u style="left:${3.25 / 15 * 100}%"></u></div></td>
+      <td class="num"><b>${seatsOf[l.id] || 0}</b>${ok ? "" : '<span class="tag out">sous le seuil</span>'}${!isOff && passed.has(l.id) ? '<span class="tag in">est.</span>' : ""}</td></tr>`;
+  }).join("")}</tbody><tfoot><tr><td>Total</td><td class="num">${fmt(tot.valid)}</td><td class="num">100 %</td><td class="num" colspan="2" style="text-align:right;font-weight:500;color:var(--muted)">${fmt(tot.voters)} votants · ${fmt(tot.invalid)} nuls · ${fmt(tot.eligible)} inscrits</td></tr></tfoot>`;
+  $("#resSrc").innerHTML = srcLine(
+    [{ label: "CEC — résultats nationaux", url: CEC.national }, { label: "fichier par localité (CSV)", url: CEC.csv }],
+    `<span>Voix : somme des localités publiées · Sièges : ${isOff ? "<b>attribués par la CEC</b>" : "<b>estimation</b> Bader-Ofer (la CEC n’a pas encore attribué de sièges)"} · Relevé : ${live.updated_at ? hhmmss(new Date(live.updated_at)) : "—"}</span>`);
+}
+
+function blocTotals(seats) {
+  const out = {};
+  Object.keys(BLOCS).forEach(b => (out[b] = { seats: 0, parties: [] }));
+  const ids = new Set([...Object.keys(seats)]);
+  ids.forEach(id => {
+    const m = BY_ID[id] || model.lists.find(l => l.id === id) || { id, fr: id, bloc: "other", color: "#8b93a1" };
+    if (!seats[id] && !BY_ID[id]) return;
+    out[m.bloc].seats += seats[id] || 0;
+    out[m.bloc].parties.push({ ...m, s: seats[id] || 0 });
+  });
+  Object.values(out).forEach(b => b.parties.sort((x, y) => y.s - x.s));
+  return out;
+}
+
+function renderBlocs() {
+  const seats = model.seats, bt = blocTotals(seats);
+  $("#blocsGrid").innerHTML = ["netanyahu", "eisenkot", "arab"].map(k => {
+    const B = BLOCS[k], t = bt[k], miss = Math.max(0, 61 - t.seats);
+    return `<article class="card bloc" style="--bc:${B.color}"><div class="eyebrow" style="color:var(--muted)">${esc(B.sub)}</div><h3 style="font-size:21px">${esc(B.name)}</h3>
+      <div class="tot num">${t.seats}<small> sièges</small></div>
+      <div class="meter" style="--bc:${B.color}"><i style="width:${Math.min(t.seats / 120 * 100, 100)}%"></i><u title="Majorité : 61"></u></div>
+      <div style="font-size:13.5px;color:var(--muted)">${t.seats >= 61 ? `<b style="color:var(--good)">Majorité à elle seule</b>` : `Il manque <b style="color:var(--text)">${miss}</b> siège${miss > 1 ? "s" : ""} pour 61`}</div>
+      <ul class="pl">${t.parties.map(p => `<li><span class="dotc" style="background:${p.color}"></span>${esc(p.fr)}<span class="sn num ${p.s ? "" : "zero"}">${p.s || "—"}</span></li>`).join("")}</ul></article>`;
+  }).join("");
+
+  const N = bt.netanyahu.seats, E = bt.eisenkot.seats, A = bt.arab.seats, O = bt.other.seats;
+  const lines = [];
+  if (N >= 61) lines.push(`Le bloc Netanyahou atteint seul la majorité (<b>${N}</b>).`);
+  else if (E >= 61) lines.push(`Le bloc Eisenkot atteint seul la majorité (<b>${E}</b>).`);
+  else {
+    lines.push(`Aucun des deux camps n’atteint 61 : <b>Netanyahou ${N}</b> contre <b>Eisenkot ${E}</b>.`);
+    lines.push(`Les <b>partis arabes (${A})</b>${O ? ` et les autres listes (${O})` : ""} deviennent arbitres : Eisenkot + partis arabes = <b>${E + A}</b> ${E + A >= 61 ? "(majorité arithmétique)" : "(insuffisant)"}.`);
+    lines.push(`Netanyahou devrait aller chercher <b>${Math.max(0, 61 - N)}</b> sièges hors de son camp ; Eisenkot <b>${Math.max(0, 61 - E)}</b>.`);
+  }
+  $("#verdict").innerHTML = `<div class="eyebrow">Lecture rapide · ${esc(model.active.label)}</div><ul style="margin:8px 0 0;padding-left:20px;display:grid;gap:6px">${lines.map(l => `<li>${l}</li>`).join("")}</ul>${model.active.key === "polls" || model.active.key === "exit" ? `<p style="margin:12px 0 0;color:var(--warn);font-size:14px"><b>Attention :</b> ces blocs reposent sur ${model.active.key === "polls" ? "des sondages" : "des sorties des urnes"}, pas sur des résultats.</p>` : ""}`;
+  $("#blocsSrc").innerHTML = srcLine(
+    [{ label: model.active.key === "official" || model.active.key === "cec" ? "CEC" : "sources des chiffres : voir la section Sondages", url: model.active.key === "official" || model.active.key === "cec" ? CEC.national : "#sondages" }],
+    `<span>Classement des listes par camp : lecture éditoriale d’après leurs positions publiques avant le scrutin (Haaretz, Kan, Times of Israel).</span>`);
+}
+
+/* ----- simulateur de coalition ----- */
+function readHash() {
+  const m = location.hash.match(/#?(?:coalitions)?[?&]?c=([a-z,_]+)/);
+  if (m) m[1].split(",").forEach(id => { if (BY_ID[id]) state.sel.add(id); });
+}
+function writeHash() {
+  const ids = [...state.sel];
+  history.replaceState(null, "", ids.length ? `#c=${ids.join(",")}` : location.pathname + location.search);
+}
+function renderBuilder() {
+  const seats = model.seats;
+  // base de calcul
+  const labels = { official: "Résultats officiels", cec: "Calcul sur voix CEC", exit: "Sorties des urnes", polls: "Sondages" };
+  $("#srcPicker").innerHTML = ["official", "cec", "exit", "polls"].filter(k => model.sources[k]).map(k => `<button class="btn ${model.chosen === k ? "on" : ""}" data-src="${k}" aria-pressed="${model.chosen === k}">${labels[k]}</button>`).join("");
+  $("#presets").innerHTML = PRESETS.map((p, i) => `<button class="btn" data-preset="${i}">${esc(p.name)}</button>`).join("");
+
+  const groups = ["netanyahu", "eisenkot", "arab", "other"].map(k => {
+    const ps = PARTIES.filter(p => p.bloc === k && seats[p.id] > 0).sort((a, b) => (seats[b.id] || 0) - (seats[a.id] || 0));
+    const extra = k === "other" ? model.lists.filter(l => l.id.startsWith("x_") && (seats[l.id] || 0) > 0) : [];
+    const all = [...ps, ...extra];
+    if (!all.length) return "";
+    return `<div class="pick-group" style="--bc:${BLOCS[k].color}"><h4>${esc(BLOCS[k].name)}</h4><div class="chips">${all.map(p => `<button class="pchip" style="--pc:${p.color}" data-id="${p.id}" aria-pressed="${state.sel.has(p.id)}"><span class="box">✓</span><span class="t"><b>${esc(p.fr)}</b><span>${esc(p.leader || "")}</span></span><span class="s num">${seats[p.id] || 0}</span></button>`).join("")}</div></div>`;
+  }).join("");
+  $("#picker").innerHTML = groups;
+  renderCoalition();
+}
+
+function renderCoalition() {
+  const seats = model.seats;
+  const picked = [...state.sel].filter(id => seats[id] !== undefined || BY_ID[id]);
+  const total = sum(picked.map(id => seats[id] || 0));
+  $("#score").innerHTML = `${total}<small> / 120</small>`;
+  const maj = total >= 61;
+  $("#majBadge").innerHTML = picked.length === 0 ? `<span class="maj no">Choisis des partis pour commencer</span>` : maj ? `<span class="maj yes">✔ Majorité atteinte · +${total - 61} au-dessus du seuil</span>` : `<span class="maj no">Il manque ${61 - total} siège${61 - total > 1 ? "s" : ""}</span>`;
+  $("#coalMeter").innerHTML = `<i style="width:${Math.min(total / 120 * 100, 100)}%;background:${maj ? "var(--good)" : "var(--accent)"}"></i><u title="Majorité : 61"></u>`;
+  drawHemi($("#coalHemi"), seats, { selected: state.sel });
+
+  // suggestions : un ou deux partis qui comblent le manque
+  const ul = $("#suggest");
+  if (!picked.length || maj) { ul.innerHTML = maj ? `<li>Coalition de ${picked.length} partis : <b>${picked.map(id => esc(BY_ID[id]?.fr || id)).join(" + ")}</b>.</li>` : ""; }
+  else {
+    const rest = Object.keys(seats).filter(id => seats[id] > 0 && !state.sel.has(id));
+    const need = 61 - total, opts = [];
+    rest.forEach(a => { if (seats[a] >= need) opts.push([[a], seats[a]]); });
+    if (!opts.length) rest.forEach((a, i) => rest.slice(i + 1).forEach(b => { if (seats[a] + seats[b] >= need) opts.push([[a, b], seats[a] + seats[b]]); }));
+    opts.sort((x, y) => x[0].length - y[0].length || x[1] - y[1]);
+    const nm = id => esc((BY_ID[id] || model.lists.find(l => l.id === id) || { fr: id }).fr);
+    ul.innerHTML = opts.length ? `<li style="background:none;border:none;padding:0;font-weight:700">Pour atteindre 61, il suffit d’ajouter :</li>` + opts.slice(0, 4).map(([ids, s]) => `<li>${ids.map(nm).join(" + ")} <span style="color:var(--muted)">(+${s})</span><button data-add="${ids.join(",")}">Ajouter</button></li>`).join("") : `<li>Même avec les autres partis restants, la majorité reste hors de portée.</li>`;
+  }
+  $("#coalSrc").innerHTML = srcLine([{ label: model.active.label, url: model.active.key === "official" || model.active.key === "cec" ? CEC.national : "#sondages" }], `<span>${esc(model.active.chip)}</span>`);
+  document.querySelectorAll(".pchip").forEach(b => b.setAttribute("aria-pressed", state.sel.has(b.dataset.id)));
+}
+
+function renderPolls() {
+  const ids = PARTIES.filter(p => POLLS.some(x => x.seats[p.id])).sort((a, b) => pollAverage().frac[b.id] - pollAverage().frac[a.id]);
+  const avg = pollAverage();
+  const shade = (s, max) => `background:color-mix(in srgb,var(--accent) ${Math.round((s / max) * 34)}%,transparent)`;
+  const bloc = (poll, b) => sum(PARTIES.filter(p => p.bloc === b).map(p => poll.seats[p.id] || 0));
+  $("#pollTable").innerHTML = `<thead><tr><th>Liste</th>${POLLS.map(p => `<th class="c">${esc(p.name)}<br><span style="font-weight:500;text-transform:none;letter-spacing:0">${esc(p.date)}</span>${p.outlier ? '<span class="out-flag">écart marqué</span>' : ""}</th>`).join("")}<th class="c">Moyenne*</th></tr></thead>
+    <tbody>${ids.map(p => `<tr><td class="lst" style="min-width:210px"><span class="sw" style="background:${p.color};height:24px"></span><span class="nm">${esc(p.fr)}</span></td>${POLLS.map(x => `<td class="c num" style="${x.seats[p.id] ? shade(x.seats[p.id], 30) : "color:var(--muted)"}">${x.seats[p.id] ?? "—"}</td>`).join("")}<td class="c avg num">${avg.seats[p.id] || "—"}</td></tr>`).join("")}
+    ${["netanyahu", "eisenkot", "arab"].map(b => `<tr class="sumrow"><td>${esc(BLOCS[b].name)}</td>${POLLS.map(x => `<td class="c num">${bloc(x, b)}</td>`).join("")}<td class="c avg num">${sum(PARTIES.filter(p => p.bloc === b).map(p => avg.seats[p.id] || 0))}</td></tr>`).join("")}</tbody>`;
+  $("#pollSrc").innerHTML = srcLine(POLL_SOURCES, `<span>* moyenne des ${avg.n} instituts hors Chaîne 14, ramenée à 120 sièges. « — » : sous le seuil ou non testé.</span>`);
+}
+
+function renderFoot() {
+  const l = model.live;
+  const age = l.checked_at ? Math.max(0, Math.round((Date.now() - new Date(l.checked_at)) / 1000)) : null;
+  const stale = age != null && age > 600;
+  $("#footStatus").innerHTML = l.checked_at
+    ? `Dernier relevé du collecteur : <b>${hhmmss(new Date(l.checked_at))}</b> (il y a ${age < 90 ? age + " s" : Math.round(age / 60) + " min"}). ${stale ? '<span style="color:var(--warn)">Le collecteur semble en pause — vérifie directement sur le site de la CEC.</span>' : "Actualisation automatique toutes les 20 s."} <button class="btn" id="refresh" style="margin-left:6px">Actualiser</button>`
+    : `Données du collecteur indisponibles : la page affiche les derniers sondages. <button class="btn" id="refresh">Réessayer</button>`;
+}
+
+/* =====================================================================
+   Événements
+   ===================================================================== */
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button");
+  if (!t) return;
+  if (t.dataset.id) { state.sel.has(t.dataset.id) ? state.sel.delete(t.dataset.id) : state.sel.add(t.dataset.id); writeHash(); renderCoalition(); }
+  else if (t.dataset.preset) { state.sel = new Set(PRESETS[+t.dataset.preset].ids); writeHash(); renderCoalition(); }
+  else if (t.dataset.src) { state.seatSource = t.dataset.src; render(); }
+  else if (t.dataset.add) { t.dataset.add.split(",").forEach(id => state.sel.add(id)); writeHash(); renderCoalition(); }
+  else if (t.id === "resetCoal") { state.sel.clear(); writeHash(); renderCoalition(); }
+  else if (t.id === "shareCoal") { writeHash(); navigator.clipboard?.writeText(location.href).then(() => { t.textContent = "Lien copié ✔"; setTimeout(() => (t.textContent = "Copier le lien"), 1800); }, () => (t.textContent = "Copie impossible")); }
+  else if (t.id === "refresh") { refresh(); }
+  else if (t.id === "theme") { toggleTheme(); }
+});
+function toggleTheme() {
+  const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next; store.set("theme", next);
+}
+{ const th = store.get("theme"); if (th) document.documentElement.dataset.theme = th; }
+$("#theme").addEventListener("click", toggleTheme);
+$("#repoLink").href = `https://github.com/${REPO}`;
+
+// lien actif dans la navigation
+const secs = [...document.querySelectorAll("section.block")];
+const links = [...document.querySelectorAll(".nav a")];
+if ("IntersectionObserver" in window) {
+  const io = new IntersectionObserver((es) => es.forEach(en => { if (en.isIntersecting) links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id)); }), { rootMargin: "-40% 0px -55% 0px" });
+  secs.forEach(s => io.observe(s));
+}
+
+async function refresh() {
+  try { await loadLive(); } catch (e) { /* on garde l'état précédent */ }
+  render(); tickCountdown();
+}
+
+/* =====================================================================
+   Démarrage
+   ===================================================================== */
+readHash();
+state.live = state.live || {};
+render();
+tickCountdown();
+refresh();
+setInterval(tickCountdown, 1000);
+setInterval(() => { if (!document.hidden) refresh(); }, 20000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "final": false,
+  "note": "Fichier édité à la main (PR bienvenues). Tout le reste vient de la CEC. Les sièges des sondages sortie des urnes utilisent les identifiants de partis de index.html.",
+  "turnout": [
+    { "time": "10:00", "pct": 16.7, "prev2022": 15.9, "source": "CEC, relayé par NBC News", "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979" },
+    { "time": "12:00", "pct": 31.5, "prev2022": 28.4, "source": "CEC, relayé par NBC News", "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979" },
+    { "time": "14:00", "pct": 44.9, "prev2022": null, "source": "CEC, relayé par NBC News", "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979" }
+  ],
+  "exit_polls": []
+}

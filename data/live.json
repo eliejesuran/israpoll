@@ -1,0 +1,50 @@
+{
+ "cec_waiting": false,
+ "checked_at": "2026-10-27T15:26:06Z",
+ "digest": "3a11292d5f096e0a313dc5743ee710236b4ac59e",
+ "manual": {
+  "exit_polls": [],
+  "final": false,
+  "note": "Fichier édité à la main (PR bienvenues). Tout le reste vient de la CEC. Les sièges des sondages sortie des urnes utilisent les identifiants de partis de index.html.",
+  "turnout": [
+   {
+    "pct": 16.7,
+    "prev2022": 15.9,
+    "source": "CEC, relayé par NBC News",
+    "time": "10:00",
+    "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979"
+   },
+   {
+    "pct": 31.5,
+    "prev2022": 28.4,
+    "source": "CEC, relayé par NBC News",
+    "time": "12:00",
+    "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979"
+   },
+   {
+    "pct": 44.9,
+    "prev2022": null,
+    "source": "CEC, relayé par NBC News",
+    "time": "14:00",
+    "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979"
+   }
+  ]
+ },
+ "names": {},
+ "official_seats": null,
+ "schema": 1,
+ "source": {
+  "csv": "https://media26.bechirot.gov.il/files/expc.csv",
+  "fetch": {
+   "csv": "ok (0 communes)",
+   "html": "indisponible : réponse vide (HTTP 202, probablement le filtre anti-bot du site)"
+  },
+  "name": "Commission électorale centrale d'Israël (ועדת הבחירות המרכזית)",
+  "page": "https://votes26.bechirot.gov.il/nationalresults"
+ },
+ "stale": false,
+ "status": "waiting",
+ "totals": null,
+ "updated_at": "2026-10-27T15:26:06Z",
+ "votes": null
+}

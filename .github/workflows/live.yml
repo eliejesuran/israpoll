@@ -1,0 +1,33 @@
+name: live
+# Récupère les résultats officiels de la CEC et les publie sur la branche `data`.
+#  - cron : un passage toutes les ~5 minutes (GitHub peut retarder les crons)
+#  - workflow_dispatch : boucle rapide (toutes les 30 s) pendant la soirée électorale
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: "Durée de la boucle en secondes (max 21000)"
+        default: "20000"
+      interval:
+        description: "Secondes entre deux relevés"
+        default: "30"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: live
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - name: Relever les résultats
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: scripts/live.sh "${{ inputs.duration || 0 }}" "${{ inputs.interval || 30 }}"
