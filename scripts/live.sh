@@ -3,9 +3,11 @@
 # (le site la lit via l'API GitHub, ~1 min de latence, et raw.githubusercontent.com, 5 min de cache, en repli).
 #
 #   scripts/live.sh [durée_en_secondes=0] [intervalle=30]
+#   CSV_FILE=~/Downloads/expc.csv scripts/live.sh      # un passage avec le fichier téléchargé à la main sur le site de la CEC
 #
-# Sans argument : un seul passage. À lancer depuis une IP que la CEC ne filtre pas (les serveurs GitHub reçoivent un
-# défi anti-bot) ; nécessite `git push` vers le dépôt. Un seul collecteur à la fois par machine (verrou).
+# Sans argument : un seul passage. À lancer depuis une IP que la CEC ne filtre pas ; nécessite `git push` vers le dépôt.
+# La CEC protège ses fichiers par un défi anti-bot : on ne le contourne pas (voir fetch_cec.py). Un seul collecteur à
+# la fois par machine (verrou). Plusieurs machines peuvent publier : chacune adopte les chiffres plus avancés des autres.
 set -uo pipefail
 DURATION=${1:-0}
 INTERVAL=${2:-30}
@@ -25,12 +27,12 @@ trap 'exit 143' TERM INT HUP
 
 TO=""; command -v timeout >/dev/null 2>&1 && TO="timeout 150"        # absent sur macOS : on s'en passe
 PUSH_URL=$(git config --get remote.origin.url)
+SUPERVISED=0; [[ "$PWD" == */israpoll-collector/work/repo ]] && SUPERVISED=1   # clone géré par deploy/jetson/run.sh : se met à jour seul
 
-if git fetch -q origin data 2>/dev/null; then
-  git show FETCH_HEAD:live.json > "$WORK/prev.json" 2>/dev/null || echo '{}' > "$WORK/prev.json"
-else
-  echo '{}' > "$WORK/prev.json"
-fi
+sync_refs() {                                 # met à jour `main` (manual.json) et `data` (relevé des autres collecteurs)
+  git fetch -q origin +main:refs/remotes/origin/main +data:refs/remotes/origin/data 2>/dev/null
+}
+if sync_refs && git show origin/data:live.json > "$WORK/prev.json" 2>/dev/null; then :; else echo '{}' > "$WORK/prev.json"; fi
 
 push() {                                      # renvoie 0 si la branche `data` a bien été mise à jour
   local t; t=$(mktemp -d)
@@ -46,10 +48,22 @@ push() {                                      # renvoie 0 si la branche `data` a
 end=$(( $(date +%s) + DURATION )); n=0; last=""
 while :; do
   # data/manual.json (participation, sorties des urnes…) est lu sur `main` à chaque tour : on peut l'éditer en direct.
-  if git fetch -q origin main 2>/dev/null && git show FETCH_HEAD:data/manual.json > "$WORK/manual.json" 2>/dev/null; then :; else cp data/manual.json "$WORK/manual.json"; fi
-  skip=""; (( n % 6 != 0 )) && skip="--skip-html"
+  if sync_refs && git show origin/main:data/manual.json > "$WORK/manual.json" 2>/dev/null; then :; else cp data/manual.json "$WORK/manual.json"; fi
+  peer=(); if git show origin/data:live.json > "$WORK/peer.json" 2>/dev/null; then peer=(--peer "$WORK/peer.json"); fi
+
+  # Sur le clone supervisé : applique les corrections publiées sur `main` ; si ce script a changé, il se relance.
+  if (( SUPERVISED && n > 0 && n % 10 == 0 )); then
+    before=$(sha1sum scripts/live.sh | cut -d' ' -f1)
+    if git fetch -q --depth 1 origin main 2>/dev/null && git reset -q --hard FETCH_HEAD 2>/dev/null; then
+      after=$(sha1sum scripts/live.sh | cut -d' ' -f1)
+      if [[ "$before" != "$after" ]]; then rm -rf "$WORK" "$LOCK"; exec "$0" "$(( end - $(date +%s) ))" "$INTERVAL"; fi
+    fi
+  fi
+
+  skip=(); (( n % 6 != 0 )) && skip=(--skip-html)
+  csv=(); [[ -n "${CSV_FILE:-}" ]] && csv=(--csv-file "$CSV_FILE")
   rm -f "$WORK/live.json"
-  $TO python3 -I scripts/fetch_cec.py --out "$WORK/live.json" --manual "$WORK/manual.json" --prev "$WORK/prev.json" $skip || echo "relevé échoué" >&2
+  $TO python3 -I scripts/fetch_cec.py --out "$WORK/live.json" --manual "$WORK/manual.json" --prev "$WORK/prev.json" ${peer[@]+"${peer[@]}"} ${csv[@]+"${csv[@]}"} ${skip[@]+"${skip[@]}"} || echo "relevé échoué" >&2
   if [[ -s "$WORK/live.json" ]]; then
     d=$(python3 -I -c "import json,sys;print(json.load(open(sys.argv[1])).get('digest',''))" "$WORK/live.json" 2>/dev/null || echo "")
     if [[ -n "$d" ]]; then

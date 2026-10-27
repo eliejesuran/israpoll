@@ -51,6 +51,13 @@ python3 -m http.server 8765      # puis http://localhost:8765
 - `python3 scripts/fetch_cec.py --out data/live.json --manual data/manual.json` : un relevé à la main.
 - `scripts/live.sh 20000 30` : boucle de collecte qui publie sur la branche `data` (nécessite les droits de push).
 
+## Si la CEC bloque les lectures automatiques
+
+Le soir du scrutin la CEC a protégé ses fichiers par un défi anti-bot (AWS WAF : HTTP 202, `x-amzn-waf-action: challenge`). **Le projet ne le contourne pas** : le collecteur s'identifie honnêtement, cesse d'insister (pause de 45 s doublée jusqu'à 10 min), publie `challenge: true` et la page l'affiche clairement. Deux replis légitimes :
+
+- **Import humain** : télécharger le fichier « תוצאות לפי יישובים » depuis [le site de la CEC](https://votes26.bechirot.gov.il/nationalresults) dans un navigateur, puis `CSV_FILE=~/Downloads/expc.csv scripts/live.sh` (un passage ; les autres collecteurs adoptent ces chiffres s'ils sont plus avancés).
+- **Plusieurs collecteurs** : chacun adopte les chiffres plus avancés des autres (`--peer`).
+
 ## Déployer
 
 1. Fork, puis *Settings → Pages → Deploy from a branch → `main` / root*.

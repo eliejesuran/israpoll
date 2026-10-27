@@ -347,5 +347,104 @@ class ManualFile(unittest.TestCase):
             self.assertEqual(sum(e["seats"].values()), 120, e["channel"])
 
 
+import http.server
+import json
+import tempfile
+import threading
+import urllib.request
+from unittest import mock
+
+
+class _Challenge(http.server.BaseHTTPRequestHandler):
+    hits = 0
+
+    def do_GET(self):
+        type(self).hits += 1
+        self.send_response(202)
+        self.send_header("x-amzn-waf-action", "challenge")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    def log_message(self, *a):
+        pass
+
+
+class AntiBot(unittest.TestCase):
+    def test_challenge_is_not_retried(self):
+        srv = http.server.HTTPServer(("127.0.0.1", 0), _Challenge)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        _Challenge.hits = 0
+        try:
+            with self.assertRaises(fetch_cec.Blocked):
+                fetch_cec.get(f"http://127.0.0.1:{srv.server_port}/x.csv", 3, ok=lambda u: True, opener=urllib.request.build_opener())
+        finally:
+            srv.shutdown()
+        self.assertEqual(_Challenge.hits, 1)          # une seule requête : on n'insiste pas
+
+    def run_main(self, tmp, *args, env=None, now=None):
+        out = os.path.join(tmp, "out.json")
+        argv = ["fetch_cec.py", "--out", out, "--skip-html", *args]
+        with mock.patch.object(sys, "argv", argv), mock.patch.dict(os.environ, env or {"COLLECTOR_ID": "jetson"}), \
+             mock.patch.object(fetch_cec.time, "time", return_value=now or 1_000_000.0):
+            fetch_cec.main()
+        with open(out, encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_backoff_grows_and_pauses_requests(self):
+        calls = []
+
+        def blocked(*a, **k):
+            calls.append(1)
+            raise fetch_cec.Blocked("défi")
+
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(fetch_cec, "get", blocked):
+            prev = os.path.join(tmp, "prev.json")
+            first = self.run_main(tmp, now=1_000_000.0)
+            self.assertTrue(first["challenge"])
+            self.assertEqual(first["blocked"], {"strikes": 1, "until": 1_000_045.0})
+            self.assertEqual(first["status"], "waiting")
+            json.dump(first, open(prev, "w"))
+            # pendant la pause : aucune requête
+            paused = self.run_main(tmp, "--prev", prev, now=1_000_020.0)
+            self.assertEqual(len(calls), 1)
+            self.assertTrue(paused["challenge"])
+            self.assertIn("pause anti-bot", paused["source"]["fetch"]["csv"])
+            # la pause terminée : un nouvel essai, pause doublée
+            json.dump(paused, open(prev, "w"))
+            again = self.run_main(tmp, "--prev", prev, now=1_000_100.0)
+            self.assertEqual(len(calls), 2)
+            self.assertEqual(again["blocked"], {"strikes": 2, "until": 1_000_190.0})
+
+    def test_local_csv_file_overrides_and_clears_the_block(self):
+        csv_text = "סמל ועדה,שם ישוב,סמל ישוב,בזב,מצביעים,פסולים,כשרים,מחל,רק,\n1,א,1,1000,700,0,700,400,300,\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            f = os.path.join(tmp, "expc.csv")
+            open(f, "w", encoding="utf-8").write(csv_text)
+            prev = os.path.join(tmp, "prev.json")
+            json.dump({"blocked": {"strikes": 4, "until": 9e12}, "challenge": True}, open(prev, "w"))
+            out = self.run_main(tmp, "--prev", prev, "--csv-file", f)
+        self.assertEqual(out["status"], "counting")
+        self.assertEqual(out["votes"], {"מחל": 400, "רק": 300})
+        self.assertFalse(out["challenge"])
+        self.assertIsNone(out["blocked"])
+
+    def test_peer_with_more_votes_is_adopted_only_when_we_read_nothing(self):
+        peer = {"collector": "local", "votes": {"מחל": 400, "רק": 300}, "totals": {"eligible": 2000, "voters": 750, "invalid": 0, "valid": 700}}
+
+        def blocked(*a, **k):
+            raise fetch_cec.Blocked("défi")
+
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(fetch_cec, "get", blocked):
+            p = os.path.join(tmp, "peer.json")
+            json.dump(peer, open(p, "w"))
+            out = self.run_main(tmp, "--peer", p)
+            self.assertEqual(out["status"], "counting")
+            self.assertEqual(out["totals"]["valid"], 700)
+            self.assertIn("adopté", out["source"]["fetch"]["peer"])
+            # son propre relevé n'est jamais « adopté »
+            mine = self.run_main(tmp, "--peer", p, env={"COLLECTOR_ID": "local"})
+            self.assertEqual(mine["status"], "waiting")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -553,6 +553,7 @@ function sanitizeLive(raw) {
   live.official_seats = Object.keys(seats).length && sum(Object.values(seats)) === 120 && live.votes ? seats : null;
   live.names = Object.fromEntries(Object.entries(obj(raw.names)).map(([k, v]) => [String(k), String(v)]));
   live.stale = raw.stale === true;
+  live.challenge = raw.challenge === true;                       // la CEC refuse les lectures automatiques (défi anti-bot)
   const m = obj(raw.manual);
   live.manual = {
     final: m.final === true,
@@ -766,7 +767,7 @@ function renderStatus() {
   const demo = state.demo ? ` <span class="src-chip nonoff">DÉMO · chiffres simulés</span>` : "";
   const map = {
     voting: ["wait", "Bureaux de vote ouverts", `fermeture dans <b class="num" id="cd">—</b>`],
-    closed: ["wait", "Bureaux fermés", "dépouillement en attente — les premiers chiffres officiels arrivent"],
+    closed: ["wait", "Bureaux fermés", model.live.challenge ? "résultats officiels non lisibles automatiquement (défi anti-bot de la CEC)" : "dépouillement en attente — les premiers chiffres officiels arrivent"],
     counting: ["", "Dépouillement en cours", "résultats partiels de la CEC, susceptibles d’évoluer"],
     final: ["", "Résultats publiés", "chiffres définitifs de la CEC"],
   };
@@ -798,8 +799,8 @@ function tickLive() {
   else if (state.ok === false) main = `⚠ <b>Connexion impossible</b> · nouvel essai dans ${next} s`;
   else if (state.lastTry) main = `<span class="spin idle" aria-hidden="true">↻</span>Page actualisée à <b>${hhmmss(new Date(state.lastTry))}</b> · prochaine dans <b class="num">${next} s</b>`;
   else main = "Chargement…";
-  const data = state.demo ? "Données simulées" : age == null ? "Collecteur CEC : aucune donnée reçue" : `Collecteur CEC : dernier relevé il y a <b>${ago(age)}</b>${late ? " — en retard" : ""}`;
-  el.className = "livechip" + (late || state.ok === false ? " warn" : "");
+  const data = state.demo ? "Données simulées" : age == null ? "Collecteur CEC : aucune donnée reçue" : `Collecteur CEC : dernier relevé il y a <b>${ago(age)}</b>${late ? " — en retard" : ""}${(state.live || {}).challenge ? " · accès CEC bloqué (anti-bot)" : ""}`;
+  el.className = "livechip" + (late || state.ok === false || (state.live || {}).challenge ? " warn" : "");
   el.innerHTML = `<span class="l1">${main}</span><span class="l2">${data}</span>`;
 }
 function tick() { tickCountdown(); tickLive(); }
@@ -830,7 +831,7 @@ function renderHero() {
   const cec = model.sources.cec;
   const stats = [];
   stats.push(`<div class="stat"><div class="k">Participation</div><div class="v num">${last ? String(last.pct).replace(".", ",") + " %" : "—"}</div><div class="s">${last ? `à ${esc(last.time)} · CEC` : "en attente du premier relevé"}</div></div>`);
-  stats.push(`<div class="stat"><div class="k">Dépouillement</div><div class="v num">${cec ? "≈ " + Math.round(cec.share * 100) + " %" : "0 %"}</div><div class="s">${tot ? fmt(tot.valid) + " bulletins valides" : "aucun bulletin compté"}</div></div>`);
+  stats.push(`<div class="stat"><div class="k">Dépouillement</div><div class="v num">${cec ? "≈ " + Math.round(cec.share * 100) + " %" : "0 %"}</div><div class="s">${tot ? fmt(tot.valid) + " bulletins valides" : model.live.challenge ? "lecture automatique bloquée par la CEC" : "aucun bulletin compté"}</div></div>`);
   const lead = top[0];
   stats.push(`<div class="stat wide"><div class="k">${a.key === "official" || a.key === "cec" ? "En tête" : "En tête (hors résultat)"}</div><div class="v">${lead ? esc(lead.fr) + ` <span class="num" style="color:var(--muted)">· ${seats[lead.id]}</span>` : "—"}</div><div class="s">${esc(a.label)}</div></div>`);
   $("#heroStats").innerHTML = stats.join("");
@@ -849,7 +850,9 @@ function renderResults() {
   const ph = phase(), live = model.live, tot = model.totals;
   // bandeau
   let notice = "";
-  if (!tot) {
+  if (!tot && live.challenge) {
+    notice = `<div class="notice bad"><b>Résultats officiels illisibles automatiquement.</b> Depuis la fermeture des bureaux, la CEC protège ses fichiers par un défi anti-bot : notre collecteur s’identifie honnêtement et ne cherche pas à le contourner. Pour les chiffres officiels, consulte <a href="${CEC.national}" rel="noopener" target="_blank">le site de la CEC</a>. En attendant, les sorties des urnes (estimations des chaînes de télévision, <i>non officielles</i>) donnent l’état du scrutin.</div>`;
+  } else if (!tot) {
     notice = `<div class="notice warn"><b>Aucun résultat officiel publié pour l’instant.</b> Le site de la CEC affiche « <span class="he" dir="rtl">ממתינים לספירת הקולות</span> » (en attente du décompte). Ce tableau se remplira tout seul, sans recharger la page.</div>`;
   } else if (live.status !== "final") {
     const c = model.sources.cec;
@@ -857,6 +860,7 @@ function renderResults() {
   } else {
     notice = `<div class="notice"><b>Résultats publiés par la CEC.</b> Les chiffres définitifs sont proclamés au journal officiel d’ici le ${FINAL_BY}.</div>`;
   }
+  if (live.challenge && tot) notice += `<div class="notice warn" style="margin-top:10px">La CEC bloque actuellement les lectures automatiques : ces chiffres sont le <b>dernier relevé obtenu</b> et peuvent être en retard sur <a href="${CEC.national}" rel="noopener" target="_blank">le site officiel</a>.</div>`;
   if (live.stale) notice += `<div class="notice warn" style="margin-top:10px">Le collecteur n’a pas pu joindre la CEC au dernier relevé : ces chiffres datent de ${esc(live.updated_at || "?")}.</div>`;
   const hand = tot && live.source && live.source.manual_cec;
   if (hand) notice += `<div class="notice warn" style="margin-top:10px"><b>Totaux recopiés à la main.</b> Le site de la CEC bloque les lectures automatiques : ces chiffres sont recopiés depuis son tableau national${hand.as_of ? ` (relevé de ${esc(hand.as_of)}, heure d’Israël)` : ""} et ne changent qu’à chaque saisie. <a href="${CEC.national}" rel="noopener">Vérifier sur le site de la CEC</a>.</div>`;

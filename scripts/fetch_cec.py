@@ -12,8 +12,14 @@ Sources, par ordre de priorité (même structure qu'en 2022, vérifiée sur les 
 Robustesse : un relevé incohérent (fichier tronqué, page d'erreur, total qui s'effondre) ou une panne réseau
 ne remplace jamais les derniers bons chiffres ; ils sont conservés et signalés `stale` après 3 échecs de suite.
 
+Défi anti-bot : le soir du scrutin la CEC a protégé ses fichiers (AWS WAF, HTTP 202 + `x-amzn-waf-action: challenge`).
+On ne le contourne pas : le collecteur s'identifie honnêtement, cesse d'insister (pause croissante de 45 s à 10 min) et
+signale `challenge: true`. Repli légitime : un humain télécharge le fichier depuis le site de la CEC (--csv-file), ou un
+autre collecteur publie des chiffres plus récents (--peer).
+
 Usage :
-  fetch_cec.py --out live.json [--manual manual.json] [--prev live.json]
+  fetch_cec.py --out live.json [--manual manual.json] [--prev live.json] [--peer autre_live.json]
+  fetch_cec.py --csv-file expc.csv ...                 # fichier téléchargé à la main depuis le site de la CEC
   fetch_cec.py --csv-url URL --html-url URL ...        # pour tester sur un autre scrutin
 """
 import argparse
@@ -63,6 +69,10 @@ def allowed_turnout(url):
     return (urlparse(url).hostname or "") in TURNOUT_HOSTS
 
 
+class Blocked(ValueError):
+    """Le site répond par un défi anti-bot (JavaScript) : inutile de réessayer tout de suite."""
+
+
 class _SameSiteOnly(urllib.request.HTTPRedirectHandler):
     def __init__(self, ok):
         self.ok = ok
@@ -93,7 +103,11 @@ def get(url, timeout, tries=3, ok=allowed, opener=_opener):
                 body = raw.decode("utf-8-sig", errors="replace")
                 if r.status == 200 and body.strip():
                     return body
-                last = ValueError(f"réponse vide (HTTP {r.status}, probablement le filtre anti-bot du site)")
+                if r.status == 202 and (r.headers.get("x-amzn-waf-action") == "challenge" or not body.strip()):
+                    raise Blocked("défi anti-bot de la CEC (HTTP 202) : accès automatique refusé")
+                last = ValueError(f"réponse vide (HTTP {r.status})")
+        except Blocked:
+            raise
         except (urllib.error.URLError, OSError, ValueError) as e:
             last = e
         if i < tries - 1:
@@ -427,6 +441,8 @@ def main():
     ap.add_argument("--csv-url", default=CSV_URL)
     ap.add_argument("--html-url", default=HTML_URL)
     ap.add_argument("--turnout-url", default=TURNOUT_URL)
+    ap.add_argument("--csv-file", help="fichier expc.csv téléchargé à la main sur le site de la CEC (remplace la lecture réseau)")
+    ap.add_argument("--peer", help="live.json publié par un autre collecteur : adopté s'il a des chiffres plus avancés que les nôtres")
     ap.add_argument("--timeout", type=int, default=20)
     ap.add_argument("--skip-html", action="store_true", help="ne lit que le CSV (reprend les sièges et la participation du --prev)")
     a = ap.parse_args()
@@ -438,21 +454,59 @@ def main():
         manual = prev.get("manual") or {}
         log["manual"] = "illisible : dernière version valide conservée" if a.manual else "absent"
 
-    csv_res = html_res = None
-    try:
-        votes, totals, rows = parse_csv(get(a.csv_url, a.timeout))
-        csv_res = {"votes": votes, "totals": totals, "rows": rows}
-        log["csv"] = f"ok ({rows} communes)"
-    except (urllib.error.URLError, ValueError, OSError) as e:
-        log["csv"] = f"indisponible : {e}"
+    me = os.environ.get("COLLECTOR_ID", "local")
+    now = time.time()
+    blk = prev.get("blocked") or {}
+    strikes, until = int(blk.get("strikes", 0)), float(blk.get("until", 0))
+    challenge = False
 
-    if a.skip_html:
-        log["html"] = "non relu (cycle rapide)"
+    csv_res = html_res = None
+    paused = not a.csv_file and until > now
+    if a.csv_file:
+        try:
+            with open(a.csv_file, encoding="utf-8-sig") as f:
+                votes, totals, rows = parse_csv(f.read())
+            csv_res = {"votes": votes, "totals": totals, "rows": rows}
+            log["csv"] = f"fichier local téléchargé sur le site de la CEC ({rows} communes)"
+            strikes, until = 0, 0
+        except (OSError, ValueError) as e:
+            log["csv"] = f"fichier local illisible : {e}"
+    elif paused:
+        challenge = True
+        log["csv"] = f"pause anti-bot jusqu'à {datetime.fromtimestamp(until, timezone.utc).strftime('%H:%M:%SZ')} (tentative {strikes})"
+    else:
+        try:
+            votes, totals, rows = parse_csv(get(a.csv_url, a.timeout))
+            csv_res = {"votes": votes, "totals": totals, "rows": rows}
+            log["csv"] = f"ok ({rows} communes)"
+            strikes, until = 0, 0
+        except Blocked as e:
+            strikes += 1
+            until = now + min(600, 45 * 2 ** (strikes - 1))
+            challenge = True
+            log["csv"] = f"indisponible : {e}"
+        except (urllib.error.URLError, ValueError, OSError) as e:
+            log["csv"] = f"indisponible : {e}"
+
+    # Un autre collecteur (ou un import manuel) a-t-il des chiffres plus avancés que les nôtres ? Seulement si nous n'avons rien lu.
+    peer = load_json(a.peer)
+    if csv_res is None and peer and peer.get("collector") != me and isinstance(peer.get("votes"), dict) and isinstance(peer.get("totals"), dict):
+        pv = (prev.get("totals") or {}).get("valid", 0)
+        if peer["totals"].get("valid", 0) > pv and sane(peer["votes"], peer["totals"], prev.get("totals"))[0]:
+            prev = {**prev, "votes": peer["votes"], "totals": peer["totals"], "names": peer.get("names") or prev.get("names"),
+                    "official_seats": peer.get("official_seats"), "fails": 0}
+            log["peer"] = f"relevé de « {peer.get('collector')} » adopté ({peer['totals']['valid']} bulletins valides)"
+
+    if a.skip_html or paused or challenge or a.csv_file:
+        log["html"] = "non relu (cycle rapide)" if a.skip_html else "non relu (accès bloqué ou fichier local)"
     else:
         try:
             h_votes, h_totals, names, seats, waiting = parse_html(get(a.html_url, a.timeout), set(csv_res["votes"]) if csv_res else None)
             html_res = {"votes": h_votes, "totals": h_totals, "names": names, "seats": seats, "waiting": waiting}
             log["html"] = "ok (en attente du dépouillement)" if waiting and not h_votes else "ok"
+        except Blocked as e:
+            challenge = True
+            log["html"] = f"indisponible : {e}"
         except (urllib.error.URLError, ValueError, OSError) as e:
             log["html"] = f"indisponible : {e}"
 
@@ -470,19 +524,21 @@ def main():
     manual = {**manual, "turnout": merge_turnout(manual.get("turnout"), list(auto.values()))}
 
     body = build(prev, manual, csv_res, html_res, log)
-    stable = {k: v for k, v in body.items() if k not in ("fails", "source")}   # ce qui compte pour « les données ont changé »
+    body["challenge"] = challenge
+    body["blocked"] = {"strikes": strikes, "until": until} if strikes else None
+    stable = {k: v for k, v in body.items() if k not in ("fails", "source", "blocked")}   # ce qui compte pour « les données ont changé »
     digest = hashlib.sha1(json.dumps(stable, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     body["digest"] = digest
     body["updated_at"] = prev.get("updated_at") if prev.get("digest") == digest and prev.get("updated_at") else now_iso()
     body["checked_at"] = now_iso()
-    body["collector"] = os.environ.get("COLLECTOR_ID", "local")     # étiquette neutre : d'où vient ce relevé
+    body["collector"] = me                  # étiquette neutre : d'où vient ce relevé
 
     tmp = a.out + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(body, f, ensure_ascii=False, indent=1, sort_keys=True)
         f.write("\n")
     os.replace(tmp, a.out)                  # écriture atomique : un lecteur ne voit jamais un fichier à moitié écrit
-    print(f"[{body['checked_at']}] statut={body['status']}{' STALE' if body['stale'] else ''} csv={log.get('csv')} html={log.get('html')} participation={log.get('turnout')}", file=sys.stderr)
+    print(f"[{body['checked_at']}] statut={body['status']}{' STALE' if body['stale'] else ''} csv={log.get('csv')} html={log.get('html')} participation={log.get('turnout')}{' | ' + log['peer'] if 'peer' in log else ''}", file=sys.stderr)
 
 
 if __name__ == "__main__":
