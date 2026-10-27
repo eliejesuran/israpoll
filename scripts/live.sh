@@ -24,6 +24,7 @@ push() {
     && git -c user.name=israpoll-bot -c user.email=israpoll-bot@users.noreply.github.com commit -qm "live $(date -u +%FT%TZ)" \
     && git push -q -f "$PUSH_URL" data ) || echo "push échoué" >&2
   # raw.githubusercontent.com garde 5 min en cache ; jsDelivr se rafraîchit en quelques secondes une fois purgé.
+  sleep 3   # laisse GitHub exposer le nouveau commit avant de purger
   curl -s -m 10 -o /dev/null "https://purge.jsdelivr.net/gh/${SLUG}@data/live.json" || true
 }
 
