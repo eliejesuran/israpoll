@@ -14,10 +14,10 @@ Une page web unique (HTML + un peu de JS, **sans build ni dépendance**) qui aff
 CEC (media26.bechirot.gov.il/files/expc.csv)
         │  toutes les 30 s  (scripts/live.sh → scripts/fetch_cec.py, sur une machine non filtrée)
         ▼
-branche `data` : live.json ──(jsDelivr, purgé à chaque relevé)──►  index.html (GitHub Pages) ── recalcule les sièges (js/seats.js)
+branche `data` : live.json ──(API GitHub ~1 min · raw 5 min)──►  index.html (GitHub Pages) ── recalcule les sièges (js/seats.js)
 ```
 
-- Le site de la CEC n'envoie pas d'en-tête CORS : un navigateur ne peut pas le lire directement. Le collecteur le relaie vers une branche `data` (`raw.githubusercontent.com` autorise le CORS mais garde 5 min en cache : la page lit donc le fichier via [jsDelivr](https://www.jsdelivr.com/), que le collecteur purge après chaque publication — environ 5 s de latence ; `raw` et `data/live.json` servent de repli).
+- Le site de la CEC n'envoie pas d'en-tête CORS : un navigateur ne peut pas le lire directement. Le collecteur le relaie vers une branche `data` (l'API GitHub et `raw.githubusercontent.com` autorisent le CORS). La page lit les deux et garde la plus récente : l'API GitHub répond en ~1 min mais est limitée à 60 requêtes/h/IP (la page s'en détache avant d'être bloquée) ; `raw` garde 5 min en cache. Pour du vrai temps réel, il faudrait un petit relais sans cache (Cloudflare Worker).
 - **GitHub Actions ne convient pas** : depuis les serveurs de GitHub, la CEC répond par un défi anti-bot (HTTP 202 à corps vide). Le collecteur doit donc tourner depuis une IP non filtrée (un ordinateur personnel, un petit VPS).
 - Les **voix** sont la somme du fichier officiel par localité. Vérifié sur 2022 : le total reproduit exactement les résultats nationaux publiés par la CEC.
 - Les **sièges** : si la CEC les affiche, on les reprend ; sinon ils sont **estimés** (seuil 3,25 % + quotient + méthode Bader-Ofer + accords de surplus) et marqués « est. ». Le calcul reproduit exactement les 120 sièges de 2022 (`tests/seats.test.mjs`).

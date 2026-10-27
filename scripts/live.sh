@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Boucle de collecte : résultats CEC -> live.json, publié sur la branche orpheline `data`
-# (le site la lit via jsDelivr, purgé après chaque publication ; raw.githubusercontent.com sert de repli).
+# (le site la lit via l'API GitHub, ~1 min de latence, et raw.githubusercontent.com, 5 min de cache, en repli).
 #
 #   scripts/live.sh [durée_en_secondes=0] [intervalle=30]
 #
@@ -9,7 +9,7 @@
 set -uo pipefail
 DURATION=${1:-0}
 INTERVAL=${2:-30}
-HEARTBEAT=4            # republie au moins tous les 4 tours (~2 min) pour que « dernier relevé » reste frais
+HEARTBEAT=4            # republie au moins tous les 4 tours (~2 min) même sans changement : le site en déduit que le collecteur est vivant
 cd "$(dirname "$0")/.."
 
 LOCK="${TMPDIR:-/tmp}/israpoll-live.lock"
@@ -25,7 +25,6 @@ trap 'exit 143' TERM INT HUP
 
 TO=""; command -v timeout >/dev/null 2>&1 && TO="timeout 150"        # absent sur macOS : on s'en passe
 PUSH_URL=$(git config --get remote.origin.url)
-SLUG=$(echo "$PUSH_URL" | sed -E 's#^(git@github.com:|https://github.com/|ssh://git@ssh.github.com:443/)##; s#\.git$##')
 
 if git fetch -q origin data 2>/dev/null; then
   git show FETCH_HEAD:live.json > "$WORK/prev.json" 2>/dev/null || echo '{}' > "$WORK/prev.json"
@@ -39,11 +38,7 @@ push() {                                      # renvoie 0 si la branche `data` a
   if ( cd "$t" && git init -q -b data && git add live.json \
        && git -c user.name=israpoll-bot -c user.email=israpoll-bot@users.noreply.github.com commit -qm "live $(date -u +%FT%TZ)" \
        && git push -q -f "$PUSH_URL" data ); then
-    rm -rf "$t"
-    # raw.githubusercontent.com garde 5 min en cache ; jsDelivr se rafraîchit en quelques secondes une fois purgé.
-    sleep 3   # laisse GitHub exposer le nouveau commit avant de purger
-    curl -s -m 10 -o /dev/null "https://purge.jsdelivr.net/gh/${SLUG}@data/live.json" || true
-    return 0
+    rm -rf "$t"; return 0
   fi
   rm -rf "$t"; echo "push échoué" >&2; return 1
 }

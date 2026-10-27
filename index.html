@@ -62,7 +62,7 @@ a:hover{text-decoration-thickness:2px}
 .pill.wait .dot{background:var(--warn);color:var(--warn)}
 .pill.demo .dot{background:var(--bad);color:var(--bad)}
 @keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,currentColor 55%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
-@media (prefers-reduced-motion: reduce){.dot{animation:none}html{scroll-behavior:auto}}
+@media (prefers-reduced-motion: reduce){.dot{animation:none}.spin{animation-duration:2.4s}html{scroll-behavior:auto}}
 h1{font:800 clamp(34px,6.2vw,66px)/1.02 var(--font-display);letter-spacing:-.03em;margin:16px 0 10px}
 h1 .grad{background:linear-gradient(95deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .lead{max-width:680px;color:var(--muted);font-size:clamp(16px,2vw,19px);margin:0}
@@ -86,13 +86,33 @@ h1 .grad{background:linear-gradient(95deg,var(--accent),var(--accent2));-webkit-
 .stat .v{font:800 clamp(26px,3.4vw,38px)/1.1 var(--font-display);letter-spacing:-.02em;margin-top:2px}
 .stat .s{font-size:13px;color:var(--muted)}
 .stat.wide{grid-column:1/-1}
-.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-@media (max-width:700px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.step{padding:12px 13px;border-radius:16px;border:1px solid var(--line);background:var(--card2);font-size:13.5px;color:var(--muted)}
-.step b{display:block;color:var(--text);font-size:14.5px}
-.step.done{opacity:.72}
-.step.now{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--card));color:var(--text)}
-.step.now b::before{content:"● ";color:var(--accent)}
+/* frise : horizontale dès 701 px, verticale sur mobile */
+.timeline{list-style:none;margin:26px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.timeline li{position:relative;padding:36px 16px 0 0;font-size:13.5px;color:var(--muted)}
+.timeline li::before{content:"";position:absolute;top:11px;left:13px;right:-13px;height:3px;border-radius:3px;background:var(--line)}
+.timeline li:last-child::before{display:none}
+.timeline li.done::before{background:var(--accent)}
+.timeline .mk{position:absolute;top:0;left:0;z-index:1;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--bg);border:3px solid var(--line);font-size:12px;font-weight:800;color:var(--muted)}
+.timeline li.done .mk{background:var(--accent);border-color:var(--accent);color:#fff}
+.timeline li.now .mk{border-color:var(--accent);color:var(--accent);background:var(--card);box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 22%,transparent)}
+.timeline li.now{color:var(--text)}
+.timeline b{display:block;color:var(--text);font-size:15px;margin-bottom:2px}
+@media (max-width:700px){
+  .timeline{grid-template-columns:minmax(0,1fr)}
+  .timeline li{padding:0 0 20px 42px;min-height:48px}
+  .timeline li::before{top:26px;bottom:-2px;left:11px;right:auto;width:3px;height:auto}
+}
+/* pastille « page actualisée » */
+.statusrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.livechip{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;flex-direction:column;gap:1px;padding:6px 14px;border-radius:16px;border:1px solid var(--line);background:var(--card);font-size:12.5px;color:var(--muted);line-height:1.35}
+.livechip:hover{border-color:var(--accent)}
+.livechip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.livechip b{color:var(--text)}
+.livechip.warn{border-color:color-mix(in srgb,var(--warn) 55%,var(--line))}
+.livechip.warn .l2{color:var(--warn)}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:rot .8s linear infinite;vertical-align:-2px;margin-right:6px}
+.spin.idle{border:none;width:auto;height:auto;animation:none;color:var(--accent);font-weight:800;margin-right:4px;vertical-align:baseline}
+@keyframes rot{to{transform:rotate(360deg)}}
 
 /* ---------- sections ---------- */
 section.block{padding:54px 0 6px}
@@ -273,8 +293,9 @@ details summary{cursor:pointer;font-weight:600}
     <h1 id="h1">Élections israéliennes&nbsp;: <span class="grad">la 26<sup style="font-size:.5em">e</sup> Knesset</span>, en direct.</h1>
     <p class="lead">Les chiffres <b>officiels</b> de la Commission électorale centrale, les blocs qui s’en dégagent, et un simulateur pour construire <em>ta</em> coalition. Chaque chiffre est sourcé.</p>
 
+    <ol class="timeline" id="steps" aria-label="Déroulé de la soirée électorale"></ol>
     <div id="appError"></div>
-    <div class="hero-grid">
+    <div class="hero-grid" style="margin-top:28px">
       <div class="stack">
       <div class="card hemi-card" aria-live="polite">
         <div class="hemi-cap"><div><div class="eyebrow">Les 120 sièges</div><div class="hemi-center" id="heroTitle">—</div></div><div id="heroSrc"></div></div>
@@ -285,7 +306,6 @@ details summary{cursor:pointer;font-weight:600}
       </div>
       <div class="stack">
         <div class="stats" id="heroStats"></div>
-        <ol class="steps" id="steps"></ol>
       </div>
     </div>
   </section>
@@ -387,11 +407,13 @@ details summary{cursor:pointer;font-weight:600}
    Configuration
    ===================================================================== */
 const REPO = "eliejesuran/israpoll";
-// jsDelivr (purgé à chaque relevé, ~5 s) en priorité ; raw.githubusercontent.com garde 5 min en cache ; data/live.json = repli statique.
-const LIVE_URLS = [
-  { url: `https://cdn.jsdelivr.net/gh/${REPO}@data/live.json`, bust: false },
+// Trois sources, la plus récente l'emporte. L'API GitHub est la plus fraîche (~1 min) mais limitée à 60 requêtes/h/IP ;
+// raw.githubusercontent.com garde 5 min en cache ; data/live.json (version statique du site) sert de dernier recours.
+const REFRESH_MS = 20000;
+const LIVE_SOURCES = [
+  { url: `https://api.github.com/repos/${REPO}/contents/live.json?ref=data`, headers: { Accept: "application/vnd.github.raw+json" }, api: true },
   { url: `https://raw.githubusercontent.com/${REPO}/data/live.json`, bust: true },
-  { url: "data/live.json", bust: true },
+  { url: "data/live.json", bust: true, fallback: true },
 ];
 const POLLS_CLOSE = new Date("2026-10-27T20:00:00Z");         // 22:00 à Jérusalem (UTC+2)
 const FINAL_BY = "4 novembre 2026";
@@ -487,6 +509,8 @@ const srcLine = (links, extra = "") =>
 const state = {
   live: null,            // JSON du collecteur (CEC)
   liveAt: 0,             // date du dernier chargement réussi
+  apiPausedUntil: 0,     // quota de l'API GitHub presque épuisé : on l'ignore jusque-là
+  loading: false, ok: null, lastTry: 0, nextAt: 0,   // pour la pastille « page actualisée »
   demo: new URLSearchParams(location.search).get("demo"),
   seatSource: null,      // choix manuel de la base de calcul du simulateur
   sel: new Set(),
@@ -496,14 +520,21 @@ let model = null;        // données dérivées
 /* =====================================================================
    Chargement des données
    ===================================================================== */
-async function fetchJson({ url, bust }) {
+async function fetchJson(src, force) {
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), 8000);            // une requête qui pend ne doit pas bloquer les suivantes
   try {
-    const r = await fetch(bust ? `${url}?t=${Date.now()}` : url, { cache: "no-store", signal: ctl.signal });
+    // API : cache HTTP du navigateur (60 s, revalidation gratuite par ETag) ; « Actualiser » force la revalidation.
+    const r = await fetch(src.bust ? `${src.url}?t=${Date.now()}` : src.url, { cache: src.api ? (force ? "no-cache" : "default") : "no-store", headers: src.headers, signal: ctl.signal });
+    if (src.api) noteRateLimit(r);
     if (!r.ok) throw new Error(r.status);
     return await r.json();
   } finally { clearTimeout(timer); }
+}
+function noteRateLimit(r) {
+  const h = r.headers.get("x-ratelimit-remaining"), reset = Number(r.headers.get("x-ratelimit-reset"));
+  const left = h === null ? NaN : Number(h);
+  if (r.status === 403 || r.status === 429 || (Number.isFinite(left) && left <= 5)) state.apiPausedUntil = reset > 0 ? reset * 1000 : Date.now() + 10 * 60000;
 }
 
 // Le JSON vient d'un collecteur (et data/manual.json se modifie par PR) : on ne fait confiance ni aux types ni aux URL.
@@ -536,16 +567,17 @@ function sanitizeLive(raw) {
   return live;
 }
 
-async function loadLive() {
-  if (state.demo) { state.live = sanitizeLive(makeDemo(state.demo)); state.liveAt = Date.now(); return; }
-  const res = await Promise.allSettled(LIVE_URLS.map(fetchJson));
+async function loadLive(force) {
+  if (state.demo) { state.live = sanitizeLive(makeDemo(state.demo)); state.liveAt = Date.now(); return true; }
+  const main = LIVE_SOURCES.filter(x => !x.fallback && !(x.api && Date.now() < state.apiPausedUntil));
+  let res = await Promise.allSettled(main.map(x => fetchJson(x, force)));
+  if (!res.some(r => r.status === "fulfilled")) res = await Promise.allSettled(LIVE_SOURCES.filter(x => x.fallback).map(x => fetchJson(x, force)));
   const ok = res.filter(r => r.status === "fulfilled").map(r => sanitizeLive(r.value)).filter(Boolean);
-  if (!ok.length) return;
+  if (!ok.length) return false;
   ok.sort((a, b) => String(b.checked_at || "").localeCompare(String(a.checked_at || "")));
   const cur = state.live && state.live.checked_at;
-  if (cur && String(ok[0].checked_at || "") < cur) return;       // un CDN qui rend une version plus ancienne ne fait jamais reculer la page
-  state.live = ok[0];
-  state.liveAt = Date.now();
+  if (!cur || String(ok[0].checked_at || "") >= cur) { state.live = ok[0]; state.liveAt = Date.now(); }   // une source en retard ne fait jamais reculer la page
+  return true;
 }
 
 // Mode démo (?demo=1 | exit | final) : chiffres SIMULÉS à partir de la moyenne des sondages, pour tester l'interface.
@@ -739,7 +771,8 @@ function renderStatus() {
     final: ["", "Résultats publiés", "chiffres définitifs de la CEC"],
   };
   const [cls, a, b] = map[ph];
-  $("#statusPill").innerHTML = `<span class="pill ${state.demo ? "demo" : cls}"><span class="dot"></span><span><b>${a}</b> · ${b}</span></span>${demo}`;
+  $("#statusPill").innerHTML = `<div class="statusrow"><span class="pill ${state.demo ? "demo" : cls}"><span class="dot"></span><span><b>${a}</b> · ${b}</span></span>${demo}<button type="button" class="livechip" id="liveChip" title="Actualiser maintenant" aria-label="Actualiser maintenant"></button></div>`;
+  tickLive();
 
   const stepsNow = { voting: 0, closed: 1, counting: 2, final: 3 }[ph];
   const closeIL = tz(POLLS_CLOSE, "Asia/Jerusalem"), closeLocal = tz(POLLS_CLOSE);
@@ -749,8 +782,27 @@ function renderStatus() {
     ["Dépouillement", "Fichiers officiels de la CEC, mis à jour en continu"],
     ["Certification", `Journal officiel au plus tard le ${FINAL_BY}`],
   ];
-  $("#steps").innerHTML = steps.map(([t, d], i) => `<li class="step ${i < stepsNow ? "done" : i === stepsNow ? "now" : ""}"><b>${t}</b>${d}</li>`).join("");
+  $("#steps").innerHTML = steps.map(([t, d], i) => `<li class="${i < stepsNow ? "done" : i === stepsNow ? "now" : ""}"${i === stepsNow ? ' aria-current="step"' : ""}><span class="mk" aria-hidden="true">${i < stepsNow ? "✓" : i + 1}</span><b>${t}</b>${d}</li>`).join("");
 }
+
+function tickLive() {
+  const el = $("#liveChip");
+  if (!el) return;
+  const t0 = Date.parse((state.live || {}).checked_at);
+  const age = Number.isFinite(t0) ? Math.max(0, Math.round((Date.now() - t0) / 1000)) : null;
+  const ago = (s) => (s < 90 ? `${s} s` : s < 5400 ? `${Math.round(s / 60)} min` : `${Math.round(s / 3600)} h`);
+  const late = age != null && age > 300;                       // le collecteur republie au moins toutes les ~2 min
+  const next = Math.max(0, Math.ceil((state.nextAt - Date.now()) / 1000));
+  let main;
+  if (state.loading) main = `<span class="spin" aria-hidden="true"></span><b>Actualisation…</b>`;
+  else if (state.ok === false) main = `⚠ <b>Connexion impossible</b> · nouvel essai dans ${next} s`;
+  else if (state.lastTry) main = `<span class="spin idle" aria-hidden="true">↻</span>Page actualisée à <b>${hhmmss(new Date(state.lastTry))}</b> · prochaine dans <b class="num">${next} s</b>`;
+  else main = "Chargement…";
+  const data = state.demo ? "Données simulées" : age == null ? "Collecteur CEC : aucune donnée reçue" : `Collecteur CEC : dernier relevé il y a <b>${ago(age)}</b>${late ? " — en retard" : ""}`;
+  el.className = "livechip" + (late || state.ok === false ? " warn" : "");
+  el.innerHTML = `<span class="l1">${main}</span><span class="l2">${data}</span>`;
+}
+function tick() { tickCountdown(); tickLive(); }
 
 function tickCountdown() {
   const el = $("#cd");
@@ -1035,7 +1087,7 @@ function renderFoot() {
   const l = model.live;
   const t0 = Date.parse(l.checked_at);
   const age = Number.isFinite(t0) ? Math.max(0, Math.round((Date.now() - t0) / 1000)) : null;
-  const stale = age != null && age > 600;
+  const stale = age != null && age > 300;
   $("#footStatus").innerHTML = age != null
     ? `Dernier relevé du collecteur : <b>${hhmmss(l.checked_at)}</b> (il y a ${age < 90 ? age + " s" : Math.round(age / 60) + " min"}). ${stale ? '<span style="color:var(--warn)">Le collecteur semble en pause — vérifie directement sur le site de la CEC.</span>' : "Actualisation automatique toutes les 20 s."} <button class="btn" id="refresh" style="margin-left:6px">Actualiser</button>`
     : `Données du collecteur indisponibles : la page affiche les derniers sondages. <button class="btn" id="refresh">Réessayer</button>`;
@@ -1054,7 +1106,7 @@ document.addEventListener("click", (e) => {
   else if (t.dataset.load) { state.sel = new Set(t.dataset.load.split(",").filter(id => BY_ID[id])); writeHash(); renderCoalition(); $("#coalitions").scrollIntoView({ behavior: "smooth" }); }
   else if (t.id === "resetCoal") { state.sel.clear(); writeHash(); renderCoalition(); }
   else if (t.id === "shareCoal") { writeHash(); navigator.clipboard?.writeText(location.href).then(() => { t.textContent = "Lien copié ✔"; setTimeout(() => (t.textContent = "Copier le lien"), 1800); }, () => (t.textContent = "Copie impossible")); }
-  else if (t.id === "refresh") { refresh(); }
+  else if (t.id === "refresh" || t.id === "liveChip") { refresh(true); }
   else if (t.id === "theme") { toggleTheme(); }
 });
 function toggleTheme() {
@@ -1075,11 +1127,14 @@ if ("IntersectionObserver" in window) {
 }
 
 let inflight = null;
-function refresh() {
+function refresh(force = false) {
   if (inflight) return inflight;                    // jamais deux relevés en parallèle
+  state.loading = true; tickLive();
   inflight = (async () => {
-    try { await loadLive(); } catch (e) { /* on garde l'état précédent */ }
-    render(); tickCountdown();
+    let ok = false;
+    try { ok = await loadLive(force); } catch (e) { /* on garde l'état précédent */ }
+    state.ok = ok; state.loading = false; state.lastTry = Date.now(); state.nextAt = state.lastTry + REFRESH_MS;
+    render(); tick();
   })().finally(() => { inflight = null; });
   return inflight;
 }
@@ -1090,10 +1145,10 @@ function refresh() {
 readHash();
 state.live = state.live || {};
 render();
-tickCountdown();
+tick();
 refresh();
-setInterval(tickCountdown, 1000);
-setInterval(() => { if (!document.hidden) refresh(); }, 20000);
+setInterval(tick, 1000);
+setInterval(() => { if (!document.hidden) refresh(); }, REFRESH_MS);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
 </script>
 </body>
