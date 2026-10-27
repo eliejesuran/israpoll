@@ -188,6 +188,50 @@ tfoot td{border-top:2px solid var(--line);font-weight:700;background:var(--card2
 .sug li{padding:9px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--line);font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .sug button{all:unset;cursor:pointer;margin-left:auto;font-weight:700;color:var(--accent);font-size:13px}
 
+/* duel Yashar vs BB */
+.duel{position:relative;overflow:hidden}
+.duel::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(420px 180px at 0% 0%,color-mix(in srgb,#12b8a6 20%,transparent),transparent 70%),radial-gradient(420px 180px at 100% 0%,color-mix(in srgb,#2f6df6 20%,transparent),transparent 70%)}
+.duel>*{position:relative}
+.duel-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.duel h3{font:800 clamp(24px,3.4vw,32px)/1.05 var(--font-display);letter-spacing:-.03em;margin:2px 0 0}
+.vsrow{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center;margin:16px 0 6px}
+.side{padding:13px 15px;border-radius:18px;border:1px solid color-mix(in srgb,var(--sc) 40%,var(--line));background:color-mix(in srgb,var(--sc) 9%,var(--card))}
+.side.r{text-align:right}
+.side .who{font:700 12px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.side .big{font:800 clamp(40px,7vw,60px)/1 var(--font-display);letter-spacing:-.04em;color:var(--sc)}
+.side .rng,.side .bl{font-size:12.5px;color:var(--muted)}
+.side .bl b{color:var(--text)}
+.vs{font:800 15px var(--font-display);width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--text);color:var(--bg)}
+.tugwrap{position:relative;margin:18px 0 26px}
+.tug{display:flex;height:30px;border-radius:99px;overflow:hidden;background:var(--seat-off)}
+.tug i{display:block;height:100%;min-width:0;transition:width .5s}
+.tug-n{position:absolute;top:50%;transform:translateY(-50%);font:800 14px var(--font);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.tick{position:absolute;top:-5px;height:40px;width:2px;background:var(--text);opacity:.8}
+.tick-l{position:absolute;top:36px;font-size:11.5px;font-weight:700;color:var(--muted);white-space:nowrap}
+.duel h4{margin:16px 0 8px;font:700 12px var(--font);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.scn{padding:10px 0;border-top:1px dashed var(--line)}
+.scn-h{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600;font-size:14px}
+.hit{font-size:12.5px;font-weight:800;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.hit.ok{color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.hit.mid{color:var(--warn);background:color-mix(in srgb,var(--warn) 15%,transparent)}
+.hit.no{color:var(--muted);background:var(--card2)}
+.track{position:relative;height:20px;border-radius:99px;background:var(--seat-off);margin:9px 0 3px}
+.track .zone{position:absolute;top:0;bottom:0;right:0;border-radius:0 99px 99px 0;background:color-mix(in srgb,var(--good) 20%,transparent)}
+.track .t61{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--text);opacity:.7}
+.dp{position:absolute;top:50%;width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border-radius:50%;background:var(--sc);border:2px solid var(--card)}
+.dp.out{background:transparent;border:2px solid var(--sc)}
+.dp.ghost{background:var(--muted);opacity:.45;width:9px;height:9px;margin:-4.5px 0 0 -4.5px}
+.dp.res{width:19px;height:19px;margin:-9.5px 0 0 -9.5px;border-radius:6px;transform:rotate(45deg);box-shadow:0 0 0 3px color-mix(in srgb,var(--sc) 35%,transparent)}
+.scn-f{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.scn-f button{all:unset;cursor:pointer;color:var(--accent);font-weight:700}
+.scn-f button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:2px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px;background:var(--sc,var(--muted))}
+.legend .o::before{background:transparent;border:2px solid var(--muted)}
+.legend .g::before{opacity:.45}
+.legend .r::before{border-radius:3px;transform:rotate(45deg)}
+.headline{font-weight:600;margin:14px 0 0;font-size:15px}
 /* sondages */
 .heat td.c{text-align:center;font-weight:700;border-left:1px solid var(--line)}
 .heat th.c{text-align:center}
@@ -229,11 +273,15 @@ details summary{cursor:pointer;font-weight:600}
     <h1 id="h1">Élections israéliennes&nbsp;: <span class="grad">la 26<sup style="font-size:.5em">e</sup> Knesset</span>, en direct.</h1>
     <p class="lead">Les chiffres <b>officiels</b> de la Commission électorale centrale, les blocs qui s’en dégagent, et un simulateur pour construire <em>ta</em> coalition. Chaque chiffre est sourcé.</p>
 
+    <div id="appError"></div>
     <div class="hero-grid">
+      <div class="stack">
       <div class="card hemi-card" aria-live="polite">
         <div class="hemi-cap"><div><div class="eyebrow">Les 120 sièges</div><div class="hemi-center" id="heroTitle">—</div></div><div id="heroSrc"></div></div>
         <svg class="hemi" id="heroHemi" viewBox="-1.1 -1.08 2.2 1.16" role="img" aria-label="Hémicycle de la Knesset"></svg>
         <div id="heroLegend" class="pl" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
+      </div>
+      <section class="card duel" id="duel" aria-labelledby="duelT"></section>
       </div>
       <div class="stack">
         <div class="stats" id="heroStats"></div>
@@ -428,7 +476,8 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, v); } catch { /* navigation privée */ } },
 };
 const tz = (d, zone) => new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: zone }).format(d);
-const hhmmss = (d) => new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(d);
+const hhmmss = (d) => { d = d instanceof Date ? d : new Date(d); return isNaN(d) ? "—" : new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(d); };
+const safeUrl = (u) => { try { const x = new URL(u, location.href); return /^https?:$/.test(x.protocol) ? x.href : ""; } catch { return ""; } };
 const srcLine = (links, extra = "") =>
   `<span><b>Source :</b> ${links.map(l => `<a href="${esc(l.url)}" rel="noopener" target="_blank">${esc(l.label)}</a>`).join(" · ")}</span>${extra}`;
 
@@ -448,16 +497,53 @@ let model = null;        // données dérivées
    Chargement des données
    ===================================================================== */
 async function fetchJson({ url, bust }) {
-  const r = await fetch(bust ? `${url}?t=${Date.now()}` : url, { cache: "no-store" });
-  if (!r.ok) throw new Error(r.status);
-  return r.json();
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 8000);            // une requête qui pend ne doit pas bloquer les suivantes
+  try {
+    const r = await fetch(bust ? `${url}?t=${Date.now()}` : url, { cache: "no-store", signal: ctl.signal });
+    if (!r.ok) throw new Error(r.status);
+    return await r.json();
+  } finally { clearTimeout(timer); }
 }
+
+// Le JSON vient d'un collecteur (et data/manual.json se modifie par PR) : on ne fait confiance ni aux types ni aux URL.
+function sanitizeLive(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const num = (v) => (Number.isFinite(+v) && +v >= 0 && v !== null && v !== "" ? +v : 0);
+  const obj = (o) => (o && typeof o === "object" && !Array.isArray(o) ? o : {});
+  const live = { ...raw };
+  live.status = ["waiting", "counting", "final"].includes(raw.status) ? raw.status : "waiting";
+  const t = obj(raw.totals);
+  const votes = Object.fromEntries(Object.entries(obj(raw.votes)).map(([k, v]) => [String(k), num(v)]));
+  live.totals = { eligible: num(t.eligible), voters: num(t.voters), valid: num(t.valid), invalid: num(t.invalid) };
+  if (!live.totals.valid || !Object.keys(votes).length) { live.totals = null; live.votes = null; }   // pas de voix = pas de résultat
+  else live.votes = votes;
+  const seats = Object.fromEntries(Object.entries(obj(raw.official_seats)).map(([k, v]) => [String(k), Math.round(num(v))]));
+  live.official_seats = Object.keys(seats).length && sum(Object.values(seats)) === 120 && live.votes ? seats : null;
+  live.names = Object.fromEntries(Object.entries(obj(raw.names)).map(([k, v]) => [String(k), String(v)]));
+  live.stale = raw.stale === true;
+  const m = obj(raw.manual);
+  live.manual = {
+    final: m.final === true,
+    final_turnout_est: Number.isFinite(+m.final_turnout_est) && +m.final_turnout_est > 20 && +m.final_turnout_est <= 100 ? +m.final_turnout_est : null,
+    turnout: (Array.isArray(m.turnout) ? m.turnout : []).filter(x => x && x.pct != null && Number.isFinite(+x.pct) && +x.pct >= 0 && +x.pct <= 100)
+      .map(x => ({ time: String(x.time || "").slice(0, 8), pct: +x.pct, prev2022: x.prev2022 != null && Number.isFinite(+x.prev2022) ? +x.prev2022 : null, source: String(x.source || "").slice(0, 80), url: safeUrl(x.url) })),
+    exit_polls: (Array.isArray(m.exit_polls) ? m.exit_polls : []).filter(e => e && typeof e.seats === "object")
+      .map(e => ({ channel: String(e.channel || "Sortie des urnes").slice(0, 40), url: safeUrl(e.url),
+        seats: Object.fromEntries(Object.entries(e.seats || {}).filter(([id, n]) => BY_ID[id] && Number.isFinite(+n) && +n >= 0 && +n <= 120).map(([id, n]) => [id, Math.round(+n)])) }))
+      .filter(e => sum(Object.values(e.seats)) > 0),
+  };
+  return live;
+}
+
 async function loadLive() {
-  if (state.demo) { state.live = makeDemo(state.demo); state.liveAt = Date.now(); return; }
+  if (state.demo) { state.live = sanitizeLive(makeDemo(state.demo)); state.liveAt = Date.now(); return; }
   const res = await Promise.allSettled(LIVE_URLS.map(fetchJson));
-  const ok = res.filter(r => r.status === "fulfilled").map(r => r.value);
+  const ok = res.filter(r => r.status === "fulfilled").map(r => sanitizeLive(r.value)).filter(Boolean);
   if (!ok.length) return;
   ok.sort((a, b) => String(b.checked_at || "").localeCompare(String(a.checked_at || "")));
+  const cur = state.live && state.live.checked_at;
+  if (cur && String(ok[0].checked_at || "") < cur) return;       // un CDN qui rend une version plus ancienne ne fait jamais reculer la page
   state.live = ok[0];
   state.liveAt = Date.now();
 }
@@ -557,8 +643,8 @@ function derive() {
     const votes = {}; lists.forEach(l => (votes[l.id] = l.votes));
     const r = Seats.allocate(votes, PACTS);
     const turnRef = (manual.final_turnout_est || 68) / 100;
-    const share = totals ? totals.voters / (totals.eligible * turnRef) : 0;
-    sources.cec = { key: "cec", label: "Estimation sur les voix CEC", chip: live.status === "final" ? "Calcul · CEC" : "Calcul · dépouillement partiel", cls: "calc", seats: r.seats, passed: r.passed, share: Math.min(share, 1) };
+    const share = totals && totals.eligible > 0 ? totals.voters / (totals.eligible * turnRef) : 0;
+    sources.cec = { key: "cec", label: "Estimation sur les voix CEC", chip: live.status === "final" ? "Calcul · CEC" : "Calcul · dépouillement partiel", cls: "calc", seats: r.seats, passed: r.passed, share: Math.max(0, Math.min(Number.isFinite(share) ? share : 0, 1)) };
   }
   // 3. sorties des urnes
   const ex = exitAverage(manual.exit_polls);
@@ -623,15 +709,17 @@ function drawHemi(svg, seats, opts = {}) {
 /* =====================================================================
    Rendu
    ===================================================================== */
+// Chaque section s'affiche indépendamment : si l'une échoue, les autres restent lisibles et un bandeau le dit.
 function render() {
-  model = derive();
-  renderStatus();
-  renderHero();
-  renderResults();
-  renderBlocs();
-  renderBuilder();
-  renderPolls();
-  renderFoot();
+  const errs = [];
+  try { model = derive(); }
+  catch (e) { console.error("derive", e); errs.push("données"); state.live = sanitizeLive({}); model = derive(); }
+  [["statut", renderStatus], ["hémicycle", renderHero], ["duel", renderDuel], ["résultats", renderResults], ["blocs", renderBlocs],
+   ["simulateur", renderBuilder], ["sondages", renderPolls], ["pied de page", renderFoot]].forEach(([name, fn]) => {
+    try { fn(); } catch (e) { console.error(name, e); errs.push(name); }
+  });
+  $("#appError").innerHTML = errs.length
+    ? `<div class="notice bad" style="margin-top:14px"><b>Une partie de la page n’a pas pu s’afficher</b> (${esc(errs.join(", "))}). Les résultats officiels restent consultables sur <a href="${CEC.national}" rel="noopener">le site de la CEC</a>.</div>` : "";
 }
 
 function phase() {
@@ -738,7 +826,7 @@ function renderResults() {
   if (!tot) {
     const rows = PARTIES.slice().sort((a, b) => (model.sources.polls.seats[b.id] || 0) - (model.sources.polls.seats[a.id] || 0));
     $("#resTable").innerHTML = head + `<tbody>${rows.map(p => `<tr><td class="lst"><span class="sw" style="background:${p.color}"></span><span class="nm">${esc(p.fr)}<small>${esc(p.leader)} · <span class="he">${p.he}</span> <span class="ltr he">${p.letters}</span></small></span></td><td class="num">—</td><td class="num">—</td><td><div class="bar"><u style="left:${3.25 / 15 * 100}%"></u></div></td><td class="num">—</td></tr>`).join("")}</tbody>`;
-    $("#resSrc").innerHTML = srcLine([{ label: "CEC — résultats nationaux", url: CEC.national }, { label: "fichier par localité (CSV)", url: CEC.csv }], `<span>Relevé : ${live.checked_at ? hhmmss(new Date(live.checked_at)) : "—"} · aucune donnée à afficher</span>`);
+    $("#resSrc").innerHTML = srcLine([{ label: "CEC — résultats nationaux", url: CEC.national }, { label: "fichier par localité (CSV)", url: CEC.csv }], `<span>Relevé : ${live.checked_at ? hhmmss(live.checked_at) : "—"} · aucune donnée à afficher</span>`);
     return;
   }
   const seatsOf = model.sources.official ? model.sources.official.seats : model.sources.cec.seats;
@@ -753,7 +841,7 @@ function renderResults() {
   }).join("")}</tbody><tfoot><tr><td>Total</td><td class="num">${fmt(tot.valid)}</td><td class="num">100 %</td><td class="num" colspan="2" style="text-align:right;font-weight:500;color:var(--muted)">${fmt(tot.voters)} votants · ${fmt(tot.invalid)} nuls · ${fmt(tot.eligible)} inscrits</td></tr></tfoot>`;
   $("#resSrc").innerHTML = srcLine(
     [{ label: "CEC — résultats nationaux", url: CEC.national }, { label: "fichier par localité (CSV)", url: CEC.csv }],
-    `<span>Voix : somme des localités publiées · Sièges : ${isOff ? "<b>attribués par la CEC</b>" : "<b>estimation</b> Bader-Ofer (la CEC n’a pas encore attribué de sièges)"} · Relevé : ${live.updated_at ? hhmmss(new Date(live.updated_at)) : "—"}</span>`);
+    `<span>Voix : somme des localités publiées · Sièges : ${isOff ? "<b>attribués par la CEC</b>" : "<b>estimation</b> Bader-Ofer (la CEC n’a pas encore attribué de sièges)"} · Relevé : ${live.updated_at ? hhmmss(live.updated_at) : "—"}</span>`);
 }
 
 function blocTotals(seats) {
@@ -794,6 +882,89 @@ function renderBlocs() {
   $("#blocsSrc").innerHTML = srcLine(
     [{ label: model.active.key === "official" || model.active.key === "cec" ? "CEC" : "sources des chiffres : voir la section Sondages", url: model.active.key === "official" || model.active.key === "cec" ? CEC.national : "#sondages" }],
     `<span>Classement des listes par camp : lecture éditoriale d’après leurs positions publiques avant le scrutin (Haaretz, Kan, Times of Israel).</span>`);
+}
+
+/* ----- duel Yashar vs BB : intentions de vote par bloc, sondage par sondage ----- */
+const DUEL = { E: BLOCS.eisenkot.color, N: BLOCS.netanyahu.color };
+const idsOf = (bloc) => PARTIES.filter(p => p.bloc === bloc).map(p => p.id);
+
+// Ce que l'on compare : les sondages tant qu'il n'y a rien d'autre ; ensuite les sorties des urnes ou le résultat, avec
+// les sondages en arrière-plan pour voir ce qui a tenu.
+function duelObservations() {
+  const polls = POLLS.map(p => ({ name: p.name, seats: p.seats, outlier: !!p.outlier }));
+  const key = model.active.key;
+  if (key === "polls") return { unit: "sondages", main: polls, ghost: [] };
+  if (key === "exit") return { unit: "sorties des urnes", main: model.manual.exit_polls.map(e => ({ name: e.channel, seats: e.seats })), ghost: polls };
+  return { unit: "résultat", main: [{ name: key === "official" ? "Résultat CEC" : "Dépouillement (estimation)", seats: model.seats, result: true }], ghost: polls };
+}
+
+function renderDuel() {
+  const { unit, main, ghost } = duelObservations();
+  const E = idsOf("eisenkot"), N = idsOf("netanyahu"), A = idsOf("arab");
+  const at = (o, list) => sum(list.map(id => o.seats[id] || 0));
+  const core = main.filter(o => !o.outlier);
+  const range = (f) => { const v = core.map(f); return v.length ? [Math.min(...v), Math.max(...v)] : [0, 0]; };
+  const rtxt = ([lo, hi]) => (lo === hi ? `${lo}` : `${lo}–${hi}`);
+  const seats = model.seats;
+  const e = at({ seats }, E), n = at({ seats }, N), a = at({ seats }, A);
+  const mid = Math.max(0, 120 - e - n), other = Math.max(0, mid - a);
+  const ys = seats.yashar || 0, ls = seats.likud || 0;
+  const rangeTxt = core.length > 1 ? (f) => `${rtxt(range(f))} selon les ${unit}` : () => "";
+
+  const SC = [
+    { name: "Bloc Eisenkot seul", list: E, color: DUEL.E },
+    { name: "Bloc Eisenkot + Ra’am", list: [...E, "raam"], color: DUEL.E },
+    { name: "Bloc Eisenkot + partis arabes", list: [...E, ...A], color: DUEL.E },
+    { name: "Bloc BB seul (coalition sortante)", list: N, color: DUEL.N },
+  ].map(sc => {
+    const hits = core.filter(o => at(o, sc.list) >= 61).length;
+    return { ...sc, hits, n: core.length, rng: range(o => at(o, sc.list)) };
+  });
+  const frac = (h, tot) => (tot === 1 ? (h ? "oui" : "non") : `${h}/${tot}`);
+  const [solo, withRaam, withArab, bb] = SC;
+  let headline;
+  if (!core.length) headline = "Pas encore de données pour comparer les blocs.";
+  else if (solo.hits === solo.n) headline = `Le bloc Eisenkot atteint 61 seul (${frac(solo.hits, solo.n)}).`;
+  else if (bb.hits === bb.n) headline = `Le bloc BB atteint 61 seul (${frac(bb.hits, bb.n)}).`;
+  else if (solo.hits + bb.hits === 0) headline = `Ni Yashar ni BB n’atteignent 61 seuls. La majorité passe par les partis arabes : Eisenkot + Ra’am (${frac(withRaam.hits, withRaam.n)}), Eisenkot + tous les partis arabes (${frac(withArab.hits, withArab.n)}).`;
+  else headline = `Résultat partagé : Eisenkot seul (${frac(solo.hits, solo.n)}), BB seul (${frac(bb.hits, bb.n)}), Eisenkot + partis arabes (${frac(withArab.hits, withArab.n)}).`;
+
+  const X0 = 40, X1 = 80, px = (v) => Math.max(0, Math.min(100, ((v - X0) / (X1 - X0)) * 100));
+  const rows = SC.map(sc => {
+    const seen = {};
+    const dot = (o, cls) => {
+      const v = at(o, sc.list), k = (seen[v + cls] = (seen[v + cls] || 0) + 1) - 1;
+      return `<span class="dp ${cls}" style="left:${px(v)}%;transform:${cls === "res" ? "rotate(45deg)" : "none"} translateY(${(k % 3 - 1) * 4}px)" title="${esc(o.name)} : ${v} sièges"></span>`;
+    };
+    const dots = ghost.map(o => dot(o, "ghost")).join("") + main.map(o => dot(o, o.result ? "res" : o.outlier ? "out" : "")).join("");
+    const cls = sc.n && sc.hits === sc.n ? "ok" : sc.hits ? "mid" : "no";
+    const badge = sc.n === 1 ? (sc.hits ? "✔ 61 ou plus" : "✘ sous 61") : `${sc.hits}/${sc.n} ≥ 61`;
+    const out = main.find(o => o.outlier);
+    return `<div class="scn" style="--sc:${sc.color}"><div class="scn-h"><span>${esc(sc.name)}</span><b class="hit ${cls}">${badge}</b></div>
+      <div class="track" role="img" aria-label="${esc(sc.name)} : ${rtxt(sc.rng)} sièges, ${badge}"><i class="zone" style="left:${px(61)}%"></i><u class="t61" style="left:${px(61)}%"></u>${dots}</div>
+      <div class="scn-f"><span class="num">${rtxt(sc.rng)} sièges${out ? ` · ${esc(out.name.split(" · ")[0])} : ${at(out, sc.list)}` : ""}</span><button data-load="${sc.list.join(",")}">Simuler →</button></div></div>`;
+  }).join("");
+
+  const src = model.active.key === "polls" ? POLL_SOURCES : model.active.key === "exit" ? model.manual.exit_polls.filter(x => x.url).map(x => ({ label: x.channel, url: x.url })) : [{ label: "CEC", url: CEC.national }];
+  $("#duel").innerHTML = `
+    <div class="duel-top"><div><div class="eyebrow">Le duel</div><h3 id="duelT">Yashar vs BB</h3></div>${chipFor(model.active)}</div>
+    <div class="vsrow">
+      <div class="side" style="--sc:${DUEL.E}"><div class="who">Yashar · Eisenkot</div><div class="big num">${ys}</div><div class="bl">Bloc entier : <b class="num">${e}</b></div><div class="rng num">${rangeTxt(o => o.seats.yashar || 0)}</div></div>
+      <div class="vs" aria-hidden="true">vs</div>
+      <div class="side r" style="--sc:${DUEL.N}"><div class="who">Likoud · BB</div><div class="big num">${ls}</div><div class="bl">Bloc entier : <b class="num">${n}</b></div><div class="rng num">${rangeTxt(o => o.seats.likud || 0)}</div></div>
+    </div>
+    <div class="tugwrap" role="img" aria-label="Bloc Eisenkot ${e} sièges, partis arabes ${a}, autres ${other}, bloc BB ${n}">
+      <div class="tug"><i style="width:${e / 120 * 100}%;background:${DUEL.E}"></i><i style="width:${a / 120 * 100}%;background:${BLOCS.arab.color}"></i><i style="width:${other / 120 * 100}%;background:${BLOCS.other.color}"></i><i style="width:${n / 120 * 100}%;background:${DUEL.N}"></i></div>
+      <span class="tug-n" style="left:10px">${e}</span><span class="tug-n" style="right:10px">${n}</span>
+      <i class="tick" style="left:${61 / 120 * 100}%"></i><i class="tick" style="left:${59 / 120 * 100}%"></i>
+      <span class="tick-l" style="right:${100 - 59 / 120 * 100 + 1.2}%">◂ BB : 61</span><span class="tick-l" style="left:${61 / 120 * 100 + 1.2}%">Eisenkot : 61 ▸</span>
+    </div>
+    <p class="headline">${headline}</p>
+    <h4>Majorités possibles — ${core.length > 1 ? `${core.length} ${esc(unit)}` : esc(unit)}</h4>
+    ${rows}
+    <div class="axis num" aria-hidden="true"><span>${X0}</span><span>61 = majorité</span><span>${X1} sièges</span></div>
+    <div class="legend">${ghost.length ? '<span class="g">sondages (rappel)</span>' : ""}<span>${esc(unit)}</span>${main.some(o => o.outlier) ? '<span class="o">écart marqué (Chaîne 14)</span>' : ""}${main.some(o => o.result) ? '<span class="r">résultat</span>' : ""}</div>
+    <div class="src">${srcLine(src, `<span>Blocs : lecture éditoriale des camps annoncés avant le scrutin.</span>`)}</div>`;
 }
 
 /* ----- simulateur de coalition ----- */
@@ -850,8 +1021,8 @@ function renderCoalition() {
 }
 
 function renderPolls() {
-  const ids = PARTIES.filter(p => POLLS.some(x => x.seats[p.id])).sort((a, b) => pollAverage().frac[b.id] - pollAverage().frac[a.id]);
   const avg = pollAverage();
+  const ids = PARTIES.filter(p => POLLS.some(x => x.seats[p.id])).sort((a, b) => (avg.frac[b.id] || 0) - (avg.frac[a.id] || 0));
   const shade = (s, max) => `background:color-mix(in srgb,var(--accent) ${Math.round((s / max) * 34)}%,transparent)`;
   const bloc = (poll, b) => sum(PARTIES.filter(p => p.bloc === b).map(p => poll.seats[p.id] || 0));
   $("#pollTable").innerHTML = `<thead><tr><th>Liste</th>${POLLS.map(p => `<th class="c">${esc(p.name)}<br><span style="font-weight:500;text-transform:none;letter-spacing:0">${esc(p.date)}</span>${p.outlier ? '<span class="out-flag">écart marqué</span>' : ""}</th>`).join("")}<th class="c">Moyenne*</th></tr></thead>
@@ -862,10 +1033,11 @@ function renderPolls() {
 
 function renderFoot() {
   const l = model.live;
-  const age = l.checked_at ? Math.max(0, Math.round((Date.now() - new Date(l.checked_at)) / 1000)) : null;
+  const t0 = Date.parse(l.checked_at);
+  const age = Number.isFinite(t0) ? Math.max(0, Math.round((Date.now() - t0) / 1000)) : null;
   const stale = age != null && age > 600;
-  $("#footStatus").innerHTML = l.checked_at
-    ? `Dernier relevé du collecteur : <b>${hhmmss(new Date(l.checked_at))}</b> (il y a ${age < 90 ? age + " s" : Math.round(age / 60) + " min"}). ${stale ? '<span style="color:var(--warn)">Le collecteur semble en pause — vérifie directement sur le site de la CEC.</span>' : "Actualisation automatique toutes les 20 s."} <button class="btn" id="refresh" style="margin-left:6px">Actualiser</button>`
+  $("#footStatus").innerHTML = age != null
+    ? `Dernier relevé du collecteur : <b>${hhmmss(l.checked_at)}</b> (il y a ${age < 90 ? age + " s" : Math.round(age / 60) + " min"}). ${stale ? '<span style="color:var(--warn)">Le collecteur semble en pause — vérifie directement sur le site de la CEC.</span>' : "Actualisation automatique toutes les 20 s."} <button class="btn" id="refresh" style="margin-left:6px">Actualiser</button>`
     : `Données du collecteur indisponibles : la page affiche les derniers sondages. <button class="btn" id="refresh">Réessayer</button>`;
 }
 
@@ -879,6 +1051,7 @@ document.addEventListener("click", (e) => {
   else if (t.dataset.preset) { state.sel = new Set(PRESETS[+t.dataset.preset].ids); writeHash(); renderCoalition(); }
   else if (t.dataset.src) { state.seatSource = t.dataset.src; render(); }
   else if (t.dataset.add) { t.dataset.add.split(",").forEach(id => state.sel.add(id)); writeHash(); renderCoalition(); }
+  else if (t.dataset.load) { state.sel = new Set(t.dataset.load.split(",").filter(id => BY_ID[id])); writeHash(); renderCoalition(); $("#coalitions").scrollIntoView({ behavior: "smooth" }); }
   else if (t.id === "resetCoal") { state.sel.clear(); writeHash(); renderCoalition(); }
   else if (t.id === "shareCoal") { writeHash(); navigator.clipboard?.writeText(location.href).then(() => { t.textContent = "Lien copié ✔"; setTimeout(() => (t.textContent = "Copier le lien"), 1800); }, () => (t.textContent = "Copie impossible")); }
   else if (t.id === "refresh") { refresh(); }
@@ -901,9 +1074,14 @@ if ("IntersectionObserver" in window) {
   secs.forEach(s => io.observe(s));
 }
 
-async function refresh() {
-  try { await loadLive(); } catch (e) { /* on garde l'état précédent */ }
-  render(); tickCountdown();
+let inflight = null;
+function refresh() {
+  if (inflight) return inflight;                    // jamais deux relevés en parallèle
+  inflight = (async () => {
+    try { await loadLive(); } catch (e) { /* on garde l'état précédent */ }
+    render(); tickCountdown();
+  })().finally(() => { inflight = null; });
+  return inflight;
 }
 
 /* =====================================================================

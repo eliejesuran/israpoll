@@ -57,5 +57,71 @@ class FetchCec(unittest.TestCase):
             fetch_cec.get("https://example.com/x.csv", 1)
 
 
+def csv_res(valid, voters=None, rows=3, votes=None):
+    votes = votes or {"מחל": valid // 2, "רק": valid - valid // 2}
+    return {"votes": votes, "totals": {"eligible": valid * 2, "voters": voters or valid + 10, "invalid": 10, "valid": valid}, "rows": rows}
+
+
+class Build(unittest.TestCase):
+    def run_cycle(self, prev, csv, html=None):
+        return fetch_cec.build(prev, {}, csv, html, {})
+
+    def test_waiting_before_counting(self):
+        out = self.run_cycle({}, csv_res(0, voters=0, votes={"מחל": 0, "רק": 0}))
+        self.assertEqual(out["status"], "waiting")
+        self.assertIsNone(out["votes"])
+
+    def test_counting_then_transient_failure_keeps_last_good_numbers(self):
+        a = self.run_cycle({}, csv_res(1000))
+        self.assertEqual(a["status"], "counting")
+        b = self.run_cycle(a, None)                       # panne réseau
+        self.assertEqual(b["votes"], a["votes"])
+        self.assertFalse(b["stale"])                      # 1 échec : on ne s'alarme pas encore
+        for _ in range(2):
+            b = self.run_cycle(b, None)
+        self.assertTrue(b["stale"])                       # 3 échecs de suite : signalé
+        c = self.run_cycle(b, csv_res(1200))
+        self.assertFalse(c["stale"])
+        self.assertEqual(c["fails"], 0)
+
+    def test_truncated_file_is_rejected_then_accepted_if_persistent(self):
+        a = self.run_cycle({}, csv_res(100000))
+        cur = a
+        for i in range(2):
+            cur = self.run_cycle(cur, csv_res(20000))     # chute de 80 % = fichier tronqué
+            self.assertEqual(cur["totals"]["valid"], 100000)
+        cur = self.run_cycle(cur, csv_res(20000))         # 3e fois : c'est une vraie correction
+        self.assertEqual(cur["totals"]["valid"], 20000)
+        self.assertTrue(cur["suspect"])
+
+    def test_inconsistent_party_sum_is_rejected(self):
+        a = self.run_cycle({}, csv_res(1000))
+        bad = csv_res(2000, votes={"מחל": 10, "רק": 10})
+        self.assertEqual(self.run_cycle(a, bad)["totals"]["valid"], 1000)
+
+    def test_never_goes_back_to_empty(self):
+        a = self.run_cycle({}, csv_res(1000))
+        empty = self.run_cycle(a, csv_res(0, voters=0, votes={"מחל": 0, "רק": 0}))
+        self.assertEqual(empty["status"], "counting")
+
+    def test_official_seats_need_a_matching_page(self):
+        a = self.run_cycle({}, csv_res(1000))
+        seats = {"מחל": 60, "רק": 60}
+        ok = {"votes": {"מחל": 500, "רק": 500}, "totals": None, "names": {}, "seats": seats, "waiting": False}
+        self.assertEqual(self.run_cycle(a, csv_res(1000), ok)["official_seats"], seats)
+        stale_page = dict(ok, votes={"מחל": 50, "רק": 50})
+        self.assertIsNone(self.run_cycle(a, csv_res(1000), stale_page)["official_seats"])
+
+    def test_final_flag_comes_from_manual_file(self):
+        out = fetch_cec.build({}, {"final": True}, csv_res(1000), None, {})
+        self.assertEqual(out["status"], "final")
+
+
+class Sane(unittest.TestCase):
+    def test_voters_cannot_be_below_valid(self):
+        ok, why = fetch_cec.sane({"a": 100}, {"eligible": 500, "voters": 50, "invalid": 0, "valid": 100}, None)
+        self.assertFalse(ok)
+
+
 if __name__ == "__main__":
     unittest.main()

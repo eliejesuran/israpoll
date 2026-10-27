@@ -17,6 +17,8 @@
   function allocate(votes, pacts, opts) {
     const total = (opts && opts.total) || TOTAL;
     const threshold = (opts && opts.threshold) || THRESHOLD;
+    // entrées invalides (NaN, négatif, texte) = 0 voix : jamais de sièges « Infinity » ou de boucle infinie
+    votes = Object.fromEntries(Object.entries(votes || {}).map(([id, v]) => [id, Number.isFinite(+v) && +v > 0 ? +v : 0]));
     const ids = Object.keys(votes);
     const valid = ids.reduce((s, id) => s + votes[id], 0);
     const seats = {};
@@ -25,6 +27,7 @@
 
     // 1. seuil électoral
     const passed = ids.filter(id => votes[id] / valid >= threshold);
+    if (!passed.length) return { seats, passed, quota: 0, threshold, valid };
     const passedVotes = passed.reduce((s, id) => s + votes[id], 0);
 
     // 2. quotient national : un siège par tranche entière

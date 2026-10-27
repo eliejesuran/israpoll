@@ -25,4 +25,12 @@ assert.equal(Object.values(void_.seats).reduce((a, b) => a + b, 0), 120);
 const r = Seats.roundToTotal({ a: 50.4, b: 40.3, c: 29.3 });
 assert.equal(r.a + r.b + r.c, 120);
 
+// 4. Entrées dégradées : pas de sièges « Infinity », pas de boucle infinie.
+const none = Seats.allocate({ a: 10, b: 10, c: 10, d: 10, e: 10, f: 10, g: 10, h: 10, i: 10, j: 10, k: 10, l: 10, m: 10, n: 10, o: 10, p: 10, q: 10, r: 10, s: 10, t: 10, u: 10, v: 10, w: 10, x: 10, y: 10, z: 10, aa: 10, bb: 10, cc: 10, dd: 10, ee: 10 }, []);
+assert.equal(Object.values(none.seats).reduce((a, b) => a + b, 0), 0);          // aucune liste au-dessus de 3,25 %
+const junk = Seats.allocate({ a: NaN, b: -5, c: 'x', d: 600, e: 400 }, []);
+assert.equal(Object.values(junk.seats).reduce((a, b) => a + b, 0), 120);
+assert.equal(junk.seats.d, 72);
+assert.deepEqual(Seats.allocate({}, []).seats, {});
+
 console.log('seats.test.mjs : OK');
