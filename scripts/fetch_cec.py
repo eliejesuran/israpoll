@@ -297,6 +297,7 @@ def main():
     body["digest"] = digest
     body["updated_at"] = prev.get("updated_at") if prev.get("digest") == digest and prev.get("updated_at") else now_iso()
     body["checked_at"] = now_iso()
+    body["collector"] = os.environ.get("COLLECTOR_ID", "local")     # étiquette neutre : d'où vient ce relevé
 
     tmp = a.out + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:

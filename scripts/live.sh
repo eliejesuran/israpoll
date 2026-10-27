@@ -25,7 +25,7 @@ trap 'exit 143' TERM INT HUP
 
 TO=""; command -v timeout >/dev/null 2>&1 && TO="timeout 150"        # absent sur macOS : on s'en passe
 PUSH_URL=$(git config --get remote.origin.url)
-SLUG=$(echo "$PUSH_URL" | sed -E 's#^(git@github.com:|https://github.com/)##; s#\.git$##')
+SLUG=$(echo "$PUSH_URL" | sed -E 's#^(git@github.com:|https://github.com/|ssh://git@ssh.github.com:443/)##; s#\.git$##')
 
 if git fetch -q origin data 2>/dev/null; then
   git show FETCH_HEAD:live.json > "$WORK/prev.json" 2>/dev/null || echo '{}' > "$WORK/prev.json"
