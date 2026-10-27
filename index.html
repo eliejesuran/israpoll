@@ -858,6 +858,8 @@ function renderResults() {
     notice = `<div class="notice"><b>Résultats publiés par la CEC.</b> Les chiffres définitifs sont proclamés au journal officiel d’ici le ${FINAL_BY}.</div>`;
   }
   if (live.stale) notice += `<div class="notice warn" style="margin-top:10px">Le collecteur n’a pas pu joindre la CEC au dernier relevé : ces chiffres datent de ${esc(live.updated_at || "?")}.</div>`;
+  const hand = tot && live.source && live.source.manual_cec;
+  if (hand) notice += `<div class="notice warn" style="margin-top:10px"><b>Totaux recopiés à la main.</b> Le site de la CEC bloque les lectures automatiques : ces chiffres sont recopiés depuis son tableau national${hand.as_of ? ` (relevé de ${esc(hand.as_of)}, heure d’Israël)` : ""} et ne changent qu’à chaque saisie. <a href="${CEC.national}" rel="noopener">Vérifier sur le site de la CEC</a>.</div>`;
   $("#resNotice").innerHTML = notice;
 
   $("#turnout").innerHTML = turnoutBlock();

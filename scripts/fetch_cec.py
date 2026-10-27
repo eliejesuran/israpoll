@@ -245,6 +245,50 @@ def merge_turnout(manual_rows, auto_rows):
     return out
 
 
+# ---------------------------------------------------------------- saisie de secours
+# Identifiant de parti (PARTIES dans index.html ; un test garde les deux tables identiques) -> lettre de vote de la CEC.
+PARTY_LETTERS = {
+    "democrats": "אמת", "together": "רק", "yashar": "דרך", "yb": "ל", "reservists": "די", "joint": "ודם", "raam": "עם", "amcha": "ך",
+    "haredi": "זך", "noam": "ני", "rzp": "ט", "otzma": "ב", "utj": "ג", "shas": "שס", "likud": "מחל",
+}
+
+
+def parse_manual_cec(m):
+    """Totaux nationaux de la CEC saisis à la main (data/manual.json, clé « cec ») quand le collecteur est bloqué par le
+    défi anti-bot du site. Renvoie {votes, totals, rows, as_of, url} ; ValueError au moindre doute (faute de frappe,
+    liste inconnue, total incohérent) : mieux vaut ne rien publier qu'un chiffre faux.
+
+    m = {"as_of": "23:40", "url": "...", "totals": {"eligible": n, "voters": n, "valid": n, "invalid": n (facultatif)},
+         "votes": {"likud": n, "yashar": n, ...}}   (clés : identifiants de parti, ou lettres de vote pour les petites listes)
+    """
+    if not isinstance(m, dict) or not isinstance(m.get("votes"), dict) or not isinstance(m.get("totals"), dict):
+        raise ValueError("saisie « cec » incomplète (totals et votes attendus)")
+
+    def count(v, what):
+        if isinstance(v, bool) or not isinstance(v, int) or v < 0:
+            raise ValueError(f"{what} : entier positif attendu, pas {v!r}")
+        return v
+
+    votes = {}
+    for key, v in m["votes"].items():
+        letters = PARTY_LETTERS.get(key, key)
+        if letters not in KNOWN_LETTERS:
+            raise ValueError(f"liste inconnue : {key!r}")
+        if letters in votes:
+            raise ValueError(f"liste saisie deux fois : {key!r}")
+        votes[letters] = count(v, key)
+    t = m["totals"]
+    valid, voters, eligible = count(t.get("valid"), "valid"), count(t.get("voters"), "voters"), count(t.get("eligible"), "eligible")
+    invalid = count(t["invalid"], "invalid") if t.get("invalid") is not None else voters - valid
+    if not valid or voters < valid or abs(voters - valid - invalid) > max(5, 0.001 * voters) or eligible < voters:
+        raise ValueError("totaux incohérents (électeurs ≥ votants ≥ bulletins valides, votants = valides + nuls)")
+    listed = sum(votes.values())
+    if listed > valid * (1 + SUM_TOLERANCE) or listed < 0.85 * valid:
+        raise ValueError(f"somme des listes saisies ({listed}) incompatible avec les bulletins valides ({valid})")
+    return {"votes": votes, "totals": {"eligible": eligible, "voters": voters, "invalid": invalid, "valid": valid},
+            "rows": 0, "as_of": str(m.get("as_of") or "")[:20], "url": str(m.get("url") or HTML_URL)}
+
+
 # ---------------------------------------------------------------- cohérence
 def sane(votes, totals, prev_totals):
     """Un relevé n'est accepté que s'il est cohérent avec lui-même et avec le précédent.
@@ -304,6 +348,8 @@ def build(prev, manual, csv_res, html_res, log):
     else:
         fails += 1
 
+    fresh_valid = totals["valid"] if votes is not None and totals else 0     # ce que le flux automatique vient de donner
+
     # repli : derniers bons chiffres
     stale = False
     if votes is None and prev.get("votes") and prev.get("totals"):
@@ -320,6 +366,26 @@ def build(prev, manual, csv_res, html_res, log):
             seats = {}
         if votes is None and html_res["votes"] and html_res["totals"] and html_res["totals"]["valid"] > 0:
             votes, totals = html_res["votes"], html_res["totals"]
+            fresh_valid = totals["valid"]
+
+    # saisie de secours (le site de la CEC filtre les scripts) : prise si elle est plus avancée que le flux automatique,
+    # et jamais plus ancienne que le dernier relevé — sauf pour corriger une saisie précédente
+    manual_cec = None
+    if manual.get("cec"):
+        try:
+            m = parse_manual_cec(manual["cec"])
+            prev_valid = (prev.get("totals") or {}).get("valid", 0)
+            from_manual = bool((prev.get("source") or {}).get("manual_cec"))
+            if m["totals"]["valid"] <= fresh_valid:
+                log["cec_manual"] = "ignorée : le flux automatique est plus avancé"
+            elif m["totals"]["valid"] < prev_valid and not from_manual:
+                log["cec_manual"] = f"ignorée : antérieure au dernier relevé ({m['totals']['valid']} < {prev_valid} bulletins valides)"
+            else:
+                votes, totals, n_rows, stale = m["votes"], m["totals"], 0, False
+                manual_cec = {"as_of": m["as_of"], "url": m["url"]}
+                log["cec_manual"] = f"utilisée ({m['totals']['valid']} bulletins valides, relevé de {m['as_of'] or '?'})"
+        except (ValueError, TypeError) as e:
+            log["cec_manual"] = f"rejetée : {e}"
 
     has_votes = bool(votes) and bool(totals) and totals["valid"] > 0
     official = bool(seats) and sum(seats.values()) == 120 and has_votes
@@ -341,6 +407,7 @@ def build(prev, manual, csv_res, html_res, log):
             "csv": CSV_URL,
             "fetch": log,
             "rows": n_rows,
+            "manual_cec": manual_cec,        # non nul : les voix viennent d'une saisie à la main d'après le site de la CEC
         },
         "totals": totals,
         "votes": votes,

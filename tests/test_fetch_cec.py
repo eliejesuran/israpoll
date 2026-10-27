@@ -228,6 +228,110 @@ class Turnout(unittest.TestCase):
             shutil.rmtree(tmp)
 
 
+def cec(valid=1000, **over):
+    """Saisie de secours cohérente : 98 % des voix réparties entre deux listes."""
+    m = {"as_of": "23:40", "totals": {"eligible": valid * 2, "voters": valid + 10, "valid": valid, "invalid": 10},
+         "votes": {"likud": valid // 2, "together": valid * 48 // 100}}
+    m.update(over)
+    return m
+
+
+class ManualCec(unittest.TestCase):
+    """Le site de la CEC filtre les scripts (défi anti-bot) : les totaux nationaux peuvent être recopiés à la main."""
+
+    def cycle(self, prev, manual_cec, csv=None):
+        return fetch_cec.build(prev, {"cec": manual_cec}, csv, None, {})
+
+    def test_ids_and_letters_both_accepted(self):
+        r = fetch_cec.parse_manual_cec(cec(votes={"likud": 500, "ני": 20, "together": 480}))
+        self.assertEqual(r["votes"], {"מחל": 500, "ני": 20, "רק": 480})
+        self.assertEqual(r["totals"]["invalid"], 10)
+        self.assertEqual(fetch_cec.parse_manual_cec(cec(totals={"eligible": 2000, "voters": 1010, "valid": 1000}))["totals"]["invalid"], 10)
+
+    def test_a_typo_is_refused_not_published(self):
+        bad = [cec(votes={"likudd": 500, "together": 480}), cec(votes={"likud": 5, "מחל": 500, "together": 480}),             # même liste sous deux noms : la somme resterait plausible
+               cec(votes={"likud": "500", "together": 480}), cec(votes={"likud": 500.5, "together": 480}), cec(votes={"likud": True, "together": 480}),
+               cec(votes={"likud": 100, "together": 480}), cec(votes={"likud": 1200, "together": 480}),       # somme trop basse / trop haute
+               cec(totals={"eligible": 2000, "voters": 900, "valid": 1000}), cec(totals={"eligible": 2000, "voters": 1010, "valid": 0}),
+               cec(totals={"eligible": 1000, "voters": 1010, "valid": 1000}), cec(totals={"eligible": 2000, "voters": 1010, "valid": 1000, "invalid": 400}),
+               {}, {"votes": {}}]
+        for m in bad:
+            with self.assertRaises(ValueError, msg=str(m)):
+                fetch_cec.parse_manual_cec(m)
+            self.assertEqual(self.cycle({}, m)["status"], "waiting", str(m))
+
+    def test_used_while_the_collector_is_blocked_and_never_goes_stale(self):
+        cur = self.cycle({}, cec())
+        self.assertEqual((cur["status"], cur["totals"]["valid"], cur["stale"]), ("counting", 1000, False))
+        self.assertEqual(cur["votes"], {"מחל": 500, "רק": 480})
+        self.assertEqual(cur["source"]["manual_cec"], {"as_of": "23:40", "url": fetch_cec.HTML_URL})
+        for _ in range(6):                                                    # le collecteur reste bloqué : la saisie vaut toujours
+            cur = self.cycle(dict(cur, fails=cur["fails"]), cec())
+            cur["fails"] = cur["fails"] + 1
+        self.assertFalse(cur["stale"])
+        self.assertEqual(cur["status"], "counting")
+
+    def test_beats_an_empty_csv_but_not_a_more_advanced_automatic_feed(self):
+        self.assertEqual(self.cycle({}, cec(), csv_res(0, voters=0, votes={"מחל": 0, "רק": 0}))["totals"]["valid"], 1000)
+        auto = self.cycle({}, cec(1000), csv_res(2000))
+        self.assertEqual(auto["totals"]["valid"], 2000)
+        self.assertIsNone(auto["source"]["manual_cec"])
+
+    def test_never_older_than_the_last_reading_except_to_correct_itself(self):
+        old = fetch_cec.build({}, {}, csv_res(5000), None, {})
+        stale_hand = self.cycle(old, cec(1000))                               # saisie plus ancienne que le dernier relevé automatique
+        self.assertEqual(stale_hand["totals"]["valid"], 5000)
+        self.assertIsNone(stale_hand["source"]["manual_cec"])
+        a = self.cycle({}, cec(5000))
+        self.assertEqual(self.cycle(a, cec(4000))["totals"]["valid"], 4000)   # correction d'une saisie par une autre
+
+    def test_cycle_end_to_end_through_the_manual_file(self):
+        tmp = tempfile.mkdtemp()
+        try:
+            out, man = os.path.join(tmp, "live.json"), os.path.join(tmp, "manual.json")
+            with open(man, "w") as f:
+                json.dump({"cec": cec()}, f)
+
+            def fake_get(url, timeout, tries=3, ok=None, opener=None):
+                raise OSError("HTTP 202 : défi anti-bot")
+            argv = ["fetch_cec.py", "--out", out, "--manual", man, "--skip-html"]
+            with mock.patch.object(fetch_cec, "get", fake_get), mock.patch.object(sys, "argv", argv), contextlib.redirect_stderr(io.StringIO()):
+                fetch_cec.main()
+            with open(out) as f:
+                live = json.load(f)
+            self.assertEqual((live["status"], live["totals"]["valid"]), ("counting", 1000))
+            self.assertTrue(live["source"]["fetch"]["cec_manual"].startswith("utilisée"))
+        finally:
+            shutil.rmtree(tmp)
+
+    def test_party_letters_match_the_page(self):
+        with open(os.path.join(ManualFile.ROOT, "index.html"), encoding="utf-8") as f:
+            page = dict(re.findall(r'\{ id: "(\w+)",[^\n]*?letters: "([^"]+)"', f.read()))
+        self.assertEqual(fetch_cec.PARTY_LETTERS, page)
+        self.assertLessEqual(set(page.values()), fetch_cec.KNOWN_LETTERS)
+
+    def test_helper_replaces_and_clears_without_touching_the_rest_of_the_file(self):
+        import cec_manual
+        tmp = tempfile.mkdtemp()
+        try:
+            path = os.path.join(tmp, "manual.json")
+            shutil.copy(os.path.join(ManualFile.ROOT, "data", "manual.json"), path)
+            with open(path, encoding="utf-8") as f:
+                original = f.read()
+            for valid in (1000, 2000):
+                cec_manual.write(path, cec(valid))
+            with open(path, encoding="utf-8") as f:
+                text = f.read()
+            self.assertEqual(json.loads(text)["cec"]["totals"]["valid"], 2000)
+            self.assertEqual(text.count('"cec"'), 1)
+            self.assertTrue(text.startswith(original.rstrip()[:-1].rstrip()))
+            cec_manual.write(path, None)
+            with open(path, encoding="utf-8") as f:
+                self.assertEqual(f.read(), original)
+        finally:
+            shutil.rmtree(tmp)
+
+
 class ManualFile(unittest.TestCase):
     """data/manual.json est saisi à la main, souvent dans l'urgence : la page écarte en silence un identifiant de parti inconnu."""
     ROOT = os.path.join(os.path.dirname(__file__), "..")

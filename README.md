@@ -26,6 +26,18 @@ branche `data` : live.json ──(API GitHub ~1 min · raw 5 min)──►  inde
 ### Participation : relevée automatiquement
 La CEC publie la participation toutes les ~2 h sans flux lisible. Le collecteur lit le live-blog de NBC News, qui cite chaque relevé de la CEC (heure + chiffre + comparaison 2022) dans un JSON structuré, ~1 h 30 après l'heure de référence. Le parseur est volontairement strict (mention de la CEC et de la participation, heure locale, plage 07:00–22:00, chiffre qui ne recule pas) : en cas de doute il ignore l'entrée. `source.fetch.turnout` de `live.json` dit si la lecture a marché. Un relevé saisi à la main dans `manual.json` prévaut pour la même heure.
 
+### Secours : totaux de la CEC recopiés à la main
+Le site de la CEC protège ses fichiers par un défi anti-bot (AWS WAF : réponse HTTP 202 vide avec `x-amzn-waf-action: challenge`) que seul un vrai navigateur passe ; le collecteur ne le contourne pas. Si le flux automatique reste bloqué pendant le dépouillement, on lit le tableau national sur [le site de la CEC](https://votes26.bechirot.gov.il/nationalresults) dans un navigateur et on le recopie :
+
+```bash
+python3 -I scripts/cec_manual.py --as-of 23:40 --eligible 7000000 --voters 1500000 --valid 1480000 \
+    likud=380000 yashar=350000 together=190000 ...      # identifiants de PARTIES (index.html) ou lettres de vote
+git diff data/manual.json && git commit -am "Totaux CEC (saisie manuelle)" && git push
+python3 -I scripts/cec_manual.py --clear                # retire la saisie ; le flux automatique reprend seul
+```
+
+L'assistant écrit la clé `cec` de `manual.json` (le reste du fichier n'est pas touché) et refuse, sans rien écrire, une liste inconnue, un total incohérent ou une somme des listes hors de 85–100 % des bulletins valides. Le collecteur relit le fichier depuis `main` à chaque tour (~30 s) et n'en tient compte que si la saisie est plus avancée que le flux automatique et pas plus ancienne que le dernier relevé (une nouvelle saisie peut corriger la précédente). La page affiche alors un bandeau « Totaux recopiés à la main » avec l'heure du relevé : ce sont des chiffres recopiés, pas le flux de la CEC. Les sièges restent estimés (Bader-Ofer) ; il n'y a pas de saisie des sièges officiels.
+
 ### Ce qui est fait à la main : `data/manual.json`
 Les sorties des urnes (Kan 11, Channel 12, Channel 13) n'ont pas de flux lisible (annonces télévisées) ; la participation peut aussi être corrigée ici. Ils sont saisis dans [`data/manual.json`](data/manual.json) (une PR suffit — le collecteur relit ce fichier à chaque tour, sans redéploiement). Les sièges y sont indexés par identifiant de parti (`likud`, `yashar`, `together`, `democrats`, `yb`, `shas`, `otzma`, `utj`, `rzp`, `raam`, `joint`, `reservists`…, voir `PARTIES` dans `index.html`).
 
