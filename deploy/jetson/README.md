@@ -11,3 +11,5 @@ ssh bme@<ip> 'cat ~/israpoll-collector/deploy_key.pub' > /tmp/k.pub && gh repo d
 - État : `tail ~/israpoll-collector/work/live.log` ; la branche `data` indique `"collector": "jetson"`.
 - Retrait : supprimer `~/israpoll-collector` et les deux lignes `israpoll-collector` de `crontab -e`.
 - **Piège rencontré** : ne jamais stocker l'état dans `/dev/shm` ni `/run/user/…` sous Ubuntu — `systemd-logind` les vide quand la dernière session SSH se ferme.
+- **Suivre le Jetson sans être sur son réseau** : il ne sert que de relais vers GitHub, rien n'exige d'être à côté. La branche `data` fait foi : `git fetch -q origin data && git show origin/data:live.json | grep -E '"(checked_at|collector)"'` doit montrer `"collector": "jetson"` et un `checked_at` de moins de ~2 min ; `source.fetch` détaille chaque source (CEC, participation). La pastille « page actualisée » du site dit la même chose.
+- **Délais de déploiement** : `data/manual.json` est relu à chaque tour (~30 s). Le code (`scripts/`) n'est rechargé qu'au redémarrage de la boucle, donc **jusqu'à 1 h** après un push sur `main`.

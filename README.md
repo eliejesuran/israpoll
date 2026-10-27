@@ -23,8 +23,11 @@ branche `data` : live.json ──(API GitHub ~1 min · raw 5 min)──►  inde
 - Les **sièges** : si la CEC les affiche, on les reprend ; sinon ils sont **estimés** (seuil 3,25 % + quotient + méthode Bader-Ofer + accords de surplus) et marqués « est. ». Le calcul reproduit exactement les 120 sièges de 2022 (`tests/seats.test.mjs`).
 - Avant le dépouillement, **aucun sondage n'est présenté comme un résultat** : le tableau reste vide, les sondages sont dans leur propre section, étiquetés comme tels.
 
+### Participation : relevée automatiquement
+La CEC publie la participation toutes les ~2 h sans flux lisible. Le collecteur lit le live-blog de NBC News, qui cite chaque relevé de la CEC (heure + chiffre + comparaison 2022) dans un JSON structuré, ~1 h 30 après l'heure de référence. Le parseur est volontairement strict (mention de la CEC et de la participation, heure locale, plage 07:00–22:00, chiffre qui ne recule pas) : en cas de doute il ignore l'entrée. `source.fetch.turnout` de `live.json` dit si la lecture a marché. Un relevé saisi à la main dans `manual.json` prévaut pour la même heure.
+
 ### Ce qui est fait à la main : `data/manual.json`
-Participation heure par heure et sorties des urnes (Kan 11, Channel 12, Channel 13) n'ont pas de flux officiel. Ils sont saisis dans [`data/manual.json`](data/manual.json) (une PR suffit — le collecteur relit ce fichier à chaque tour, sans redéploiement). Les sièges y sont indexés par identifiant de parti (`likud`, `yashar`, `together`, `democrats`, `yb`, `shas`, `otzma`, `utj`, `rzp`, `raam`, `joint`, `reservists`…, voir `PARTIES` dans `index.html`).
+Les sorties des urnes (Kan 11, Channel 12, Channel 13) n'ont pas de flux lisible (annonces télévisées) ; la participation peut aussi être corrigée ici. Ils sont saisis dans [`data/manual.json`](data/manual.json) (une PR suffit — le collecteur relit ce fichier à chaque tour, sans redéploiement). Les sièges y sont indexés par identifiant de parti (`likud`, `yashar`, `together`, `democrats`, `yb`, `shas`, `otzma`, `utj`, `rzp`, `raam`, `joint`, `reservists`…, voir `PARTIES` dans `index.html`).
 
 ## Lancer en local
 
