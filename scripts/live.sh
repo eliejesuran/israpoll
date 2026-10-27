@@ -4,18 +4,16 @@
 #
 #   scripts/live.sh [durée_en_secondes=0] [intervalle=30]
 #
-# Sans argument : un seul passage (cron GitHub Actions). Fonctionne aussi en local si `git push` est configuré.
+# Sans argument : un seul passage. À lancer depuis une IP que la CEC ne filtre pas (les serveurs GitHub reçoivent un
+# défi anti-bot) ; nécessite `git push` vers le dépôt.
 set -uo pipefail
 DURATION=${1:-0}
 INTERVAL=${2:-30}
 cd "$(dirname "$0")/.."
 
 WORK=$(mktemp -d)
-if [[ -n "${GITHUB_TOKEN:-}" && -n "${GITHUB_REPOSITORY:-}" ]]; then
-  PUSH_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-else
-  PUSH_URL=$(git config --get remote.origin.url)
-fi
+PUSH_URL=$(git config --get remote.origin.url)
+SLUG=$(echo "$PUSH_URL" | sed -E 's#^(git@github.com:|https://github.com/)##; s#\.git$##')
 
 if git fetch -q origin data 2>/dev/null; then git show FETCH_HEAD:live.json > "$WORK/prev.json" 2>/dev/null || echo '{}' > "$WORK/prev.json"; else echo '{}' > "$WORK/prev.json"; fi
 
@@ -25,6 +23,8 @@ push() {
   ( cd "$t" && git init -q -b data && git add live.json \
     && git -c user.name=israpoll-bot -c user.email=israpoll-bot@users.noreply.github.com commit -qm "live $(date -u +%FT%TZ)" \
     && git push -q -f "$PUSH_URL" data ) || echo "push échoué" >&2
+  # raw.githubusercontent.com garde 5 min en cache ; jsDelivr se rafraîchit en quelques secondes une fois purgé.
+  curl -s -m 10 -o /dev/null "https://purge.jsdelivr.net/gh/${SLUG}@data/live.json" || true
 }
 
 end=$(( $(date +%s) + DURATION )); n=0; last=""

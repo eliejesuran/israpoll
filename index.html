@@ -339,7 +339,12 @@ details summary{cursor:pointer;font-weight:600}
    Configuration
    ===================================================================== */
 const REPO = "eliejesuran/israpoll";
-const LIVE_URLS = [`https://raw.githubusercontent.com/${REPO}/data/live.json`, "data/live.json"];
+// jsDelivr (purgé à chaque relevé, ~5 s) en priorité ; raw.githubusercontent.com garde 5 min en cache ; data/live.json = repli statique.
+const LIVE_URLS = [
+  { url: `https://cdn.jsdelivr.net/gh/${REPO}@data/live.json`, bust: false },
+  { url: `https://raw.githubusercontent.com/${REPO}/data/live.json`, bust: true },
+  { url: "data/live.json", bust: true },
+];
 const POLLS_CLOSE = new Date("2026-10-27T20:00:00Z");         // 22:00 à Jérusalem (UTC+2)
 const FINAL_BY = "4 novembre 2026";
 const CEC = {
@@ -442,9 +447,8 @@ let model = null;        // données dérivées
 /* =====================================================================
    Chargement des données
    ===================================================================== */
-async function fetchJson(url) {
-  const sep = url.includes("?") ? "&" : "?";
-  const r = await fetch(`${url}${sep}t=${Date.now()}`, { cache: "no-store" });
+async function fetchJson({ url, bust }) {
+  const r = await fetch(bust ? `${url}?t=${Date.now()}` : url, { cache: "no-store" });
   if (!r.ok) throw new Error(r.status);
   return r.json();
 }

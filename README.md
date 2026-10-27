@@ -12,12 +12,13 @@ Une page web unique (HTML + un peu de JS, **sans build ni dépendance**) qui aff
 
 ```
 CEC (media26.bechirot.gov.il/files/expc.csv)
-        │  toutes les 30 s  (scripts/fetch_cec.py, lancé par GitHub Actions)
+        │  toutes les 30 s  (scripts/live.sh → scripts/fetch_cec.py, sur une machine non filtrée)
         ▼
-branche `data` : live.json  ──►  index.html (GitHub Pages) ── recalcule les sièges (js/seats.js)
+branche `data` : live.json ──(jsDelivr, purgé à chaque relevé)──►  index.html (GitHub Pages) ── recalcule les sièges (js/seats.js)
 ```
 
-- Le site de la CEC n'envoie pas d'en-tête CORS : un navigateur ne peut pas le lire directement. Le collecteur le relaie vers une branche `data` (`raw.githubusercontent.com` autorise le CORS).
+- Le site de la CEC n'envoie pas d'en-tête CORS : un navigateur ne peut pas le lire directement. Le collecteur le relaie vers une branche `data` (`raw.githubusercontent.com` autorise le CORS mais garde 5 min en cache : la page lit donc le fichier via [jsDelivr](https://www.jsdelivr.com/), que le collecteur purge après chaque publication — environ 5 s de latence ; `raw` et `data/live.json` servent de repli).
+- **GitHub Actions ne convient pas** : depuis les serveurs de GitHub, la CEC répond par un défi anti-bot (HTTP 202 à corps vide). Le collecteur doit donc tourner depuis une IP non filtrée (un ordinateur personnel, un petit VPS).
 - Les **voix** sont la somme du fichier officiel par localité. Vérifié sur 2022 : le total reproduit exactement les résultats nationaux publiés par la CEC.
 - Les **sièges** : si la CEC les affiche, on les reprend ; sinon ils sont **estimés** (seuil 3,25 % + quotient + méthode Bader-Ofer + accords de surplus) et marqués « est. ». Le calcul reproduit exactement les 120 sièges de 2022 (`tests/seats.test.mjs`).
 - Avant le dépouillement, **aucun sondage n'est présenté comme un résultat** : le tableau reste vide, les sondages sont dans leur propre section, étiquetés comme tels.
@@ -38,8 +39,12 @@ python3 -m http.server 8765      # puis http://localhost:8765
 ## Déployer
 
 1. Fork, puis *Settings → Pages → Deploy from a branch → `main` / root*.
-2. *Actions → live → Run workflow* pour lancer la boucle rapide (un cron toutes les 5 min tourne aussi par défaut).
-3. Adapter la constante `REPO` en haut du script de `index.html`.
+2. Adapter la constante `REPO` en haut du script de `index.html`.
+3. Sur une machine qui peut joindre la CEC et pousser sur le dépôt, lancer la boucle de collecte :
+   ```bash
+   nohup scripts/live.sh 30000 30 > live.log 2>&1 &   # ~8 h, un relevé toutes les 30 s
+   ```
+   Elle publie `live.json` sur la branche orpheline `data` (force-push : l'historique ne grossit pas) et relit `data/manual.json` sur `main` à chaque tour.
 
 ## Tests
 

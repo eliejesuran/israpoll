@@ -2,7 +2,7 @@
 """Récupère les résultats officiels de la Commission électorale centrale (CEC) et les écrit en JSON.
 
 Le site de la CEC n'envoie pas d'en-tête CORS : un navigateur ne peut donc pas le lire directement.
-Ce script (lancé par GitHub Actions toutes les ~30 s le soir du scrutin) fait le relais.
+Ce script (lancé toutes les ~30 s par scripts/live.sh le soir du scrutin) fait le relais.
 
 Sources, par ordre de priorité (même structure qu'en 2022, vérifiée sur les résultats 2022) :
   CSV  par commune  : https://media26.bechirot.gov.il/files/expc.csv   (somme = résultat national)
