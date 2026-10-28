@@ -12,6 +12,8 @@ set -uo pipefail
 DURATION=${1:-0}
 INTERVAL=${2:-30}
 HEARTBEAT=4            # republie au moins tous les 4 tours (~2 min) même sans changement : le site en déduit que le collecteur est vivant
+NEWS_EVERY=20          # relève aussi les titres de presse (« À lire ») tous les 20 tours (~10 min) : les tâches planifiées de GitHub
+                       # Actions ne se déclenchent pas de façon fiable sur ce dépôt (aucune exécution `schedule` en 3 h)
 cd "$(dirname "$0")/.."
 
 LOCK="${TMPDIR:-/tmp}/israpoll-live.lock"
@@ -34,15 +36,26 @@ sync_refs() {                                 # met à jour `main` (manual.json)
 }
 if sync_refs && git show origin/data:live.json > "$WORK/prev.json" 2>/dev/null; then :; else echo '{}' > "$WORK/prev.json"; fi
 
-push() {                                      # renvoie 0 si la branche `data` a bien été mise à jour
+publish() {                                   # publish <branche> <fichier> <nom dans la branche> ; branche orpheline, force-push
   local t; t=$(mktemp -d)
-  cp "$WORK/live.json" "$t/live.json"
-  if ( cd "$t" && git init -q -b data && git add live.json \
-       && git -c user.name=israpoll-bot -c user.email=israpoll-bot@users.noreply.github.com commit -qm "live $(date -u +%FT%TZ)" \
-       && git push -q -f "$PUSH_URL" data ); then
+  cp "$2" "$t/$3"
+  if ( cd "$t" && git init -q -b "$1" && git add "$3" \
+       && git -c user.name=israpoll-bot -c user.email=israpoll-bot@users.noreply.github.com commit -qm "$1 $(date -u +%FT%TZ)" \
+       && git push -q -f "$PUSH_URL" "$1" ); then
     rm -rf "$t"; return 0
   fi
-  rm -rf "$t"; echo "push échoué" >&2; return 1
+  rm -rf "$t"; echo "push $1 échoué" >&2; return 1
+}
+push() { publish data "$WORK/live.json" live.json; }   # renvoie 0 si la branche `data` a bien été mise à jour
+
+news_cycle() {                                # titres de presse -> branche `news` (les flux RSS n'ont pas de défi anti-bot)
+  [[ -f scripts/fetch_news.py ]] || return 0
+  git fetch -q origin +news:refs/remotes/origin/news 2>/dev/null
+  local prevn=(); git show origin/news:news.json > "$WORK/news_prev.json" 2>/dev/null && prevn=(--prev "$WORK/news_prev.json")
+  rm -f "$WORK/news.json"
+  $TO python3 -I scripts/fetch_news.py --out "$WORK/news.json" ${prevn[@]+"${prevn[@]}"} || { echo "actualités : aucun relevé" >&2; return 0; }
+  [[ -s "$WORK/news.json" ]] && publish news "$WORK/news.json" news.json
+  return 0
 }
 
 end=$(( $(date +%s) + DURATION )); n=0; last=""
@@ -60,6 +73,7 @@ while :; do
     fi
   fi
 
+  if (( n % NEWS_EVERY == 0 )) && [[ -z "${CSV_FILE:-}" ]]; then news_cycle; fi
   skip=(); (( n % 6 != 0 )) && skip=(--skip-html)
   csv=(); [[ -n "${CSV_FILE:-}" ]] && csv=(--csv-file "$CSV_FILE")
   rm -f "$WORK/live.json"
