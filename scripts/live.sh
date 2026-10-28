@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# Boucle de collecte : résultats CEC -> live.json, publié sur la branche orpheline `data`
-# (le site la lit via l'API GitHub, ~1 min de latence, et raw.githubusercontent.com, 5 min de cache, en repli).
+# Boucle de collecte : totaux CEC saisis, participation, relais presse, actualités -> live.json, publié sur la branche
+# orpheline `data` (le site la lit via l'API GitHub, ~1 min de latence, et raw.githubusercontent.com, 5 min de cache, en repli).
 #
 #   scripts/live.sh [durée_en_secondes=0] [intervalle=30]
 #   CSV_FILE=~/Downloads/expc.csv scripts/live.sh      # un passage avec le fichier téléchargé à la main sur le site de la CEC
+#   CEC_POLL=1 scripts/live.sh 0                       # interroge aussi le site de la CEC (arrêté par défaut)
 #
-# Sans argument : un seul passage. À lancer depuis une IP que la CEC ne filtre pas ; nécessite `git push` vers le dépôt.
-# La CEC protège ses fichiers par un défi anti-bot : on ne le contourne pas (voir fetch_cec.py). Un seul collecteur à
-# la fois par machine (verrou). Plusieurs machines peuvent publier : chacune adopte les chiffres plus avancés des autres.
+# Sans argument : un seul passage ; nécessite `git push` vers le dépôt. Le site de la CEC n'est pas interrogé : il répond
+# par un défi anti-bot, qu'on ne contourne pas (voir fetch_cec.py). Un seul collecteur à la fois par machine (verrou).
+# Plusieurs machines peuvent publier : chacune adopte les chiffres plus avancés des autres.
 set -uo pipefail
 DURATION=${1:-0}
 INTERVAL=${2:-30}
@@ -76,8 +77,9 @@ while :; do
   if (( n % NEWS_EVERY == 0 )) && [[ -z "${CSV_FILE:-}" ]]; then news_cycle; fi
   skip=(); (( n % 6 != 0 )) && skip=(--skip-html)
   csv=(); [[ -n "${CSV_FILE:-}" ]] && csv=(--csv-file "$CSV_FILE")
+  poll=(); [[ "${CEC_POLL:-0}" == 1 ]] && poll=(--poll-cec)
   rm -f "$WORK/live.json"
-  $TO python3 -I scripts/fetch_cec.py --out "$WORK/live.json" --manual "$WORK/manual.json" --prev "$WORK/prev.json" ${peer[@]+"${peer[@]}"} ${csv[@]+"${csv[@]}"} ${skip[@]+"${skip[@]}"} || echo "relevé échoué" >&2
+  $TO python3 -I scripts/fetch_cec.py --out "$WORK/live.json" --manual "$WORK/manual.json" --prev "$WORK/prev.json" ${peer[@]+"${peer[@]}"} ${csv[@]+"${csv[@]}"} ${poll[@]+"${poll[@]}"} ${skip[@]+"${skip[@]}"} || echo "relevé échoué" >&2
   if [[ -s "$WORK/live.json" ]]; then
     d=$(python3 -I -c "import json,sys;print(json.load(open(sys.argv[1])).get('digest',''))" "$WORK/live.json" 2>/dev/null || echo "")
     if [[ -n "$d" ]]; then

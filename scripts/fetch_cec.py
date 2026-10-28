@@ -2,24 +2,26 @@
 """Récupère les résultats officiels de la Commission électorale centrale (CEC) et les écrit en JSON.
 
 Le site de la CEC n'envoie pas d'en-tête CORS : un navigateur ne peut donc pas le lire directement.
-Ce script (lancé toutes les ~30 s par scripts/live.sh le soir du scrutin) fait le relais.
+Ce script (lancé toutes les ~30 s par scripts/live.sh) fait le relais.
 
 Sources, par ordre de priorité (même structure qu'en 2022, vérifiée sur les résultats 2022) :
   CSV  par commune  : https://media26.bechirot.gov.il/files/expc.csv   (somme = résultat national)
   HTML national     : https://votes26.bechirot.gov.il/nationalresults  (sièges attribués par la CEC)
   Participation     : live-blog de NBC News (relevés de la CEC, JSON-LD) ; data/manual.json prévaut pour une même heure
-  Relais presse     : projection de The Petek (NON officiel, repli si la CEC bloque) -> clé « press » de live.json
+  Relais presse     : projection de The Petek (NON officiel) -> clé « press » de live.json
+Le site de la CEC (CSV et HTML) n'est interrogé que si on le demande (--poll-cec) : il répond par un défi anti-bot.
 
 Robustesse : un relevé incohérent (fichier tronqué, page d'erreur, total qui s'effondre) ou une panne réseau
 ne remplace jamais les derniers bons chiffres ; ils sont conservés et signalés `stale` après 3 échecs de suite.
 
 Défi anti-bot : le soir du scrutin la CEC a protégé ses fichiers (AWS WAF, HTTP 202 + `x-amzn-waf-action: challenge`).
-On ne le contourne pas : le collecteur s'identifie honnêtement, cesse d'insister (pause croissante de 45 s à 10 min) et
-signale `challenge: true`. Repli légitime : un humain télécharge le fichier depuis le site de la CEC (--csv-file), ou un
-autre collecteur publie des chiffres plus récents (--peer).
+On ne le contourne pas, et la lecture automatique du site est arrêtée par défaut. Avec --poll-cec le collecteur
+s'identifie honnêtement et cesse d'insister (pause croissante de 45 s à 10 min). Sans elle, les chiffres de la CEC
+viennent d'un humain : fichier téléchargé sur son site (--csv-file) ou totaux saisis dans manual.json ; ou d'un autre
+collecteur qui publie des chiffres plus récents (--peer).
 
 Usage :
-  fetch_cec.py --out live.json [--manual manual.json] [--prev live.json] [--peer autre_live.json]
+  fetch_cec.py --out live.json [--manual manual.json] [--prev live.json] [--peer autre_live.json] [--poll-cec]
   fetch_cec.py --csv-file expc.csv ...                 # fichier téléchargé à la main depuis le site de la CEC
   fetch_cec.py --csv-url URL --html-url URL ...        # pour tester sur un autre scrutin
 """
@@ -397,8 +399,9 @@ def load_json(path):
 
 
 # ---------------------------------------------------------------- assemblage (pur, testable)
-def build(prev, manual, csv_res, html_res, log):
-    """prev : dernier live.json ; csv_res / html_res : dict ou None (échec) ; renvoie le nouveau dict (sans digest)."""
+def build(prev, manual, csv_res, html_res, log, polled=True):
+    """prev : dernier live.json ; csv_res / html_res : dict ou None (échec) ; polled : le site de la CEC a-t-il été interrogé ?
+    Renvoie le nouveau dict (sans digest)."""
     prev = prev or {}
     fails = int(prev.get("fails", 0))
     votes = totals = None
@@ -414,8 +417,10 @@ def build(prev, manual, csv_res, html_res, log):
             log["csv"] = f"relevé rejeté : {why} (échec {fails})"
             if fails >= FAILS_BEFORE_STALE:        # une vraie correction de la CEC finit par passer
                 votes, totals, n_rows, suspect = csv_res["votes"], csv_res["totals"], csv_res["rows"], True
-    else:
+    elif polled:
         fails += 1
+    else:
+        fails = 0                                  # site non interrogé : pas d'échec à signaler, les derniers chiffres restent
 
     fresh_valid = totals["valid"] if votes is not None and totals else 0     # ce que le flux automatique vient de donner
 
@@ -497,6 +502,8 @@ def main():
     ap.add_argument("--html-url", default=HTML_URL)
     ap.add_argument("--turnout-url", default=TURNOUT_URL)
     ap.add_argument("--press-url", default=PRESS_URL)
+    ap.add_argument("--poll-cec", action="store_true",
+                    help="interroge le site de la CEC (CSV + HTML), arrêté par défaut : il répond par un défi anti-bot")
     ap.add_argument("--csv-file", help="fichier expc.csv téléchargé à la main sur le site de la CEC (remplace la lecture réseau)")
     ap.add_argument("--peer", help="live.json publié par un autre collecteur : adopté s'il a des chiffres plus avancés que les nôtres")
     ap.add_argument("--timeout", type=int, default=20)
@@ -514,10 +521,13 @@ def main():
     now = time.time()
     blk = prev.get("blocked") or {}
     strikes, until = int(blk.get("strikes", 0)), float(blk.get("until", 0))
-    challenge = False
+    polling = a.poll_cec and not a.csv_file
+    if not polling:
+        strikes, until = 0, 0
+    blocked_now = False
 
     csv_res = html_res = None
-    paused = not a.csv_file and until > now
+    paused = polling and until > now
     if a.csv_file:
         try:
             with open(a.csv_file, encoding="utf-8-sig") as f:
@@ -527,8 +537,10 @@ def main():
             strikes, until = 0, 0
         except (OSError, ValueError) as e:
             log["csv"] = f"fichier local illisible : {e}"
+    elif not polling:
+        log["csv"] = "site de la CEC non interrogé (totaux saisis à la main, fichier importé, relais presse)"
     elif paused:
-        challenge = True
+        blocked_now = True
         log["csv"] = f"pause anti-bot jusqu'à {datetime.fromtimestamp(until, timezone.utc).strftime('%H:%M:%SZ')} (tentative {strikes})"
     else:
         try:
@@ -539,7 +551,7 @@ def main():
         except Blocked as e:
             strikes += 1
             until = now + min(600, 45 * 2 ** (strikes - 1))
-            challenge = True
+            blocked_now = True
             log["csv"] = f"indisponible : {e}"
         except (urllib.error.URLError, ValueError, OSError) as e:
             log["csv"] = f"indisponible : {e}"
@@ -553,15 +565,15 @@ def main():
                     "official_seats": peer.get("official_seats"), "fails": 0}
             log["peer"] = f"relevé de « {peer.get('collector')} » adopté ({peer['totals']['valid']} bulletins valides)"
 
-    if a.skip_html or paused or challenge or a.csv_file:
-        log["html"] = "non relu (cycle rapide)" if a.skip_html else "non relu (accès bloqué ou fichier local)"
+    if a.skip_html or not polling or paused or blocked_now:
+        log["html"] = "non relu (cycle rapide)" if a.skip_html else "non relu (site de la CEC non interrogé ou bloqué)"
     else:
         try:
             h_votes, h_totals, names, seats, waiting = parse_html(get(a.html_url, a.timeout), set(csv_res["votes"]) if csv_res else None)
             html_res = {"votes": h_votes, "totals": h_totals, "names": names, "seats": seats, "waiting": waiting}
             log["html"] = "ok (en attente du dépouillement)" if waiting and not h_votes else "ok"
         except Blocked as e:
-            challenge = True
+            blocked_now = True
             log["html"] = f"indisponible : {e}"
         except (urllib.error.URLError, ValueError, OSError) as e:
             log["html"] = f"indisponible : {e}"
@@ -594,9 +606,8 @@ def main():
         except (urllib.error.URLError, ValueError, OSError) as e:
             log["press"] = f"indisponible : {e}"
 
-    body = build(prev, manual, csv_res, html_res, log)
+    body = build(prev, manual, csv_res, html_res, log, polled=a.poll_cec or bool(a.csv_file))
     body["press"] = press
-    body["challenge"] = challenge
     body["blocked"] = {"strikes": strikes, "until": until} if strikes else None
     stable = {k: v for k, v in body.items() if k not in ("fails", "source", "blocked")}   # ce qui compte pour « les données ont changé »
     if isinstance(stable.get("press"), dict):

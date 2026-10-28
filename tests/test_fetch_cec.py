@@ -337,16 +337,6 @@ class ManualFile(unittest.TestCase):
     """data/manual.json est saisi à la main, souvent dans l'urgence : la page écarte en silence un identifiant de parti inconnu."""
     ROOT = os.path.join(os.path.dirname(__file__), "..")
 
-    def test_exit_polls_use_known_parties_and_total_120(self):
-        with open(os.path.join(self.ROOT, "js", "common.js"), encoding="utf-8") as f:
-            ids = set(re.findall(r'\{ id: "(\w+)",\s+fr:', f.read()))
-        with open(os.path.join(self.ROOT, "data", "manual.json"), encoding="utf-8") as f:
-            manual = json.load(f)
-        self.assertGreater(len(ids), 10)
-        for e in manual["exit_polls"]:
-            self.assertFalse(set(e["seats"]) - ids, f"{e['channel']} : parti inconnu {set(e['seats']) - ids}")
-            self.assertEqual(sum(e["seats"].values()), 120, e["channel"])
-
 
 import http.server
 import threading
@@ -397,19 +387,17 @@ class AntiBot(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp, mock.patch.object(fetch_cec, "get", blocked):
             prev = os.path.join(tmp, "prev.json")
-            first = self.run_main(tmp, now=1_000_000.0)
-            self.assertTrue(first["challenge"])
+            first = self.run_main(tmp, "--poll-cec", now=1_000_000.0)
             self.assertEqual(first["blocked"], {"strikes": 1, "until": 1_000_045.0})
             self.assertEqual(first["status"], "waiting")
             json.dump(first, open(prev, "w"))
             # pendant la pause : aucune requête
-            paused = self.run_main(tmp, "--prev", prev, now=1_000_020.0)
+            paused = self.run_main(tmp, "--poll-cec", "--prev", prev, now=1_000_020.0)
             self.assertEqual(len(calls), 1)
-            self.assertTrue(paused["challenge"])
             self.assertIn("pause anti-bot", paused["source"]["fetch"]["csv"])
             # la pause terminée : un nouvel essai, pause doublée
             json.dump(paused, open(prev, "w"))
-            again = self.run_main(tmp, "--prev", prev, now=1_000_100.0)
+            again = self.run_main(tmp, "--poll-cec", "--prev", prev, now=1_000_100.0)
             self.assertEqual(len(calls), 2)
             self.assertEqual(again["blocked"], {"strikes": 2, "until": 1_000_190.0})
 
@@ -419,12 +407,30 @@ class AntiBot(unittest.TestCase):
             f = os.path.join(tmp, "expc.csv")
             open(f, "w", encoding="utf-8").write(csv_text)
             prev = os.path.join(tmp, "prev.json")
-            json.dump({"blocked": {"strikes": 4, "until": 9e12}, "challenge": True}, open(prev, "w"))
+            json.dump({"blocked": {"strikes": 4, "until": 9e12}}, open(prev, "w"))
             out = self.run_main(tmp, "--prev", prev, "--csv-file", f)
         self.assertEqual(out["status"], "counting")
         self.assertEqual(out["votes"], {"מחל": 400, "רק": 300})
-        self.assertFalse(out["challenge"])
         self.assertIsNone(out["blocked"])
+
+    def test_site_is_not_queried_unless_asked(self):
+        calls = []
+
+        def spy(*a, **k):
+            calls.append(a[0])
+            raise fetch_cec.Blocked("défi")
+
+        old = {"status": "counting", "votes": {"מחל": 400, "רק": 300}, "fails": 2011, "stale": True, "blocked": {"strikes": 99, "until": 9e12},
+               "totals": {"eligible": 2000, "voters": 750, "invalid": 0, "valid": 700}}
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(fetch_cec, "get", spy):
+            prev = os.path.join(tmp, "prev.json")
+            json.dump(old, open(prev, "w"))
+            out = self.run_main(tmp, "--prev", prev)
+        self.assertEqual(calls, [])                              # ni CSV ni page HTML : le site n'est pas sollicité
+        self.assertEqual(out["totals"]["valid"], 700)            # les derniers chiffres restent
+        self.assertEqual((out["fails"], out["stale"], out["blocked"]), (0, False, None))
+        self.assertNotIn("challenge", out)
+        self.assertIn("non interrogé", out["source"]["fetch"]["csv"])
 
     def test_peer_with_more_votes_is_adopted_only_when_we_read_nothing(self):
         peer = {"collector": "local", "votes": {"מחל": 400, "רק": 300}, "totals": {"eligible": 2000, "voters": 750, "invalid": 0, "valid": 700}}

@@ -25,7 +25,7 @@ const CEC = {
   csv: "https://media26.bechirot.gov.il/files/expc.csv",
 };
 
-// Relais presse NON officiel : repli tant que la CEC bloque les lectures automatiques (lien fixe, jamais celui du JSON).
+// Relais presse NON officiel : projection qui reprend le dépouillement de la CEC (lien fixe, jamais celui du JSON).
 const PRESS = { name: "The Petek", url: "https://www.thepetek.com/results" };
 
 const BLOCS = {
@@ -136,8 +136,6 @@ function sanitizeLive(raw) {
   const seats = Object.fromEntries(Object.entries(obj(raw.official_seats)).map(([k, v]) => [String(k), Math.round(num(v))]));
   live.official_seats = Object.keys(seats).length && sum(Object.values(seats)) === 120 && live.votes ? seats : null;
   live.names = Object.fromEntries(Object.entries(obj(raw.names)).map(([k, v]) => [String(k), String(v)]));
-  live.stale = raw.stale === true;
-  live.challenge = raw.challenge === true;                       // la CEC refuse les lectures automatiques (défi anti-bot)
   const pr = obj(raw.press), pct = +pr.counted_pct;
   const pseats = Object.fromEntries(Object.entries(obj(pr.seats)).filter(([id, n]) => BY_ID[id] && Number.isFinite(+n) && +n >= 0 && +n <= 120).map(([id, n]) => [id, Math.round(+n)]));
   live.press = sum(Object.values(pseats)) === 120 && Number.isFinite(pct) && pct > 0 && pct <= 100 && num(pr.valid) > 0
@@ -235,7 +233,7 @@ function derive() {
     const share = totals && totals.eligible > 0 ? totals.voters / (totals.eligible * turnRef) : 0;
     sources.cec = { key: "cec", label: "Estimation sur les voix CEC", chip: live.status === "final" ? "Calcul · CEC" : "Calcul · dépouillement partiel", cls: "calc", seats: r.seats, passed: r.passed, share: Math.max(0, Math.min(Number.isFinite(share) ? share : 0, 1)) };
   }
-  // 3. relais presse NON officiel (projection de The Petek d'après le dépouillement de la CEC) : repli tant que la CEC bloque
+  // 3. relais presse NON officiel (projection de The Petek d'après le dépouillement de la CEC)
   if (live.press) {
     const pr = live.press;
     sources.press = { key: "press", label: `Projection ${PRESS.name} (relais non officiel · dépouillement CEC de ${pr.as_of || "?"}, heure d’Israël)`, chip: "Non officiel · relais presse", cls: "nonoff", seats: pr.seats, share: pr.counted_pct / 100, valid: pr.valid, asOf: pr.as_of, stations: pr.stations };
@@ -268,8 +266,8 @@ function phaseInfo() {
   const ph = phase();
   const map = {
     voting: ["wait", "Bureaux de vote ouverts", `fermeture dans <b class="num" id="cd">—</b>`],
-    closed: ["wait", "Bureaux fermés", model.live.challenge ? "résultats officiels non lisibles automatiquement (défi anti-bot de la CEC)" : "dépouillement en attente — les premiers chiffres officiels arrivent"],
-    counting: ["", "Dépouillement en cours", model.active.key === "press" ? `projection d’un relais non officiel (relevé de ${esc(model.active.asOf || "?")}) · la CEC bloque les lectures automatiques` : "résultats partiels de la CEC, susceptibles d’évoluer"],
+    closed: ["wait", "Bureaux fermés", "dépouillement en attente — les premiers chiffres arrivent"],
+    counting: ["", "Dépouillement en cours", model.active.key === "press" ? `source : ${esc(PRESS.name)}, relais non officiel du dépouillement de la CEC (relevé de ${esc(model.active.asOf || "?")}, heure d’Israël)` : "résultats partiels de la CEC, susceptibles d’évoluer"],
     final: ["", "Résultats publiés", "chiffres définitifs de la CEC"],
   };
   return { ph, info: map[ph] };
@@ -294,8 +292,8 @@ function tickLive() {
   else if (state.ok === false) main = `⚠ <b>Connexion impossible</b> · nouvel essai dans ${next} s`;
   else if (state.lastTry) main = `<span class="spin idle" aria-hidden="true">↻</span>Page actualisée à <b>${hhmmss(new Date(state.lastTry))}</b> · prochaine dans <b class="num">${next} s</b>`;
   else main = "Chargement…";
-  const data = state.demo ? "Données simulées" : age == null ? "Collecteur CEC : aucune donnée reçue" : `Collecteur CEC : dernier relevé il y a <b>${ago(age)}</b>${late ? " — en retard" : ""}${(state.live || {}).challenge ? " · accès CEC bloqué (anti-bot)" : ""}`;
-  el.className = "livechip" + (late || state.ok === false || (state.live || {}).challenge ? " warn" : "");
+  const data = state.demo ? "Données simulées" : age == null ? "Aucune donnée reçue" : `Dernier relevé il y a <b>${ago(age)}</b>${late ? " — en retard" : ""}`;
+  el.className = "livechip" + (late || state.ok === false ? " warn" : "");
   el.innerHTML = `<span class="l1">${main}</span><span class="l2">${data}</span>`;
 }
 function tick() { tickCountdown(); tickLive(); }

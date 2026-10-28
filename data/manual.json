@@ -1,6 +1,6 @@
 {
   "final": false,
-  "note": "Fichier édité à la main (PR bienvenues). Tout le reste vient de la CEC. La participation est aussi relevée automatiquement (live-blog NBC) : une ligne saisie ici prévaut pour la même heure. Les sièges des sondages sortie des urnes utilisent les identifiants de partis de index.html.",
+  "note": "Fichier édité à la main (PR bienvenues) : participation, totaux de la CEC (clé cec), final. La participation est aussi relevée automatiquement (live-blog NBC) : une ligne saisie ici prévaut pour la même heure. Identifiants de parti : PARTIES dans js/common.js.",
   "turnout": [
     { "time": "10:00", "pct": 16.7, "prev2022": 15.9, "source": "CEC, relayé par NBC News", "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979" },
     { "time": "12:00", "pct": 31.5, "prev2022": 28.4, "source": "CEC, relayé par NBC News", "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979" },
@@ -9,14 +9,6 @@
     { "time": "22:00", "pct": 77.7, "prev2022": 70.6, "source": "CEC (clôture, 5 695 682 votants), relayé par ynet", "url": "https://www.ynet.co.il/news/blogs/article/hjvyjpc2fe" }
   ],
   "final_turnout_est": 77.7,
-  "exit_polls": [
-    { "channel": "Kan 11", "url": "https://www.inn.co.il/news/709477",
-      "seats": {"likud": 25, "yashar": 21, "together": 14, "democrats": 10, "joint": 10, "yb": 8, "otzma": 7, "raam": 7, "rzp": 6, "shas": 6, "utj": 6} },
-    { "channel": "Channel 12", "url": "https://www.ynet.co.il/news/article/s1l0l0002mg",
-      "seats": {"likud": 24, "yashar": 22, "together": 12, "joint": 11, "democrats": 9, "yb": 9, "shas": 8, "raam": 7, "utj": 6, "otzma": 6, "rzp": 6} },
-    { "channel": "Channel 13", "url": "https://www.inn.co.il/news/709477",
-      "seats": {"likud": 25, "yashar": 23, "together": 14, "joint": 10, "democrats": 9, "yb": 7, "raam": 7, "utj": 7, "shas": 6, "otzma": 6, "rzp": 6} }
-  ],
   "cec": {
     "as_of": "10:56",
     "url": "https://votes26.bechirot.gov.il/nationalresults",

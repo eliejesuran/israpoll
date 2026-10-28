@@ -64,7 +64,7 @@ function renderKpis() {
     k("Votants", fmt(t.voters), t.eligible ? `${pc(t.voters / t.eligible, 1)} des inscrits (urnes dépouillées)` : ""),
     k("Inscrits", fmt(t.eligible), "électeurs inscrits"),
     k("Bulletins nuls", fmt(t.invalid), t.voters ? `${pc(t.invalid / t.voters, 2)} des votants` : ""),
-    k("Origine des chiffres", hand ? "Saisie à la main" : "Relevé automatique", hand ? `d’après le tableau de la CEC, relevé de ${esc(hand.as_of || "?")} (heure d’Israël)` : `publié à ${hhmmss(live.updated_at)}`, true),
+    k("Origine des chiffres", hand ? "Tableau de la CEC" : "Fichier de la CEC", hand ? `recopié, relevé de ${esc(hand.as_of || "?")} (heure d’Israël)` : `fichier par localité, publié à ${hhmmss(live.updated_at)}`, true),
   ].join("");
 }
 
@@ -81,10 +81,10 @@ function renderResults() {
   const ph = phase(), live = model.live, tot = model.totals;
   // bandeau
   let notice = "";
-  if (!tot && live.challenge) {
-    notice = `<div class="notice bad"><b>Résultats officiels illisibles automatiquement.</b> Depuis la fermeture des bureaux, la CEC protège ses fichiers par un défi anti-bot : notre collecteur s’identifie honnêtement et ne cherche pas à le contourner. Pour les chiffres officiels, consulte <a href="${CEC.national}" rel="noopener" target="_blank">le site de la CEC</a>.</div>`;
-  } else if (!tot) {
-    notice = `<div class="notice warn"><b>Aucun résultat officiel publié pour l’instant.</b> Le site de la CEC affiche « <span class="he" dir="rtl">ממתינים לספירת הקולות</span> » (en attente du décompte). Ce tableau se remplira tout seul, sans recharger la page.</div>`;
+  if (!tot) {
+    notice = model.sources.press
+      ? `<div class="notice warn"><b>Voix par liste non disponibles pour l’instant.</b> Seuls les sièges projetés par un relais non officiel sont affichés ci-dessous.</div>`
+      : `<div class="notice warn"><b>Aucun résultat publié pour l’instant.</b> Ce tableau se remplira tout seul, sans recharger la page.</div>`;
   } else if (live.status !== "final") {
     const c = model.sources.cec;
     notice = `<div class="notice warn"><b>Résultats partiels.</b> ≈ ${Math.round(c.share * 100)} % du vote attendu est dépouillé. Les premiers bureaux (kibboutzim, communes arabes ou ultra-orthodoxes) ne reflètent pas le pays : un classement provisoire peut s’inverser.</div>`;
@@ -92,13 +92,13 @@ function renderResults() {
     notice = `<div class="notice"><b>Résultats publiés par la CEC.</b> Les chiffres définitifs sont proclamés au journal officiel d’ici le ${FINAL_BY}.</div>`;
   }
   const hand = tot && live.source && live.source.manual_cec;
-  if (live.challenge && tot && !hand) notice += `<div class="notice warn" style="margin-top:10px">La CEC bloque actuellement les lectures automatiques : ces chiffres sont le <b>dernier relevé obtenu</b> et peuvent être en retard sur <a href="${CEC.national}" rel="noopener" target="_blank">le site officiel</a>.</div>`;
-  if (live.stale) notice += `<div class="notice warn" style="margin-top:10px">Le collecteur n’a pas pu joindre la CEC au dernier relevé : ces chiffres datent de ${esc(live.updated_at || "?")}.</div>`;
-  if (hand) notice += `<div class="notice warn" style="margin-top:10px"><b>Totaux recopiés à la main.</b> Le site de la CEC bloque les lectures automatiques : ces chiffres sont recopiés depuis son tableau national${hand.as_of ? ` (relevé de ${esc(hand.as_of)}, heure d’Israël)` : ""} et ne changent qu’à chaque saisie. <a href="${CEC.national}" rel="noopener">Vérifier sur le site de la CEC</a>.</div>`;
+  const origin = [];
+  if (hand) origin.push(`<b>Voix :</b> totaux nationaux de la CEC, recopiés depuis <a href="${CEC.national}" rel="noopener" target="_blank">son tableau</a>${hand.as_of ? ` (relevé de ${esc(hand.as_of)}, heure d’Israël)` : ""}.`);
   if (model.active.key === "press") {
     const pr = model.active;
-    notice += `<div class="notice warn" style="margin-top:10px"><b>Chiffres d’un relais non officiel.</b> La CEC bloque les lectures automatiques : les sièges affichés sont la projection de <a href="${PRESS.url}" rel="noopener" target="_blank">${esc(PRESS.name)}</a>, un agrégateur indépendant qui reprend le dépouillement de la CEC (${pc(pr.share, 2)} des urnes, relevé de ${esc(pr.asOf || "?")}, heure d’Israël). Ce ne sont <b>ni des résultats officiels ni un flux de la CEC</b> : vérifie sur <a href="${CEC.national}" rel="noopener" target="_blank">le site de la CEC</a>.</div>`;
+    origin.push(`<b>Sièges :</b> projection de <a href="${PRESS.url}" rel="noopener" target="_blank">${esc(PRESS.name)}</a>, un agrégateur indépendant qui reprend le dépouillement de la CEC (${pc(pr.share, 2)} des urnes, relevé de ${esc(pr.asOf || "?")}, heure d’Israël) — <b>non officiel</b>.`);
   }
+  if (origin.length) notice += `<div class="notice" style="margin-top:10px">${origin.join("<br>")}</div>`;
   $("#resNotice").innerHTML = notice;
 
   $("#turnout").innerHTML = turnoutBlock();

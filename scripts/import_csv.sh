@@ -3,8 +3,8 @@
 #
 #   scripts/import_csv.sh [fichier.csv] [--dry] [-y]
 #
-# Pourquoi : la CEC protège ses fichiers par un défi anti-bot que seul un vrai navigateur passe ; le projet ne le contourne pas
-# (voir CLAUDE.md). Un humain qui télécharge le fichier — lien « תוצאות לפי יישובים (קובץ להורדה) » de
+# Pourquoi : la CEC protège ses fichiers par un défi anti-bot que seul un vrai navigateur passe ; le projet ne le contourne pas et
+# n'interroge plus son site (voir CLAUDE.md). Un humain qui télécharge le fichier — lien « תוצאות לפי יישובים (קובץ להורדה) » de
 # https://votes26.bechirot.gov.il/nationalresults — reste la voie officielle et exacte (voix par liste, commune par commune).
 #
 # Sans argument : prend le CSV le plus récent de ~/Downloads dont l'en-tête est celui de la CEC. Affiche un résumé (communes, bulletins, premières

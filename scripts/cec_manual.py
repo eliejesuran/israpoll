@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Saisie de secours des totaux nationaux de la CEC dans data/manual.json (clé « cec »).
+"""Saisie des totaux nationaux de la CEC dans data/manual.json (clé « cec »).
 
-À utiliser quand le collecteur est bloqué par le défi anti-bot du site de la CEC (HTTP 202 vide) : on lit le tableau
+Le collecteur n'interroge pas le site de la CEC (défi anti-bot, HTTP 202 vide) : on lit le tableau
 sur https://votes26.bechirot.gov.il/nationalresults dans un navigateur et on le recopie ici. Les mêmes contrôles que le
 collecteur s'appliquent (liste inconnue, totaux incohérents, somme des listes) : en cas d'erreur, rien n'est écrit.
 
   scripts/cec_manual.py --as-of 23:40 --eligible 7000000 --voters 1500000 --valid 1480000 \\
       likud=380000 yashar=350000 together=190000 ...        # identifiants de PARTIES (index.html) ou lettres de vote CEC
-  scripts/cec_manual.py --clear                              # retire la saisie (le flux automatique reprend seul)
+  scripts/cec_manual.py --clear                              # retire la saisie (les totaux de la CEC redeviennent ceux du dernier relevé ou fichier importé)
 
 Ne touche ni au reste de manual.json ni à git : relire `git diff`, puis commit + push (le collecteur relit le fichier
 depuis `main` à chaque tour, ~30 s).

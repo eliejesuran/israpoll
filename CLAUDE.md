@@ -15,16 +15,17 @@ avant de toucher au code.
 **Intégrité des chiffres**
 - **Jamais de chiffre inventé ni d'« à peu près ».** La page n'affiche que des chiffres de la CEC (sièges attribués, ou estimation
   Bader-Ofer sur les voix de la CEC). Le seul repli accepté est le **relais presse** (The Petek), toujours étiqueté « non officiel ».
-- **Aucun sondage n'est affiché** (ni d'avant-scrutin, ni sorties des urnes) : décision du propriétaire du projet. `exit_polls` peut
-  rester dans `data/manual.json` ; la page l'ignore.
+- **Aucun sondage n'est affiché** (ni d'avant-scrutin, ni sorties des urnes) : décision du propriétaire du projet. Les sorties des urnes ont
+  été retirées de `data/manual.json` (28/10).
 - Les rattachements de listes à un camp (`PARTIES.bloc`, `GROUPS` de `js/compare.js`) sont une **lecture éditoriale** : toujours
   dire « lecture éditoriale » quand on les affiche. Les verbes de l'analyse restent factuels (« progresse », « recule »), sans
   jugement ni couleur « bon/mauvais » (voir `.delta`).
 
-**Défi anti-bot de la CEC : on ne le contourne pas.** Depuis la fermeture des bureaux, `media26.bechirot.gov.il` et
+**Défi anti-bot de la CEC : on ne le contourne pas, et on n'interroge plus son site** (le propriétaire a fait arrêter la lecture le 28/10 ;
+`--poll-cec` / `CEC_POLL=1` la réactive). Depuis la fermeture des bureaux, `media26.bechirot.gov.il` et
 `votes26.bechirot.gov.il` répondent HTTP 202 à corps vide avec `x-amzn-waf-action: challenge` (AWS WAF) à tout client non-navigateur.
 Interdits : usurper un User-Agent de navigateur, résoudre/rejouer le défi, passer par un proxy pour l'éviter. Autorisés : en-tête
-honnête, pause croissante (45 s → 10 min, `fetch_cec.py`), import d'un CSV téléchargé **à la main** par un humain, saisie manuelle
+honnête, pause croissante (45 s → 10 min, `fetch_cec.py --poll-cec`), import d'un CSV téléchargé **à la main** par un humain, saisie manuelle
 des totaux (`scripts/cec_manual.py`), relais presse étiqueté.
 
 **Fuseaux horaires** : toujours préciser. Israël = UTC+2 depuis le 25/10/2026 (heure d'hiver) ; Bruxelles/Paris = UTC+1.
@@ -41,6 +42,9 @@ heure d'Israël ; les `*_at` de `live.json` sont en UTC.
   cet autre projet y exécute (dossiers, conteneurs).
 - Les actions qui publient (push, Pages, déploiement distant) doivent correspondre à une demande explicite.
 
+**Site** : la page ne parle jamais de « blocage », de « défi » ni de ce que le collecteur tente. Elle dit seulement **d'où vient** chaque chiffre
+(totaux de la CEC recopiés, fichier de la CEC, relais The Petek « non officiel »).
+
 **Style** : HTML/CSS/JS **sans build ni dépendance** (le propriétaire tient à un site « assez simple »). Textes en français. Pas de
 framework, pas de bibliothèque. Scripts classiques (pas de modules ES) : les pages partagent l'espace global.
 
@@ -49,7 +53,7 @@ framework, pas de bibliothèque. Scripts classiques (pas de modules ES) : les pa
 ## 2. Architecture
 
 ```
-CEC ─(CSV par localité, toutes les 30 s ; défi anti-bot ⇒ pause)─┐
+CEC ─(totaux recopiés par un humain, ou CSV téléchargé et importé)─┐   (le site de la CEC n'est pas interrogé)
 NBC live-blog (participation) ─────────────────────────────────────┤  scripts/fetch_cec.py  ──►  live.json
 The Petek (projection de sièges, relais NON officiel) ─────────────┤        ▲ data/manual.json (lu sur `main` à chaque tour)
 saisie manuelle des totaux CEC (data/manual.json, clé `cec`) ──────┘        │
@@ -68,12 +72,12 @@ flux RSS presse ──► scripts/fetch_news.py ──push force──► branch
 | `js/seats.js` | Seuil 3,25 % + quotient + Bader-Ofer avec accords de surplus (UMD : navigateur et Node) |
 | `js/compare.js` | Comparaison 2022 → 2026 (`GROUPS` = familles et correspondances ; pur, testé) |
 | `js/data2022.js` | Résultats officiels 2022 (CEC), somme exacte du fichier par localité |
-| `scripts/fetch_cec.py` | Collecteur : CSV CEC, HTML CEC (sièges), participation NBC, relais presse, saisie manuelle, pause anti-bot, adoption des relevés des autres collecteurs |
+| `scripts/fetch_cec.py` | Collecteur : participation NBC, relais presse, totaux saisis ou CSV importé, adoption des relevés des autres collecteurs ; avec `--poll-cec` seulement : CSV et HTML de la CEC (sièges), pause anti-bot |
 | `scripts/live.sh` | Boucle de collecte + publication `data` et `news` + mise à jour automatique du clone supervisé |
 | `scripts/fetch_news.py` | Titres de presse FR (RSS) → `news.json` (titre, média, lien, date uniquement) |
 | `scripts/cec_manual.py` | Assistant de saisie manuelle des totaux CEC (clé `cec` de `manual.json`) |
 | `deploy/jetson/` | Superviseur (`run.sh`, flock + cron) et installeur du collecteur pour le Jetson |
-| `data/manual.json` | Saisies à la main : participation, totaux CEC de secours (`cec`), `final`, `final_turnout_est` |
+| `data/manual.json` | Saisies à la main : participation, totaux de la CEC (`cec`), `final`, `final_turnout_est` |
 | `data/live.json`, `data/news.json` | **Instantanés statiques périmés**, derniers recours de la page (voir B1) |
 | `tests/` | `*.test.mjs` (Node, sans dépendance) et `test_*.py` (unittest) |
 
@@ -93,7 +97,7 @@ Toute chaîne dynamique passe par `esc()` ; les URL par `safeUrl()` (http/https 
 
 ### Données publiées
 `live.json` (branche `data`) : `status` (`waiting|counting|final`), `totals`, `votes` (par lettre de vote de la CEC), `official_seats`,
-`manual` (copie de `manual.json` + participation automatique), `press`, `challenge`, `stale`, `source.fetch` (journal par source),
+`manual` (copie de `manual.json` + participation automatique), `press`, `stale` (seulement avec `--poll-cec`), `source.fetch` (journal par source),
 `collector` (`jetson`/`local`), `checked_at` (dernière vérif) / `updated_at` (dernier changement), `digest`.
 La page lit **API GitHub** (`api.github.com/.../contents/live.json?ref=data`, ~1 min, 60 req/h/IP) **et** `raw.githubusercontent.com`
 (5 min de cache) et garde la plus récente (`checked_at`) ; une source en retard ne fait jamais reculer la page.
@@ -114,7 +118,7 @@ La page lit **API GitHub** (`api.github.com/.../contents/live.json?ref=data`, ~1
 - **Participation** : relevés de la CEC (toutes les ~2 h), lus sur le live-blog NBC (JSON-LD) puis saisis/corrigés dans `manual.json`.
   La comparaison avec 2022 se fait à la **même heure** (`prev2022`), ou avec le total 2022 pour le seul relevé de clôture (22:00).
 - **« Dépouillement ≈ X % »** (accueil) : `votants / (inscrits × participation finale estimée)` ; ce n'est **pas** le pourcentage d'urnes
-  dépouillées annoncé par la presse (voir B7).
+  dépouillées annoncé par la presse (voir B6).
 
 ---
 
@@ -140,7 +144,7 @@ gh api "repos/eliejesuran/israpoll/contents/live.json?ref=data" --jq .content | 
 # sur le Jetson (lecture seule)
 ssh <utilisateur>@<ip-du-jetson> 'tail -20 ~/israpoll-collector/work/live.log; ps -eo pid,etimes,cmd | grep "[i]srapoll"; crontab -l'
 # arrêter proprement : retirer les 2 lignes `israpoll-collector` du crontab PUIS tuer les PID (pas de `pkill -f` : il se tue lui-même via la commande ssh)
-# un relevé à la main / tester sans publier
+# un relevé à la main / tester sans publier (le site de la CEC n'est interrogé qu'avec --poll-cec)
 python3 -I scripts/fetch_cec.py --out /tmp/live.json --manual data/manual.json
 # import humain du fichier téléchargé sur le site de la CEC (résumé + confirmation ; --dry pour ne rien publier)
 scripts/import_csv.sh
@@ -148,19 +152,21 @@ scripts/import_csv.sh
 python3 -I scripts/cec_manual.py --as-of 12:30 --eligible … --voters … --valid … likud=… yashar=…
 ```
 
-### Si la CEC bloque (c'est le cas depuis le soir du scrutin)
-1. Le collecteur journalise `pause anti-bot jusqu'à …` et publie `challenge: true` (bandeau rouge sur la page).
-2. Repli officiel : un humain lit le tableau national dans un navigateur et saisit les totaux (`cec_manual.py`), ou télécharge le CSV.
-3. Repli non officiel : relais presse (`press`), toujours étiqueté ; la page le préfère aux totaux CEC seulement s'il est plus avancé.
-4. Quand le défi disparaît, le flux automatique reprend seul (`fails` repart à 0 ; la saisie manuelle est ignorée si le flux est plus avancé).
+### Chiffres de la CEC (le site bloque depuis le soir du scrutin ; lecture arrêtée le 28/10)
+1. Le collecteur n'interroge pas le site de la CEC (`source.fetch.csv` : « site de la CEC non interrogé »). Pour essayer quand même : `CEC_POLL=1 scripts/live.sh`
+   (journal `pause anti-bot jusqu'à …`, pause 45 s → 10 min).
+2. Voie officielle : un humain lit le tableau national dans un navigateur et saisit les totaux (`cec_manual.py`), ou télécharge le CSV (`scripts/import_csv.sh`).
+3. Voie non officielle : relais presse (`press`), toujours étiqueté ; la page le préfère aux totaux CEC seulement s'il est plus avancé.
+4. Conséquence : **les sièges attribués par la CEC ne sont pas lus** (`parse_html` ne tourne qu'avec `--poll-cec`) ; la page affiche l'estimation Bader-Ofer jusqu'à ce que
+   quelqu'un réactive la lecture ou que le site redevienne lisible.
 
 ---
 
 ## 5. Pièges rencontrés (ne pas les refaire)
 
 - **CORS** : ni la CEC, ni les RSS de presse ne l'autorisent ⇒ un relais est obligatoire. `raw.githubusercontent.com` et `api.github.com` l'autorisent.
-- **GitHub Actions** : depuis ses serveurs la CEC répond au défi anti-bot ; et les **exécutions planifiées (`schedule`) ne se déclenchent jamais**
-  sur ce dépôt (aucun événement en plusieurs heures, ni pour `live.yml` ni pour `news.yml`) ⇒ tout est fait par le collecteur du Jetson.
+- **GitHub Actions** : depuis ses serveurs la CEC répond au défi anti-bot ; et les **exécutions planifiées (`schedule`) sont très irrégulières**
+  sur ce dépôt (une seule exécution de `news.yml` en ~20 h, le 28/10 à 12:58Z) ⇒ tout est fait par le collecteur du Jetson, le workflow n'est qu'un filet.
 - **Caches** : `raw.githubusercontent.com` = 5 min (la chaîne `?t=` n'y change rien) ; l'API GitHub = 60 s + ETag, **60 requêtes/h/IP** (la page
   s'en détache sous 5 restantes) ; **jsDelivr** : l'API de purge répond `throttled: true` après quelques dizaines d'appels ⇒ abandonné ; GitHub Pages = 10 min (voir B3).
 - **systemd-logind `RemoveIPC=yes`** (Ubuntu) : vide `/dev/shm` et `/run/user/…` à la fermeture de la dernière session SSH ⇒ **ne jamais** mettre
@@ -186,7 +192,7 @@ python3 -I scripts/cec_manual.py --as-of 12:30 --eligible … --voters … --val
 node tests/seats.test.mjs        # Bader-Ofer : 120 sièges de 2022 reproduits, entrées dégradées
 node tests/compare.test.mjs      # camps 2022 (64/46/10), fusions, écarts, pas de double compte
 node tests/common.test.mjs       # sanitizeLive + choix de la source des sièges (vm, sans DOM)
-python3 -I -m unittest discover tests   # collecteur CEC (pause anti-bot, pairs, saisie manuelle), relais presse, actualités, manual.json
+python3 -I -m unittest discover tests   # collecteur CEC (site non interrogé par défaut, pause anti-bot avec --poll-cec, pairs, saisie manuelle), relais presse, actualités
 python3 -m pyflakes scripts/*.py tests/*.py
 ```
 Pas de test automatisé du rendu : vérifier à la main dans le navigateur (`.claude/launch.json` lance `python3 -m http.server 8765`, dossier
@@ -227,12 +233,12 @@ de 2022 (renommé) ; (6) tests de cohérence page/collecteur repointés sur `js/
 | # | Où | Défaut | Impact / piste |
 |---|---|---|---|
 | B1 | `data/live.json`, `data/news.json` | Instantanés statiques périmés (27/10 16:26Z et 28/10 06:11Z) servis en **dernier recours** si l'API GitHub **et** `raw` échouent | La page afficherait un état ancien (le chip « dernier relevé » le montre en orange). Piste : un job qui recopie `data`/`news` dans `main` à chaque heure, ou supprimer ces replis |
-| B2 | `.github/workflows/news.yml` | Le déclencheur `schedule` ne part jamais (voir §5) | Inoffensif, mais trompeur ; le collecteur fait le travail. Piste : retirer `schedule`, garder `workflow_dispatch` |
+| B2 | `.github/workflows/news.yml` | Le déclencheur `schedule` ne part que très rarement (voir §5) et double le travail du collecteur (deux force-push sur `news`) | Inoffensif : filet de secours. Piste : retirer `schedule`, garder `workflow_dispatch` |
 | B3 | `index.html`, `resultats.html`, `analyse.html` | Pas de version dans les URL de `css/site.css` et `js/*.js` ; GitHub Pages met 10 min en cache | Quelques minutes de décalage HTML/JS après un déploiement. Piste : `?v=<date>` à chaque modification |
 | B4 | menu (`.nav`) | Sur écran étroit le menu défile horizontalement ; « Sources » est partiellement coupé | Cosmétique ; piste : menu repliable sous 700 px |
 | B5 | `index.html` | Le simulateur ne propose que les partis qui ont ≥ 1 siège dans la source active ; un parti à 0 siège ne peut pas être coché | Voulu, mais un lien partagé contenant un parti à 0 siège l'ignore sans message |
 | B6 | `common.js` (`derive`) | `cec.share` (« ≈ X % du vote attendu ») vient de la participation finale estimée, pas des urnes dépouillées | Écart avec le « 76,89 % des urnes » de la presse ; libellé à clarifier ou remplacer par `press.counted_pct` quand disponible |
-| B7 | `fetch_cec.py` (`parse_html`) | Écrit pour la mise en page 2022 et une heuristique 2026 **jamais vue en conditions réelles** (le site renvoie le défi anti-bot) | Les sièges officiels de la CEC ne sont donc lus que si la page redevient accessible et conforme ; sinon estimation Bader-Ofer |
+| B7 | `fetch_cec.py` (`parse_html`) | Écrit pour la mise en page 2022 et une heuristique 2026 **jamais vue en conditions réelles** ; ne tourne plus qu'avec `--poll-cec` | Les sièges officiels de la CEC ne sont lus que si la lecture est réactivée et la page conforme ; sinon estimation Bader-Ofer (pas de saisie manuelle des sièges officiels) |
 | B8 | `fetch_cec.py` (`parse_turnout`) | Dépend de la structure JSON-LD du live-blog NBC ; la dernière mise à jour de ce live-blog précède la clôture | En cas d'échec : saisie manuelle de la participation (`manual.json`) |
 | B9 | `fetch_cec.py` (`parse_press`) | Lit le **texte** de la page The Petek (aucune API) ; un changement de mise en page rejette le relevé | Le dernier relevé reste affiché ; la source est facultative |
 | B10 | `fetch_news.py` | Liste blanche `MEDIA` tenue à la main : un média absent est écarté sans message | Ajouter son nom tel qu'il apparaît dans Google Actualités |
@@ -249,6 +255,8 @@ de 2022 (renommé) ; (6) tests de cohérence page/collecteur repointés sur `js/
 - 27/10 : collecteur sur GitHub Actions abandonné (défi anti-bot) ; jsDelivr abandonné (purge throttlée) ; API GitHub + `raw` retenus.
 - 27/10 soir : défi anti-bot sur tous les clients ⇒ pause croissante, import humain, saisie manuelle, relais presse étiqueté (accord du propriétaire).
 - 28/10 matin : sondages et sorties des urnes retirés de la page (décision du propriétaire) ; fil « À lire » ajouté.
+- 28/10 : lecture automatique du site de la CEC **arrêtée** à la demande du propriétaire (`--poll-cec` / `CEC_POLL=1` pour la réactiver) ; la page ne mentionne plus
+  de blocage, elle indique seulement la source de chaque chiffre ; `exit_polls` supprimé de `manual.json`.
 - 28/10 : hébergement sur le domaine personnel de l'utilisateur (déploiement par Action GitHub) **abandonné** : l'offre Infomaniak de base n'expose que le FTP
   en clair (port 21) et HTTPS (443) — ni FTPS (`AUTH TLS` → « 500 not implemented »), ni SFTP/SSH (port 22 fermé). Le site reste sur GitHub Pages ; l'utilisateur gère
   lui-même le `.htaccess` de son domaine. Voir §5.
