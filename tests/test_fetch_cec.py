@@ -489,7 +489,7 @@ class Press(unittest.TestCase):
         with open(out, encoding="utf-8") as f:
             return json.load(f)
 
-    def test_press_is_kept_when_the_source_fails_and_never_goes_backwards(self):
+    def test_press_is_kept_when_the_source_fails_and_a_sharp_drop_is_ignored(self):
         good = self.page()
         fewer = good.replace("4,006,695", "3,000,000")
         with tempfile.TemporaryDirectory() as tmp:
@@ -517,6 +517,10 @@ class Press(unittest.TestCase):
                 back = self.run_main(tmp, "--prev", prev)
             self.assertEqual(back["press"]["valid"], 4006695)                   # un relevé en recul est ignoré
             self.assertIn("recul", back["source"]["fetch"]["press"])
+            fixed = good.replace("4,006,695", "4,005,000")                         # petite correction à la baisse (-0,04 %) : suivie
+            with mock.patch.object(fetch_cec, "get", fake(fixed)):
+                tweaked = self.run_main(tmp, "--prev", prev)
+            self.assertEqual(tweaked["press"]["valid"], 4005000)
             self.assertEqual(back["status"], "waiting")                         # le relais ne devient jamais un résultat officiel
 
 

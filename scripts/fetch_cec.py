@@ -53,6 +53,7 @@ TURNOUT_SOURCE = "CEC, relayé par NBC News"
 PRESS_URL = "https://www.thepetek.com/results"
 PRESS_HOSTS = {"www.thepetek.com"}
 PRESS_SOURCE = "The Petek"
+PRESS_MAX_DROP = 0.02          # le relais corrige parfois son total de quelques milliers de voix ; une chute plus forte est écartée
 PRESS_PARTIES = {       # nom affiché par la source (minuscules) -> identifiant de parti (PARTIES dans index.html)
     "yashar": "yashar", "b'yachad": "together", "beyachad": "together", "together": "together",
     "the democrats": "democrats", "democrats": "democrats", "yisrael beiteinu": "yb",
@@ -591,14 +592,14 @@ def main():
             log["turnout"] = f"indisponible : {e}"
     manual = {**manual, "turnout": merge_turnout(manual.get("turnout"), list(auto.values()))}
 
-    # relais presse (non officiel) : le dernier relevé reste affiché si la source tombe ; le dépouillement ne recule jamais
+    # relais presse (non officiel) : le dernier relevé reste affiché si la source tombe ; un net recul du dépouillement est écarté
     press = prev.get("press") if isinstance(prev.get("press"), dict) else None
     if a.skip_html:
         log["press"] = "non relu (cycle rapide)"
     else:
         try:
             fresh = parse_press(get(a.press_url, a.timeout, tries=2, ok=allowed_press, opener=_press_opener))
-            if press and fresh["valid"] < press.get("valid", 0):
+            if press and fresh["valid"] < press.get("valid", 0) * (1 - PRESS_MAX_DROP):
                 log["press"] = f"ignoré : recul du dépouillement ({fresh['valid']} < {press.get('valid')})"
             else:
                 press = fresh
