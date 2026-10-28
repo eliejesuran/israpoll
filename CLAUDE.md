@@ -232,7 +232,7 @@ de 2022 (renommé) ; (6) tests de cohérence page/collecteur repointés sur `js/
 
 | # | Où | Défaut | Impact / piste |
 |---|---|---|---|
-| B1 | `data/live.json`, `data/news.json` | Instantanés statiques périmés (27/10 16:26Z et 28/10 06:11Z) servis en **dernier recours** si l'API GitHub **et** `raw` échouent | La page afficherait un état ancien (le chip « dernier relevé » le montre en orange). Piste : un job qui recopie `data`/`news` dans `main` à chaque heure, ou supprimer ces replis |
+| B1 | `data/live.json`, `data/news.json` | Instantanés statiques, recopiés à la main le 28/10 (14:00Z pour `live.json`, 14:00Z pour `news.json`) et périmés dès le tour suivant, servis en **dernier recours** si l'API GitHub **et** `raw` échouent | La page afficherait un état ancien (le chip « dernier relevé » le montre en orange). Piste : un job qui recopie `data`/`news` dans `main` à chaque heure, ou supprimer ces replis |
 | B2 | `.github/workflows/news.yml` | Le déclencheur `schedule` ne part que très rarement (voir §5) et double le travail du collecteur (deux force-push sur `news`) | Inoffensif : filet de secours. Piste : retirer `schedule`, garder `workflow_dispatch` |
 | B3 | `index.html`, `resultats.html`, `analyse.html` | Pas de version dans les URL de `css/site.css` et `js/*.js` ; GitHub Pages met 10 min en cache | Quelques minutes de décalage HTML/JS après un déploiement. Piste : `?v=<date>` à chaque modification |
 | B4 | menu (`.nav`) | Sur écran étroit le menu défile horizontalement ; « Sources » est partiellement coupé | Cosmétique ; piste : menu repliable sous 700 px |

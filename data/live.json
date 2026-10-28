@@ -1,11 +1,64 @@
 {
+ "blocked": null,
  "cec_waiting": false,
- "checked_at": "2026-10-27T15:26:06Z",
- "digest": "3a11292d5f096e0a313dc5743ee710236b4ac59e",
+ "checked_at": "2026-10-28T14:00:13Z",
+ "collector": "jetson",
+ "digest": "f16d3fb6759485e6f37c6fbf68339a78bb63f613",
+ "fails": 0,
  "manual": {
-  "exit_polls": [],
+  "cec": {
+   "as_of": "10:56",
+   "totals": {
+    "eligible": 7331981,
+    "invalid": 17963,
+    "valid": 4008086,
+    "voters": 4026049
+   },
+   "url": "https://votes26.bechirot.gov.il/nationalresults",
+   "votes": {
+    "amcha": 66037,
+    "democrats": 254429,
+    "haredi": 8350,
+    "joint": 396534,
+    "likud": 828972,
+    "noam": 6219,
+    "otzma": 220798,
+    "raam": 207230,
+    "reservists": 105851,
+    "rzp": 196346,
+    "shas": 217202,
+    "together": 353717,
+    "utj": 240648,
+    "yashar": 640241,
+    "yb": 239040,
+    "בד": 1035,
+    "בי": 4230,
+    "בקר": 521,
+    "ד": 3087,
+    "ה": 797,
+    "ז": 326,
+    "זץ": 184,
+    "י": 740,
+    "יק": 269,
+    "כן": 4,
+    "נף": 619,
+    "נץ": 315,
+    "נקי": 699,
+    "נר": 8199,
+    "פה": 560,
+    "צבי": 39,
+    "צדק": 1456,
+    "צף": 650,
+    "ק": 398,
+    "קה": 485,
+    "קך": 650,
+    "קץ": 513,
+    "רץ": 696
+   }
+  },
   "final": false,
-  "note": "Fichier édité à la main (PR bienvenues). Tout le reste vient de la CEC. Les sièges des sondages sortie des urnes utilisent les identifiants de partis de index.html.",
+  "final_turnout_est": 77.7,
+  "note": "Fichier édité à la main (PR bienvenues) : participation, totaux de la CEC (clé cec), final. La participation est aussi relevée automatiquement (live-blog NBC) : une ligne saisie ici prévaut pour la même heure. Identifiants de parti : PARTIES dans js/common.js.",
   "turnout": [
    {
     "pct": 16.7,
@@ -27,24 +80,121 @@
     "source": "CEC, relayé par NBC News",
     "time": "14:00",
     "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979"
+   },
+   {
+    "pct": 66.7,
+    "prev2022": 57.7,
+    "source": "CEC, relayé par NBC News",
+    "time": "18:00",
+    "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979"
+   },
+   {
+    "auto": true,
+    "pct": 74.3,
+    "prev2022": 66.0,
+    "source": "CEC, relayé par NBC News",
+    "time": "20:00",
+    "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979"
+   },
+   {
+    "pct": 77.7,
+    "prev2022": 70.6,
+    "source": "CEC (clôture, 5 695 682 votants), relayé par ynet",
+    "time": "22:00",
+    "url": "https://www.ynet.co.il/news/blogs/article/hjvyjpc2fe"
    }
   ]
  },
  "names": {},
  "official_seats": null,
+ "press": {
+  "as_of": "15:10",
+  "counted_pct": 93.1,
+  "fetched_at": "2026-10-28T14:00:13Z",
+  "seats": {
+   "democrats": 8,
+   "joint": 12,
+   "likud": 27,
+   "otzma": 7,
+   "raam": 7,
+   "rzp": 6,
+   "shas": 6,
+   "together": 12,
+   "utj": 7,
+   "yashar": 21,
+   "yb": 7
+  },
+  "source": "The Petek",
+  "stations": 11168,
+  "url": "https://www.thepetek.com/results",
+  "valid": 4852159
+ },
  "schema": 1,
  "source": {
   "csv": "https://media26.bechirot.gov.il/files/expc.csv",
   "fetch": {
-   "csv": "ok (0 communes)",
-   "html": "indisponible : réponse vide (HTTP 202, probablement le filtre anti-bot du site)"
+   "cec_manual": "utilisée (4008086 bulletins valides, relevé de 10:56)",
+   "csv": "site de la CEC non interrogé (totaux saisis à la main, fichier importé, relais presse)",
+   "html": "non relu (site de la CEC non interrogé ou bloqué)",
+   "press": "ok (93.1 % dépouillés, relevé de 15:10)",
+   "turnout": "ok (5 relevés, dernier 20:00)"
+  },
+  "manual_cec": {
+   "as_of": "10:56",
+   "url": "https://votes26.bechirot.gov.il/nationalresults"
   },
   "name": "Commission électorale centrale d'Israël (ועדת הבחירות המרכזית)",
-  "page": "https://votes26.bechirot.gov.il/nationalresults"
+  "page": "https://votes26.bechirot.gov.il/nationalresults",
+  "rows": 0
  },
  "stale": false,
- "status": "waiting",
- "totals": null,
- "updated_at": "2026-10-27T15:26:06Z",
- "votes": null
+ "status": "counting",
+ "suspect": false,
+ "totals": {
+  "eligible": 7331981,
+  "invalid": 17963,
+  "valid": 4008086,
+  "voters": 4026049
+ },
+ "updated_at": "2026-10-28T14:00:13Z",
+ "votes": {
+  "אמת": 254429,
+  "ב": 220798,
+  "בד": 1035,
+  "בי": 4230,
+  "בקר": 521,
+  "ג": 240648,
+  "ד": 3087,
+  "די": 105851,
+  "דרך": 640241,
+  "ה": 797,
+  "ודם": 396534,
+  "ז": 326,
+  "זך": 8350,
+  "זץ": 184,
+  "ט": 196346,
+  "י": 740,
+  "יק": 269,
+  "ך": 66037,
+  "כן": 4,
+  "ל": 239040,
+  "מחל": 828972,
+  "ני": 6219,
+  "נף": 619,
+  "נץ": 315,
+  "נקי": 699,
+  "נר": 8199,
+  "עם": 207230,
+  "פה": 560,
+  "צבי": 39,
+  "צדק": 1456,
+  "צף": 650,
+  "ק": 398,
+  "קה": 485,
+  "קך": 650,
+  "קץ": 513,
+  "רץ": 696,
+  "רק": 353717,
+  "שס": 217202
+ }
 }
