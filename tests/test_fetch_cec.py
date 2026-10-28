@@ -349,11 +349,8 @@ class ManualFile(unittest.TestCase):
 
 
 import http.server
-import json
-import tempfile
 import threading
 import urllib.request
-from unittest import mock
 
 
 class _Challenge(http.server.BaseHTTPRequestHandler):

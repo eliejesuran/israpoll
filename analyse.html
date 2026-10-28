@@ -62,8 +62,18 @@ const signedPts = (d) => (d > 0.00005 ? "+" : d < -0.00005 ? "−" : "±") + (Ma
 const dcls = (n) => (n > 0 ? "up" : n < 0 ? "down" : "flat");
 const siege = (n) => (Math.abs(n) > 1 ? "sièges" : "siège");
 
-// données de la comparaison, d'après la source active (sièges CEC > voix CEC > relais non officiel)
+// Référence 2022 de la participation : la valeur de la même heure si le relevé la donne ; sinon le total final 2022, mais seulement
+// pour le relevé de clôture (22:00) — comparer 14:00 en 2026 au total de 2022 serait trompeur.
+function turnoutRef(last) {
+  if (!last) return null;
+  if (last.prev2022 != null) return last.prev2022 / 100;
+  return String(last.time) >= "22:00" ? TURNOUT_2022 : null;
+}
+
+// données de la comparaison, d'après la source active (sièges CEC > voix CEC > relais non officiel) ; calculées une fois par rendu
+let _an = null;
 function analysis() {
+  if (_an && _an.model === model) return _an.data;
   const t = model.totals, votes = {};
   model.lists.forEach(l => { if (BY_ID[l.id]) votes[l.id] = (votes[l.id] || 0) + l.votes; });
   const hasVotes = !!t && model.lists.length > 0;
@@ -71,7 +81,9 @@ function analysis() {
   Object.entries(model.seats).forEach(([id, n]) => { if (BY_ID[id]) seats[id] = n; });
   const passed = new Set((model.sources.cec || {}).passed || []);
   const wasted = hasVotes ? sum(model.lists.filter(l => !passed.has(l.id)).map(l => l.votes)) : null;
-  return Compare.build({ r22: RESULTS_2022, votes26: hasVotes ? votes : null, valid26: hasVotes ? t.valid : 0, seats26: seats, hasSeats: model.active.key !== "none", wasted26: wasted });
+  const data = Compare.build({ r22: RESULTS_2022, votes26: hasVotes ? votes : null, valid26: hasVotes ? t.valid : 0, seats26: seats, hasSeats: model.active.key !== "none", wasted26: wasted });
+  _an = { model, data };
+  return data;
 }
 
 function renderAnNotice() {
@@ -86,14 +98,16 @@ function renderAnNotice() {
 function renderAnKpis() {
   const d = analysis();
   const g = Object.fromEntries(d.groups.map(x => [x.id, x]));
-  const t = model.manual.turnout || [], last = t[t.length - 1];
+  const t = model.manual.turnout || [], last = t[t.length - 1], ref = turnoutRef(last);
   const card = (k, v, s) => `<div class="stat"><div class="k">${k}</div><div class="v num">${v}</div><div class="s">${s}</div></div>`;
   const camp = (id, label) => {
     const x = g[id].tot;
     return card(label, x.seats26 == null ? `${x.seats22}` : `${x.seats22} → ${x.seats26}`, x.dSeats == null ? "sièges en 2022" : `<span class="delta ${dcls(x.dSeats)}">${signed(x.dSeats)} ${siege(x.dSeats)}</span> · ${x.dPct == null ? "" : signedPts(x.dPct) + " de voix"}`);
   };
   $("#anKpis").innerHTML = [
-    card("Participation", last ? `${String(last.pct).replace(".", ",")} %` : "—", last ? `à ${esc(last.time)} · <span class="delta ${dcls(last.pct / 100 - TURNOUT_2022)}">${signedPts(last.pct / 100 - TURNOUT_2022)}</span> vs ${pc(TURNOUT_2022, 2)} en 2022` : `${pc(TURNOUT_2022, 2)} en 2022`),
+    card("Participation", last ? `${String(last.pct).replace(".", ",")} %` : "—", !last ? `${pc(TURNOUT_2022, 2)} au total en 2022`
+      : ref == null ? `à ${esc(last.time)} · pas de relevé 2022 à la même heure`
+      : `à ${esc(last.time)} · <span class="delta ${dcls(last.pct / 100 - ref)}">${signedPts(last.pct / 100 - ref)}</span> vs ${pc(ref, 2)} en 2022`),
     camp("netanyahu", "Droite & ultra-orthodoxes"),
     camp("eisenkot", "Centre & gauche"),
     camp("arab", "Partis arabes"),
@@ -151,7 +165,8 @@ function renderInsights() {
   if (up && up.dSeats > 0) L.push(`Plus forte progression en sièges : <b>${esc(up.name)}</b> (${up.seats22} → ${up.seats26}, ${signed(up.dSeats)}).`);
   if (down && down.dSeats < 0) L.push(`Plus fort recul en sièges : <b>${esc(down.name)}</b> (${down.seats22} → ${down.seats26}, ${signed(down.dSeats)}).`);
   const t = model.manual.turnout || [], last = t[t.length - 1];
-  if (last) L.push(`Participation : <b>${String(last.pct).replace(".", ",")} %</b> à ${esc(last.time)} contre ${pc(TURNOUT_2022, 2)} au total en 2022 (<span class="delta ${dcls(last.pct / 100 - TURNOUT_2022)}">${signedPts(last.pct / 100 - TURNOUT_2022)}</span>).`);
+  const ref = turnoutRef(last);
+  if (last && ref != null) L.push(`Participation : <b>${String(last.pct).replace(".", ",")} %</b> à ${esc(last.time)} contre ${pc(ref, 2)} ${last.prev2022 != null ? "à la même heure" : "au total"} en 2022 (<span class="delta ${dcls(last.pct / 100 - ref)}">${signedPts(last.pct / 100 - ref)}</span>).`);
   if (d.wasted26 != null) L.push(`Les listes sous le seuil rassemblent <b>${pc(d.wasted26, 1)}</b> des voix comptées, contre ${pc(d.wasted22, 1)} en 2022.`);
   L.push(`<i>Lecture prudente : les fusions et scissions (Ensemble, Yashar, Démocrates, Liste commune) rendent certaines comparaisons approximatives, et le dépouillement n’est pas terminé.</i>`);
   $("#insights").innerHTML = `<div class="eyebrow">Ce qu’on peut en dire</div><h3 id="h-ins">Les faits, sans interprétation</h3><ul class="ins">${L.map(l => `<li>${l}</li>`).join("")}</ul>`;

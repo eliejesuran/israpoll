@@ -2,9 +2,9 @@
 
 ```bash
 # sur ton ordinateur, depuis la racine du dépôt
-scp deploy/jetson/run.sh deploy/jetson/install.sh bme@<ip>:/tmp/ && ssh bme@<ip> 'bash /tmp/install.sh'
+scp deploy/jetson/run.sh deploy/jetson/install.sh <utilisateur>@<ip>:/tmp/ && ssh <utilisateur>@<ip> 'bash /tmp/install.sh'
 # puis enregistrer la clé affichée comme « deploy key » (écriture) du dépôt :
-ssh bme@<ip> 'cat ~/israpoll-collector/deploy_key.pub' > /tmp/k.pub && gh repo deploy-key add /tmp/k.pub --repo eliejesuran/israpoll --title "collecteur" --allow-write
+ssh <utilisateur>@<ip> 'cat ~/israpoll-collector/deploy_key.pub' > /tmp/k.pub && gh repo deploy-key add /tmp/k.pub --repo eliejesuran/israpoll --title "collecteur" --allow-write
 ```
 
 - cron relance `run.sh` chaque minute ; `flock` assure un seul superviseur ; il se met à jour depuis `main` toutes les heures.

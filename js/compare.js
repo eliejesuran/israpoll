@@ -52,8 +52,6 @@
     const v22 = {}, s22 = {};
     Object.values(r22.lists).forEach(l => { v22[l.id] = l.votes; s22[l.id] = l.seats; });
     const valid22 = r22.totals.valid;
-    const used22 = new Set(), used26 = new Set();
-
     const mk = (id, name, note, from, to, extra) => {
       const row = { id, name, note, from, to, votes22: extra ? extra.votes22 : sumOf(v22, from), seats22: extra ? extra.seats22 : sumOf(s22, from) };
       row.pct22 = row.votes22 / valid22;
@@ -77,7 +75,7 @@
     };
 
     const groups = GROUPS.map(g => {
-      const rows = g.rows.map(r => { r.from.forEach(i => used22.add(i)); r.to.forEach(i => used26.add(i)); return mk(r.id, r.name, r.note, r.from, r.to); });
+      const rows = g.rows.map(r => mk(r.id, r.name, r.note, r.from, r.to));
       return { id: g.id, name: g.name, sub: g.sub, color: g.color, rows, tot: total(rows) };
     });
 
