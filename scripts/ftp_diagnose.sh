@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Diagnostic SANS identifiants : le serveur FTP propose-t-il le FTP chiffré (TLS explicite) ? Aucun mot de passe n'est envoyé.
 # Lancé automatiquement par le workflow quand le dépôt des fichiers échoue. Variable : FTP_HOST (nom d'hôte seul).
+# À la main (le nom du serveur reste alors chez vous, pas dans un journal public) :  FTP_HOST=xxxx.exemple.ch scripts/ftp_diagnose.sh
 # NB : les journaux d'une Action d'un dépôt public sont publics (adresse IP et bannière du serveur FTP visibles ; les secrets sont masqués).
 set -u
 : "${FTP_HOST:?variable manquante : FTP_HOST}"
 source "$(dirname "$0")/ftp_host.sh"
 FTP_HOST=$(ftp_host_clean "$FTP_HOST") || { echo "FTP_HOST invalide : un nom d'hôte est attendu (par exemple xxxxx.ftp.infomaniak.com)"; exit 2; }
 HOST_ONLY="${FTP_HOST%%:*}"
-T() { if command -v timeout >/dev/null 2>&1; then timeout "$@"; else shift; "$@"; fi; }   # `timeout` absent sur macOS
+T() { if command -v timeout >/dev/null 2>&1; then timeout "$@"; else perl -e 'alarm shift; exec @ARGV' "$@"; fi; }   # `timeout` absent sur macOS : repli perl
 
 echo "== Réponse du serveur à « AUTH TLS » (FTP chiffré) — seul un identifiant anonyme est tenté, jamais le vôtre"
 out=$(T 25 curl -sv --ssl-reqd --max-time 20 "ftp://${FTP_HOST}/" 2>&1 || true)
@@ -21,7 +22,7 @@ elif echo "$out" | grep -q -E '^\* (SSL connection|TLSv)'; then
 fi
 
 echo; echo "== FTPS implicite (port 990)"
-T 12 bash -c 'exec 3<>/dev/tcp/$0/990 && echo "port ouvert"' "$HOST_ONLY" 2>&1 | head -2 || true
+r=$({ T 12 bash -c 'exec 3<>/dev/tcp/$0/990 && echo "port ouvert"' "$HOST_ONLY"; } 2>/dev/null | head -2); echo "${r:-pas de réponse (port fermé ou filtré)}"
 echo "== SSH/SFTP (port 22) : bannière"
-T 10 bash -c 'exec 3<>/dev/tcp/$0/22 && head -c 80 <&3' "$HOST_ONLY" 2>&1 | head -2 || true
+r=$({ T 10 bash -c 'exec 3<>/dev/tcp/$0/22 && head -c 80 <&3' "$HOST_ONLY"; } 2>/dev/null | head -2); echo "${r:-pas de réponse (SSH non activé, port fermé ou filtré)}"
 echo; echo "CONCLUSION : $verdict"
