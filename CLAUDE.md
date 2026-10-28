@@ -2,8 +2,7 @@
 
 Résultats des élections israéliennes du **27 octobre 2026** (26ᵉ Knesset) : un site statique en trois pages, alimenté par un
 collecteur Python/bash. Projet **indépendant et open source** (MIT), non affilié à la Commission électorale centrale (CEC).
-Dépôt : <https://github.com/eliejesuran/israpoll> · site : <https://eliejesuran.be/israpoll/> (hébergement Infomaniak, déployé par Action GitHub) et son miroir
-<https://eliejesuran.github.io/israpoll/> (GitHub Pages, branche `main`).
+Dépôt : <https://github.com/eliejesuran/israpoll> · site : <https://eliejesuran.github.io/israpoll/> (GitHub Pages, branche `main`).
 
 Ce fichier est la mémoire du projet pour les sessions Claude : règles, architecture, exploitation, pièges rencontrés et
 **défauts mineurs connus** (section 9). Le `README.md` s'adresse aux visiteurs et contributeurs ; ici, tout ce qu'il faut savoir
@@ -61,7 +60,7 @@ flux RSS presse ──► scripts/fetch_news.py ──push force──► branch
 
 | Fichier | Rôle |
 |---|---|
-| `index.html` | Accueil : hémicycle, simulateur, duel Yashar vs BB, cartes vers les annexes, « À lire », sources |
+| `index.html` | Accueil : hémicycle, simulateur, « À lire », duel Yashar vs BB, sources (les annexes sont dans le menu) |
 | `resultats.html` | Annexe : résultat brut de la CEC (chiffres clés, participation, tableau voix/%/sièges) |
 | `analyse.html` | 2026 contre 2022 par famille politique |
 | `css/site.css` | Tous les styles (thèmes clair/sombre par variables CSS) |
@@ -73,7 +72,6 @@ flux RSS presse ──► scripts/fetch_news.py ──push force──► branch
 | `scripts/live.sh` | Boucle de collecte + publication `data` et `news` + mise à jour automatique du clone supervisé |
 | `scripts/fetch_news.py` | Titres de presse FR (RSS) → `news.json` (titre, média, lien, date uniquement) |
 | `scripts/cec_manual.py` | Assistant de saisie manuelle des totaux CEC (clé `cec` de `manual.json`) |
-| `scripts/deploy_ftp.sh`, `.github/workflows/deploy-eliejesuran.yml`, `deploy/eliejesuran/` | Déploiement FTPS sur eliejesuran.be (curl, FTPS obligatoire, secrets `FTP_*`, vérification, jamais de suppression) + `.htaccess` (revalidation) |
 | `deploy/jetson/` | Superviseur (`run.sh`, flock + cron) et installeur du collecteur pour le Jetson |
 | `data/manual.json` | Saisies à la main : participation, totaux CEC de secours (`cec`), `final`, `final_turnout_est` |
 | `data/live.json`, `data/news.json` | **Instantanés statiques périmés**, derniers recours de la page (voir B1) |
@@ -170,6 +168,9 @@ python3 -I scripts/cec_manual.py --as-of 12:30 --eligible … --voters … --val
 - **`pkill -f` via `ssh`** : la ligne de commande contient le motif ⇒ le shell distant se tue lui-même. Tuer par PID.
 - **macOS** : pas de `timeout` (déjà géré), bash 3.2 (tableaux vides sous `set -u` : idiome `${a[@]+"${a[@]}"}`), pas de `sha1sum` (le bloc de mise à
   jour automatique ne s'exécute que sur le clone supervisé du Jetson).
+- **Hébergement mutualisé Infomaniak (offre de base, un seul nom d'hôte)** : seuls le FTP **en clair** (21) et HTTPS (443) répondent ; `AUTH TLS` est refusé et le
+  port 22 est fermé. **Ne pas retenter un déploiement FTP/FTPS vers cet hébergement** (un déploiement qui enverrait le mot de passe en clair est exclu). Alternatives étudiées,
+  non retenues : sous-domaine servi par GitHub Pages (enregistrement DNS `CNAME`), récepteur PHP signé en HTTPS, FTP en clair.
 - **`force-push` sur les branches `data` et `news`** : branches orphelines à un seul commit, volontairement (l'historique ne grossit pas) ;
   ne jamais y mettre autre chose que `live.json` / `news.json`.
 - **Veille du Mac** : peut couper une session en plein travail ; `caffeinate -i -w <pid>` retient la machine tant que le processus tourne.
@@ -202,9 +203,7 @@ en sombre, au format mobile (375 px : pas de défilement horizontal de la page).
 - Nouveau parti : `PARTIES` (`js/common.js`) **et** `PARTY_LETTERS` (`scripts/fetch_cec.py`) **et**, si besoin, `PRESS_PARTIES` ; un test garde les tables
   alignées. Nouvelle ligne de comparaison : `GROUPS` (`js/compare.js`) + test.
 - Les scripts Python n'utilisent que la bibliothèque standard ; hôtes réseau en liste blanche (`allowed*`), redirections comprises, tailles bornées.
-- Publier = `git push` sur `main` : Pages se reconstruit en ~1 min, l'Action FTPS dépose le site sur eliejesuran.be (si les secrets existent) ; le Jetson récupère
-  le code en ≤ 5 min. **Toute nouvelle ressource locale** (script, feuille de style) doit être ajoutée à la liste de `scripts/deploy_ftp.sh` : un test le vérifie.
-- Les secrets `FTP_*` sont saisis **par l'utilisateur** (`gh secret set`) ; Claude ne voit ni ne manipule jamais ce mot de passe.
+- Publier = `git push` sur `main` : Pages se reconstruit en ~1 min ; le Jetson récupère le code en ≤ 5 min.
 
 ---
 
@@ -229,8 +228,7 @@ de 2022 (renommé) ; (6) tests de cohérence page/collecteur repointés sur `js/
 |---|---|---|---|
 | B1 | `data/live.json`, `data/news.json` | Instantanés statiques périmés (27/10 16:26Z et 28/10 06:11Z) servis en **dernier recours** si l'API GitHub **et** `raw` échouent | La page afficherait un état ancien (le chip « dernier relevé » le montre en orange). Piste : un job qui recopie `data`/`news` dans `main` à chaque heure, ou supprimer ces replis |
 | B2 | `.github/workflows/news.yml` | Le déclencheur `schedule` ne part jamais (voir §5) | Inoffensif, mais trompeur ; le collecteur fait le travail. Piste : retirer `schedule`, garder `workflow_dispatch` |
-| B3 | `index.html`, `resultats.html`, `analyse.html` | Pas de version dans les URL de `css/site.css` et `js/*.js` ; GitHub Pages met 10 min en cache | Quelques minutes de décalage HTML/JS après un déploiement **sur Pages** (sur eliejesuran.be le `.htaccess` impose la revalidation). Piste : `?v=<date>` |
-| B16 | `scripts/deploy_ftp.sh` | Testé avec un faux `curl` et un faux serveur FTP d'authentification, **jamais contre le vrai Infomaniak** (secrets non encore enregistrés au moment de l'écriture) | Premier déploiement à surveiller ; chemin `FTP_PATH` à confirmer ; `.htaccess` supprimable en cas d'erreur 500 |
+| B3 | `index.html`, `resultats.html`, `analyse.html` | Pas de version dans les URL de `css/site.css` et `js/*.js` ; GitHub Pages met 10 min en cache | Quelques minutes de décalage HTML/JS après un déploiement. Piste : `?v=<date>` à chaque modification |
 | B4 | menu (`.nav`) | Sur écran étroit le menu défile horizontalement ; « Sources » est partiellement coupé | Cosmétique ; piste : menu repliable sous 700 px |
 | B5 | `index.html` | Le simulateur ne propose que les partis qui ont ≥ 1 siège dans la source active ; un parti à 0 siège ne peut pas être coché | Voulu, mais un lien partagé contenant un parti à 0 siège l'ignore sans message |
 | B6 | `common.js` (`derive`) | `cec.share` (« ≈ X % du vote attendu ») vient de la participation finale estimée, pas des urnes dépouillées | Écart avec le « 76,89 % des urnes » de la presse ; libellé à clarifier ou remplacer par `press.counted_pct` quand disponible |
@@ -251,7 +249,8 @@ de 2022 (renommé) ; (6) tests de cohérence page/collecteur repointés sur `js/
 - 27/10 : collecteur sur GitHub Actions abandonné (défi anti-bot) ; jsDelivr abandonné (purge throttlée) ; API GitHub + `raw` retenus.
 - 27/10 soir : défi anti-bot sur tous les clients ⇒ pause croissante, import humain, saisie manuelle, relais presse étiqueté (accord du propriétaire).
 - 28/10 matin : sondages et sorties des urnes retirés de la page (décision du propriétaire) ; fil « À lire » ajouté.
-- 28/10 : hébergement sur eliejesuran.be/israpoll/ (sous-dossier, la racine existante n'est pas touchée) par FTPS avec identifiant/mot de passe en secret GitHub (choix du
-  propriétaire), sans action tierce ; GitHub Pages conservé en miroir.
+- 28/10 : hébergement sur le domaine personnel de l'utilisateur (déploiement par Action GitHub) **abandonné** : l'offre Infomaniak de base n'expose que le FTP
+  en clair (port 21) et HTTPS (443) — ni FTPS (`AUTH TLS` → « 500 not implemented »), ni SFTP/SSH (port 22 fermé). Le site reste sur GitHub Pages ; l'utilisateur gère
+  lui-même le `.htaccess` de son domaine. Voir §5.
 - 28/10 : section « Blocs pressentis » supprimée ; « Résultat brut » déplacé en annexe ; page « 2026 contre 2022 » ; code commun extrait
   (`css/site.css`, `js/common.js`) ; relevé des actualités transféré au collecteur (le cron de GitHub Actions ne part pas).

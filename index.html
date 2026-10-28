@@ -65,28 +65,21 @@
         </div>
       </div>
     </div>
-    <section class="card duel" id="duel" aria-labelledby="duelT" style="margin-top:36px"></section>
   </section>
 
-
-  <!-- ===================== 2. POUR ALLER PLUS LOIN ===================== -->
-  <section class="block" id="plus" aria-labelledby="h-plus">
-    <div class="eyebrow">2 · Pour aller plus loin</div>
-    <h2 id="h-plus">Les chiffres en détail</h2>
-    <p class="sub">Deux pages annexes : le résultat brut de la CEC, liste par liste, et ce que ce scrutin change par rapport à celui de 2022.</p>
-    <div class="blocs">
-      <a class="card linkcard" href="resultats.html"><div class="eyebrow">Annexe</div><h3>Résultat brut de la CEC</h3><p>Voix, pourcentages et sièges de chaque liste, participation heure par heure, avec la source de chaque chiffre.</p><span class="go">Ouvrir la page →</span></a>
-      <a class="card linkcard" href="analyse.html"><div class="eyebrow">Analyse</div><h3>2026 contre 2022</h3><p>Ce que chaque famille politique — droite et ultra-orthodoxes, centre et gauche, partis arabes — gagne ou perd par rapport au dernier scrutin.</p><span class="go">Ouvrir la page →</span></a>
-    </div>
-  </section>
 
   <!-- ===================== 4. ACTUALITÉS ===================== -->
   <section class="block" id="actus" aria-labelledby="h-news">
-    <div class="eyebrow">3 · À lire</div>
+    <div class="eyebrow">2 · À lire</div>
     <h2 id="h-news">L’actualité des élections</h2>
     <p class="sub">Les derniers titres de la presse francophone sur le scrutin, relevés automatiquement. Chaque titre renvoie à l’article du média.</p>
     <ul class="news" id="newsList"></ul>
     <div class="src" id="newsSrc"></div>
+  </section>
+
+  <!-- ===================== LE DUEL (placé après « À lire ») ===================== -->
+  <section class="block" id="duelblock" aria-label="Le duel Yashar contre BB" style="padding-top:30px">
+    <div class="card duel" id="duel" aria-labelledby="duelT"></div>
   </section>
 
 
@@ -386,7 +379,7 @@ App.start({
     const links = [...document.querySelectorAll(".nav a")];
     if ("IntersectionObserver" in window) {
       const io = new IntersectionObserver((es) => es.forEach(en => { if (en.isIntersecting) links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id)); }), { rootMargin: "-40% 0px -55% 0px" });
-      document.querySelectorAll("section.block").forEach(s => io.observe(s));
+      document.querySelectorAll("section.block").forEach(s => { if (links.some(a => a.getAttribute("href") === "#" + s.id)) io.observe(s); });   // seulement les sections du menu
     }
   },
 });

@@ -74,12 +74,6 @@ Tant que la CEC bloque, le collecteur lit toutes les ~3 min la projection de si�
 
 ## Déployer
 
-### Sur eliejesuran.be (ou tout hébergement FTPS)
-Une Action GitHub dépose le site dans `https://eliejesuran.be/israpoll/` à chaque modification (FTP chiffré, mot de passe en secret GitHub, vérification
-du résultat, aucune suppression sur le serveur). Mise en route et dépannage : [`deploy/eliejesuran/README.md`](deploy/eliejesuran/README.md).
-
-### Sur GitHub Pages (miroir)
-
 1. Fork, puis *Settings → Pages → Deploy from a branch → `main` / root*.
 2. Adapter la constante `REPO` en haut de `js/common.js`.
 3. Sur une machine qui peut joindre la CEC et pousser sur le dépôt, lancer la boucle de collecte :
