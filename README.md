@@ -4,7 +4,8 @@ Une page web unique (HTML + un peu de JS, **sans build ni dépendance**) qui aff
 
 1. **Un simulateur**, juste sous l'hémicycle : coche des partis, vois si ta coalition a la majorité, et partage-la par lien ;
 2. **Le résultat brut**, tel que publié par la [Commission électorale centrale](https://votes26.bechirot.gov.il/nationalresults) (voix, %, seuil de 3,25 %, sièges), avec la source à chaque bloc ;
-3. **Les blocs pressentis** (coalition sortante, bloc Eisenkot, partis arabes) et ce qu'il leur manque pour atteindre 61 sièges.
+3. **Les blocs pressentis** (coalition sortante, bloc Eisenkot, partis arabes) et ce qu'il leur manque pour atteindre 61 sièges ;
+4. **L'actualité du scrutin** : les derniers titres de la presse francophone, avec un lien vers chaque article.
 
 > English: a dependency-free, open-source live dashboard for Israel's 2026 Knesset election — official CEC results, bloc math and a coalition builder. Independent project, not affiliated with the CEC.
 
@@ -18,10 +19,17 @@ branche `data` : live.json ──(API GitHub ~1 min · raw 5 min)──►  inde
 ```
 
 - Le site de la CEC n'envoie pas d'en-tête CORS : un navigateur ne peut pas le lire directement. Le collecteur le relaie vers une branche `data` (l'API GitHub et `raw.githubusercontent.com` autorisent le CORS). La page lit les deux et garde la plus récente : l'API GitHub répond en ~1 min mais est limitée à 60 requêtes/h/IP (la page s'en détache avant d'être bloquée) ; `raw` garde 5 min en cache. Pour du vrai temps réel, il faudrait un petit relais sans cache (Cloudflare Worker).
-- **GitHub Actions ne convient pas** : depuis les serveurs de GitHub, la CEC répond par un défi anti-bot (HTTP 202 à corps vide). Le collecteur doit donc tourner depuis une IP non filtrée (un ordinateur personnel, un petit VPS).
+- **GitHub Actions ne convient pas pour la CEC** : depuis les serveurs de GitHub, elle répond par un défi anti-bot (HTTP 202 à corps vide). Le collecteur doit donc tourner depuis une IP non filtrée (un ordinateur personnel, un petit VPS). Les actualités (flux RSS publics) n'ont pas ce problème : voir ci-dessous.
 - Les **voix** sont la somme du fichier officiel par localité. Vérifié sur 2022 : le total reproduit exactement les résultats nationaux publiés par la CEC.
 - Les **sièges** : si la CEC les affiche, on les reprend ; sinon ils sont **estimés** (seuil 3,25 % + quotient + méthode Bader-Ofer + accords de surplus) et marqués « est. ». Le calcul reproduit exactement les 120 sièges de 2022 (`tests/seats.test.mjs`).
 - **Aucun sondage n'est affiché** (ni sondages d'avant-scrutin, ni sorties des urnes) : tant que la CEC n'a rien publié, l'hémicycle, le tableau et le simulateur restent vides.
+
+### Actualités : titres de presse relevés par GitHub Actions
+Les flux RSS des médias n'envoient pas d'en-tête CORS : la page ne peut pas les lire. [`.github/workflows/news.yml`](.github/workflows/news.yml) lance toutes les ~10 min `scripts/fetch_news.py`, qui lit Google Actualités (recherche en français) et les flux « Moyen-Orient » du Monde, de France 24 et de RFI, puis publie `news.json` sur la branche orpheline `news` (force-push : l'historique ne grossit pas). La page le lit via `raw.githubusercontent.com` ; `data/news.json`, un instantané versionné, sert de repli.
+- Seuls quatre champs sont repris : **titre, média, lien, date**. Aucun texte d'article.
+- Sélection : presse d'information généraliste (constante `MEDIA` dans le script, à compléter au besoin ; ni sites d'opinion ou confessionnels, ni médias d'État étrangers), titres parlant d'Israël (et d'un scrutin pour les flux généralistes), 4 jours au plus, 3 titres par média au maximum.
+- Une source en panne ne retire rien : les articles déjà recueillis restent jusqu'à leur péremption ; si tout est en panne, le dernier fichier publié reste en place.
+- Lancer à la main : onglet *Actions → Actualités → Run workflow*, ou `python3 -I scripts/fetch_news.py --out news.json`.
 
 ### Participation : relevée automatiquement
 La CEC publie la participation toutes les ~2 h sans flux lisible. Le collecteur lit le live-blog de NBC News, qui cite chaque relevé de la CEC (heure + chiffre + comparaison 2022) dans un JSON structuré, ~1 h 30 après l'heure de référence. Le parseur est volontairement strict (mention de la CEC et de la participation, heure locale, plage 07:00–22:00, chiffre qui ne recule pas) : en cas de doute il ignore l'entrée. `source.fetch.turnout` de `live.json` dit si la lecture a marché. Un relevé saisi à la main dans `manual.json` prévaut pour la même heure.
@@ -72,7 +80,7 @@ Le soir du scrutin la CEC a protégé ses fichiers par un défi anti-bot (AWS WA
 
 ```bash
 node tests/seats.test.mjs
-python3 -I -m unittest discover tests
+python3 -I -m unittest discover tests      # collecteur CEC + relais d'actualités
 ```
 
 ## Limites et mentions

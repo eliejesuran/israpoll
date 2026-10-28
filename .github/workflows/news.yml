@@ -1,0 +1,34 @@
+# Actualités : relève les titres de la presse francophone sur les élections (scripts/fetch_news.py) et les publie sur la
+# branche orpheline `news` (news.json), que la page lit via raw.githubusercontent.com. Même principe que `data` pour live.json.
+# Contrairement au site de la CEC, ces flux RSS publics n'opposent aucun défi anti-bot aux serveurs de GitHub.
+name: Actualités
+on:
+  schedule:
+    - cron: "*/10 * * * *"        # GitHub peut retarder les tâches planifiées de quelques minutes
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: news
+  cancel-in-progress: false
+jobs:
+  news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dernier news.json publié (ses articles encore récents sont conservés en cas de panne d'un flux)
+        run: |
+          if git fetch -q --depth 1 origin news && git show FETCH_HEAD:news.json > prev.json; then echo "reprise de news.json"; else rm -f prev.json; fi
+      - name: Relever les titres
+        run: |
+          if [ -f prev.json ]; then python3 -I scripts/fetch_news.py --out news.json --prev prev.json; else python3 -I scripts/fetch_news.py --out news.json; fi || echo "aucun nouvel article : rien n'est publié"
+      - name: Publier sur la branche `news`
+        run: |
+          [ -s news.json ] || exit 0
+          d=$(mktemp -d); cp news.json "$d/news.json"; cd "$d"
+          git init -q -b news && git add news.json
+          git -c user.name=israpoll-bot -c user.email=israpoll-bot@users.noreply.github.com commit -qm "news $(date -u +%FT%TZ)"
+          git push -q -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" news
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

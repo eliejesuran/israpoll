@@ -1,0 +1,133 @@
+{
+ "schema": 1,
+ "updated_at": "2026-10-28T06:11:24Z",
+ "query": "élections israéliennes OR \"législatives en Israël\" OR Knesset when:3d",
+ "feeds": {
+  "Google Actualités": "ok (66)",
+  "Le Monde": "ok (8)",
+  "France 24": "ok (18)",
+  "RFI": "ok (15)"
+ },
+ "items": [
+  {
+   "title": "DIRECT - Législatives en Israël: Netanyahu et Eisenkot au coude-à-coude en vue de former un gouvernement",
+   "source": "RFI",
+   "url": "https://www.rfi.fr/fr/moyen-orient/20261028-direct-l%C3%A9gislatives-en-isra%C3%ABl-netanyahu-et-eisenkot-au-coude-%C3%A0-coude-en-vue-de-former-un-gouvernement",
+   "published": "2026-10-28T05:54:22Z"
+  },
+  {
+   "title": "Au lendemain des élections législatives, Israël entre en zone de perturbations politiques",
+   "source": "Le Figaro",
+   "url": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxPbUVlY19MN1A3YzhhTWFuUGg4Q3hLMUZCOEJ3VGgzblFJOHByY1RkZl84cHVRbUxkd2R3SDFIbjRhbkw0Vzh5R09MNjkzdk1QSkJlbWJDSVZiZmhfdUJ4Z200N1JRUUZqcXNvNlRUZXZiVzlrSUMzbzJGV1RvUjZCcjhReDlLc0ZlZ0Vwc1FBcW9vSmtPSm1fS3BtQ1hwdmw0bWhSQkdzZmdwUFJSdUtnQUlUUUdqQnF0X2tHWGs3dWdHbG1WM1BBbHhyd2duVkpY?oc=5",
+   "published": "2026-10-28T05:53:20Z"
+  },
+  {
+   "title": "Elections israéliennes : Netanyahou devance l'opposition dans les projections, mais sans majorité claire",
+   "source": "i24NEWS",
+   "url": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxNbWk3VFFaSDQ5VDVHYkxqcnJjRGpFRzAxaVJnQWlnYTJwNUdsYldGcW9taV9TeXRRRWxPNnFSVjl6M3ZRVW03MFE0MTJBZ0lVWW5qS3B6X0c4WXZsZUx3VTFUUWFaQWNXOHdiMExnNFJsc2RpZnNmcXVBOTZ0NW13U0ZNbnl2LVoxaDNELURBbWdpR3c3V1Y1dF9oa3BZZWVtN2NQWWYyUlpya0czWEQ2bEZOT3Z0TWozZVRQQmJsYkVITVd5M3ppejRXRVdNendDMG5qTWNCRDJvV0hRVXdLZGpJNFM1ZGQ4UkRERm5YRktwRGdybk82eA?oc=5",
+   "published": "2026-10-28T05:20:00Z"
+  },
+  {
+   "title": "Législatives en Israël : Benyamin Netanyahou et Gadi Eisenkot revendiquent conjointement la victoire après un vote indécis",
+   "source": "L'Express",
+   "url": "https://news.google.com/rss/articles/CBMihwJBVV95cUxQZFdEbW5sVkRoRFExdGoyenE1NlZvSVpaYllqdzRaNnoxN1hZTl82RTd4ZEZZQUxQQkR0Tkx4elg0b1RZalRPeFlLWXQ1QnllTllPcHM4cHNiYkZiOVBIbjlqbzV2di1zaGhRcjViRFRDY2tsbnJSek9zUk50c25HLUtOdnZCNzhTazh6alVkdW5wcWtqY21MaFJubmYyZjFYbWtHNlZUeXpSY3hXUU8yRHF2WGxDdkdjcG85Y3M4UUtUaTJjUGZDY0sxbndvQWhtdHVPN3RtN29NU0pOSU1tcGZfWTlwYjVYbUtLUmRjM1ZMTk14WWdLNTR0RnRfVUE0bDRVdzQ2dw?oc=5",
+   "published": "2026-10-28T05:19:25Z"
+  },
+  {
+   "title": "Législatives en Israël : Benyamin Netanyahou et Gadi Eisenkot dans un mouchoir de poche",
+   "source": "Midi Libre",
+   "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxOTHEyb2JNQ3NxZkJTXzF6TWRjanZYUkljN1NhdHIyVHdveDEwTTlWSGhsdGtDVUZUQ0FxYV9lcE9GeWJ2SGVzRnRPb0RsOVZNMUtJZVZ5dms1cXcxVmVzRXZtRHN6Q0dCQnc1bU5EZUlLNUszRklfd1czRDM0STVQZjhPMW5FbUwwU0NZQmpWZ25ydHdxSHJ4OEk4Ym1qWlhFck1ZQmV1QXJGUXdtUk1VRDNBeThPZzlqd1JqVjd2RHd2Q1pnc09qYmM4OHI4RVE?oc=5",
+   "published": "2026-10-28T05:01:00Z"
+  },
+  {
+   "title": "Pas de majorité après les législatives en Israël, le pays “dans l’impasse politique”",
+   "source": "Courrier international",
+   "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxNblpJQkhYbk1EamhwQU5YNzA4WTBERE1iNG9XWUJ2anNWWDNHNmZNZnVJcWs0Yk1DeHAwV29aOGhVMGlxXzBKMEczNThyLVdaM2hEeXRZemxWai1Dc2RFeW81MDRMX3I4d3FNWjdGd1R5eTE1RUdGZDhfTW1tVk81eHY4RF8yTjU2ZTdydkduNmFZY3FpdTdHS2x2dUlqM0N5MFU3QU9pcDRYUnNzaFBDSS1DSkNHbDRtcHZPY1pWQ281RzREenBzS3MzM3lOZkdORlNsaXdVeFdtbjhi?oc=5",
+   "published": "2026-10-28T05:00:00Z"
+  },
+  {
+   "title": "Israël : au lendemain de législatives cruciales pour l’avenir du pays, le vertige d’une Knesset sans majorité",
+   "source": "Le Monde",
+   "url": "https://news.google.com/rss/articles/CBMijAJBVV95cUxOTjBmTTZnR28tNWZiZXRQZUFYV01vcmQ5M1VNUTVycHVjUFZVMzNsZ2ZOQUR5cE9Yd281MDBTQnAwWnMtb1c2dEJYRDJtbFpHallKZVoxdzZfcmdicTJmYlpIdXp1anlxVTRYZlhpd3FDZnVTNVZTWmwtT2hmSnR6RjdsR3BCaGdvNmZXcHk2SFFLV0sxcnVuUzRDenBOZ2Z3M2pSNVotLXFCYXVTbUhvQ29GQ0tnSnN5amJPcVpBRU04dXUzcGRWSkM3MlRXdzR1MTBadWc3M3VuNGJqOHBQbmdKanJJczRVQ0M5SGNSLUYxLWwtQmJJVUFTMFdodGlsR19OLVVyMEE3ejRW?oc=5",
+   "published": "2026-10-28T04:57:19Z"
+  },
+  {
+   "title": "Élections législatives en Israël : le bloc de Benjamin Netanyahou prend de l’avance dans les premiers résultats partiels",
+   "source": "RTBF",
+   "url": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxQb2NRQUxsclljc0J1RHl6WnBRclAyY2JTTjRTOV9XUGRmTFdLWmNtWEJ2bnp5dXQwTHk2Vjl0YnZ3a3RXdkZ4WVZXaVdOTzFqa2d1dERIdFNuSzUzVWNFUVBEWWZzcXhIVnhkT3NjWmxMRW9RdHc1Qnh3VmJxdmtXWFZmVTJfMnh0a21VU1ktdDh2b01OT2ZlSS1qMjZJQWNlM3NtbU5WWGhXeVNpN2xNY1ctR0FjSWVLaG12Rk1qcnkyN283b1o1MFNWeTlDenhvY1ZydUNkaEozNlY4NG1ZbWRPeW45NUltMEE?oc=5",
+   "published": "2026-10-28T04:56:18Z"
+  },
+  {
+   "title": "Guerre au Moyen-Orient : Arabie saoudite ciblée, législatives en Israël… Les dernières infos",
+   "source": "Ouest-France",
+   "url": "https://news.google.com/rss/articles/CBMi9wFBVV95cUxNZGpkY2RsQi02dFVMeGkwX0RTRWI0dy1NdVRDeVZOSGFpbWE4UUd2YWI2ejhsVEw0blNDZV9uSnUxSW9rcDNoSlY3VTJJYzFaSkxQVjAzWDAzQkdwRFh6VFU2NTllc2l2OUV5WmxNUkhpRjZfempUZzFzZTNaZmtpbUpFZnA5US01ekFWVGRrLXRYQ0R6LS13Sjgyd3FaMFd2SDF1bm93OVc2azNRQUlkM0lnRnFkczk1aTJUSlhZM0VuTS1BdFBkMmdqbzhTVFVvaVhSVzhMOUN3SkFRTG9RVUZ1dFpNaFpHODI1TFhwSXotby1IREUw?oc=5",
+   "published": "2026-10-28T04:40:49Z"
+  },
+  {
+   "title": "Israël : Eisenkot et Nétanyahou tous deux prêts à gouverner, pas de majorité",
+   "source": "Radio-Canada",
+   "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPYlpKM21DeXNZVmhDMEFFVFhnN0tsQ3ZLRXFpeXBsaHBZZnY2UHkwUVNKV0Y4TUhkLTYxdDNKMXo2bm0zSHI2Z3BhaHdQT2JRR2x0dXR3bjM4aElRRk9TWFdjZktSVkgzT3ZpVENvWWZEWVd2eEpFLTh6WTRWcGdrQ0RaU19CS2tDSUdRQ0JEb0htaElk?oc=5",
+   "published": "2026-10-28T04:25:02Z"
+  },
+  {
+   "title": "En Israël, de Jérusalem à Tel-Aviv, des colonies aux villes arabes, une journée de vote en apnée",
+   "source": "Le Monde",
+   "url": "https://www.lemonde.fr/international/article/2026/10/28/en-israel-de-jerusalem-a-tel-aviv-des-colonies-aux-villes-arabes-une-journee-de-vote-en-apnee_6801484_3210.html",
+   "published": "2026-10-28T03:55:03Z"
+  },
+  {
+   "title": "Pro-Netanyahou et opposition à égalité en Israël, tractations en vue",
+   "source": "20 Minutes",
+   "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOQUFlNVo0eUNfaDJGeXlrSWFTUXJsRXV0TXJReGlDVWI5UWs0WVIyOHJQM2pkSUxTVU5vNUNMQkZZVndCU3pBQnZDemlZQzRmazJuNXBHR0ZwSURGYWQ5VlhFSFVfVFpDS3VXQlI2bUZOVjI5ZEtrU05leVJYQmktSFpzcl9zSzNBUG1sT1pNZk1fbzNueGpDbmE3MFVfeVBlUXkwa2JESUd0amJYanhtd3NFWDRZRUFBeENILTVUZG9OUU5ZWUdoZ2xNaWJmTVZqd002ZmNGeEhMTVZ3dVg0T1NQRQ?oc=5",
+   "published": "2026-10-28T03:51:00Z"
+  },
+  {
+   "title": "EN DIRECT, législatives en Israël : le camp de Benyamin Nétanyahou en tête, mais sans majorité, après plus d’un tiers de bulletins dépouillés",
+   "source": "Le Monde",
+   "url": "https://www.lemonde.fr/international/live/2026/10/28/en-direct-legislatives-en-israel-les-deux-blocs-au-coude-a-coude-benyamin-netanyahou-et-gadi-eisenkot-revendiquent-chacun-leur-volonte-de-former-un-gouvernement_6801217_3210.html",
+   "published": "2026-10-28T02:57:28Z"
+  },
+  {
+   "title": "Élections en Israël: pas de majorité, et maintenant?",
+   "source": "TV5Monde",
+   "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPeWZVaGJGS3VoWUhEYl9qS1gwLUpGY3prblRPR0Z2TUJpUUJJWlVPT0pxM1NRby01MFFpRnZLVThUenpnWXBGamhPcVVtbl9OQUJ0MjBSMTI3NVRNeXU5Z3V4Tk9tSmJwcW9lejNlbmM0RkptOTBvOUZIOWtEOEpWTjNTOHBuMkdkU1N1bFltOTBiMUVCbS05RURqMWVlSUY4UDZfSGhpVQ?oc=5",
+   "published": "2026-10-28T02:40:00Z"
+  },
+  {
+   "title": "Elections législatives en Israël - \"Nous devons mettre en place un gouvernement de droite fort\", dit Netanyahu",
+   "source": "La Libre.be",
+   "url": "https://news.google.com/rss/articles/CBMilAJBVV95cUxPSHFmQ0JXcW5vNW9BWE9iZXJlV1FOSS1JZWRET0lyd1BLSjgyR1lPZVVEYXRrdkZxa1Z5LVAyU3RPRTR6SEYzaHZqa2ZPRkdZTmVobm52T3QtVXlYOUpxYVllNzl6VmtDV09zSjhobjRnVjZONVlGU08zY3NlVU9ZRHA5ZHpMcjNqajlxTHlKWGx2UkJiVTNsalI0aGVZSG9FcXEtbHo2ZDk5ZWlsdmt0Q3c3UHhJSFRldlpiWWRFVk5GRTBZZDloRjB1eWRyY20xcjB0Q09HOG9iSE1hNVZfN0dyUThwbTRsdUp3eUo3bGNRYTFEdGRqUWJwdElvcmI5YUtrZXIyOEFXaXBJdjFQN1lRTzQ?oc=5",
+   "published": "2026-10-28T02:34:00Z"
+  },
+  {
+   "title": "Élections législatives en Israël : annoncé perdant, le bloc de Benyamin Netanyahou passe en tête selon les estimations",
+   "source": "Ouest-France",
+   "url": "https://news.google.com/rss/articles/CBMingJBVV95cUxOcGNMQXh0LW1FX3h1UFdFaG82RTVrUWlmX2RwYUxwbl81NDc4T2pNVzFhczVtU3kxbE1aQ0NxQzdrT3BmM29Rd3RoaDdPOW5Pb1hibzhncUIyZHd4MTlSY1o4OF9kU2RGb3lRMUtZUy1fMGc4a29MdmNHQmxnNm5EeWxvNnlnaVVlcE9kZ29HczJTaE5tMVBVTnZBQ3RqWTAwMXJZMEJnNGp3dTVXeXhxN25Ka2t4aEx4ZnBpNS15RDVvb0M2U0Q4dUZIZUtNS2tRV3pqdkV6ejBPMVIzeV9hSklHTk1UbHFRa000NG5vUnBlS0VHcUJHZUJoY3JWeFlzLVdIdkU5TFdzSnNrZWVFNjQteHBVS2FJQ3pMV0pn?oc=5",
+   "published": "2026-10-28T01:51:34Z"
+  },
+  {
+   "title": "Élections en Israël : au coude-à-coude avec l’opposition, Netanyahou prône un gouvernement «de droite» et «fort»",
+   "source": "Le Figaro",
+   "url": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxQODNnVEZhbkdOcUp1Z2x3T1h4eW9sbUhWbUt0U3dreWEzZ1RWb0ZZLTJrYXB4UWYtbDBGMVYwekNOYUt0dURkbFBYa0F3dE4xZDBWcS1xa3JCQ1duaFVHVHJwR0lTQlFnQUEtQ3BWRWo5MDRvS09nNlhVcTFNUGhjaGNNSUE0eXVsRjVzanBMODY3Ym5ZVi1LeVN1NkZmbUp0WHNodnRxXzgyREJYZmZsbTVTSUNBRUM0TUl4b0pLWkpGMGhiUUhzdHhPNWhQQXN2QVpRWWRHT3RTNmgwVWFUUm1nV0hXeE5MQUh4bQ?oc=5",
+   "published": "2026-10-28T01:37:40Z"
+  },
+  {
+   "title": "En Israël, les deux camps désormais donnés à égalité",
+   "source": "Le Devoir",
+   "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNODhWZUtZTHFCdGxDZ2NjTVpQR09OeklFNkdGMkRKVk10QkRJdjRKV0MwRjZEdFk3SlFNRUlkYnQ5MWlycHFJTVRsd0RJcGVqTVNwMk90SHp2blhOT2NqWW9hQkpBSW4zT0JRd21xOTFZekpTME84cjR5WlJvUGpTSnU5MTJfV2NPbG40Y3dvMnNJc2N4TVNmdUNhMThRUlFGeEJyUnQ2Ri1qWFNKd2JDc2xSaktTY0E1MVdYVXZSZ0VYSG8?oc=5",
+   "published": "2026-10-28T01:17:13Z"
+  },
+  {
+   "title": "Elections législatives en Israël - De nouveaux sondages de sortie des urnes donnent désormais Eisenkot et Netanyahu à égalité",
+   "source": "La Libre.be",
+   "url": "https://news.google.com/rss/articles/CBMirAJBVV95cUxPWWZIQ2tMNW02dnNxV1hJYy1iQmZNcVZRT3N2VzBoTEpHYVFSWFFtaVZCNnZGMEdud04tXzgxRnk2MUJ5ZjdIQU1zZENjQTh0anJGeEFxdzVPSVFXbTFFV0xoZ3M0cUw2ZEhtNHY5RlRPdThLcE9QdnFxWTdNcTdzcUpBczRjY1d5VVVCSU80LWtjeW00cGlLT29ZQ0xTeExvLVpPMW55d2ZXd0JnYkU2alI2M3RnaHJMOXdTUHhqeEdxbVlxY1ZWV2E0ZjEySTZjb0IwYTFKemtPVnFXUVE4dHNIU3JSalJKbVBlY0R6SzM1Z0NPM0N6ajN5eGE0NGJQOGN2bldWZFBiYWFiTHFTVWhUdXFOOTVKME5xaXdFR1pQcDRZSzBhSFRXNVU?oc=5",
+   "published": "2026-10-28T00:45:00Z"
+  },
+  {
+   "title": "REPORTAGE. « On est optimiste » : en Israël, la prudence s’impose après les premiers résultats des législatives",
+   "source": "Ouest-France",
+   "url": "https://news.google.com/rss/articles/CBMilwJBVV95cUxPd1NCZUFfSjNYOFpvVjNiZDZUSVdzSGhSSk1NU3Vxb2dWbHZsMk1KbC1LVDktcVlGY0t0cU0zSGEzeTRJQkN3XzlyblJXUGtYQ3o4ZWlYOUcyblJnLVBodjdnWXdwTTJEZlZfUEZod1NCR2FudUJGR1VxUXo5VUtDcUZpM0lIWl9YZm5yazhWZ0RPaHN4NTN2bjk4YmtaM0JXbjNyT0hWN0I2cFlhTWJ3NnJxbjF6SGZGUm1LNnBPRVBTR2xOOFVDYklyaUtWbEdKQWRUb3ROWHB0cHVHWTVNUlBBcDVaR0lkUjdSbjZNeVVwdVY5VjJJck1yRzRLbm00UU5QbkdJTFdBWVkxM3hrVDlvT3B2OTA?oc=5",
+   "published": "2026-10-28T00:18:10Z"
+  }
+ ]
+}

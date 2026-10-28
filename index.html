@@ -247,6 +247,14 @@ tfoot td{border-top:2px solid var(--line);font-weight:700;background:var(--card2
 .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px;background:var(--sc,var(--muted))}
 .legend .r::before{border-radius:3px;transform:rotate(45deg)}
 .headline{font-weight:600;margin:14px 0 0;font-size:15px}
+/* actualités */
+.news{list-style:none;margin:0;padding:0;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr))}
+.news li{min-width:0}
+.news li a{display:grid;gap:5px;height:100%;box-sizing:border-box;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--text);text-decoration:none;box-shadow:var(--shadow)}
+.news li a:hover,.news li a:focus-visible{border-color:var(--accent)}
+.news-t{font-weight:600;line-height:1.35}
+.news-m{font-size:12.5px;color:var(--muted)}
+.news-m b{color:var(--text)}
 footer{margin-top:70px;padding:34px 0 60px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
 footer .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:24px}
 footer h4{color:var(--text);margin:0 0 8px;font:700 15px var(--font-display)}
@@ -268,7 +276,7 @@ details summary{cursor:pointer;font-weight:600}
       IsraPoll
     </a>
     <nav class="nav" aria-label="Sections">
-      <a href="#coalitions">Coalitions</a><a href="#resultats">Résultats</a><a href="#blocs">Blocs</a><a href="#sources">Sources</a>
+      <a href="#coalitions">Coalitions</a><a href="#resultats">Résultats</a><a href="#blocs">Blocs</a><a href="#actus">Actualités</a><a href="#sources">Sources</a>
     </nav>
     <button class="icon-btn" id="theme" title="Changer de thème" aria-label="Changer de thème">◐</button>
   </div>
@@ -347,6 +355,15 @@ details summary{cursor:pointer;font-weight:600}
     <div class="src" id="blocsSrc"></div>
   </section>
 
+  <!-- ===================== 4. ACTUALITÉS ===================== -->
+  <section class="block" id="actus" aria-labelledby="h-news">
+    <div class="eyebrow">4 · À lire</div>
+    <h2 id="h-news">L’actualité des élections</h2>
+    <p class="sub">Les derniers titres de la presse francophone sur le scrutin, relevés automatiquement. Chaque titre renvoie à l’article du média.</p>
+    <ul class="news" id="newsList"></ul>
+    <div class="src" id="newsSrc"></div>
+  </section>
+
   <!-- ===================== SOURCES ===================== -->
   <section class="block" id="sources" aria-labelledby="h-src">
     <div class="eyebrow">Transparence</div>
@@ -389,6 +406,15 @@ const LIVE_SOURCES = [
   { url: `https://raw.githubusercontent.com/${REPO}/data/live.json`, bust: true },
   { url: "data/live.json", bust: true, fallback: true },
 ];
+// Actualités : titres relevés par .github/workflows/news.yml sur la branche `news` ; data/news.json (instantané) en repli.
+const NEWS_SOURCES = [
+  { url: `https://raw.githubusercontent.com/${REPO}/news/news.json`, bust: true },
+  { url: "data/news.json", bust: true, fallback: true },
+];
+const NEWS_REFRESH_MS = 5 * 60000;
+const NEWS_SHOWN = 10;
+const NEWS_MAX_AGE_MS = 4 * 864e5;
+const NEWS_SEARCH = "https://news.google.com/search?q=" + encodeURIComponent("élections israéliennes") + "&hl=fr&gl=FR&ceid=FR:fr";
 const POLLS_CLOSE = new Date("2026-10-27T20:00:00Z");         // 22:00 à Jérusalem (UTC+2)
 const FINAL_BY = "4 novembre 2026";
 const CEC = {
@@ -466,6 +492,7 @@ const srcLine = (links, extra = "") =>
    État
    ===================================================================== */
 const state = {
+  news: null,            // JSON des actualités (titres de presse)
   live: null,            // JSON du collecteur (CEC)
   liveAt: 0,             // date du dernier chargement réussi
   apiPausedUntil: 0,     // quota de l'API GitHub presque épuisé : on l'ignore jusque-là
@@ -533,6 +560,23 @@ async function loadLive(force) {
   ok.sort((a, b) => String(b.checked_at || "").localeCompare(String(a.checked_at || "")));
   const cur = state.live && state.live.checked_at;
   if (!cur || String(ok[0].checked_at || "") >= cur) { state.live = ok[0]; state.liveAt = Date.now(); }   // une source en retard ne fait jamais reculer la page
+  return true;
+}
+
+// Même méthode que pour les résultats : la source la plus récente l'emporte, le repli statique ne sert que si rien ne répond.
+function sanitizeNews(raw) {
+  if (!raw || typeof raw !== "object" || !Array.isArray(raw.items)) return null;
+  const items = raw.items.filter(i => i && typeof i.title === "string" && typeof i.source === "string" && Number.isFinite(Date.parse(i.published)) && safeUrl(i.url).startsWith("https:"))
+    .map(i => ({ title: i.title.slice(0, 220), source: i.source.slice(0, 60), url: safeUrl(i.url), published: new Date(i.published).toISOString() }));
+  return { updated_at: String(raw.updated_at || ""), items };
+}
+async function loadNews(force) {
+  let res = await Promise.allSettled(NEWS_SOURCES.filter(x => !x.fallback).map(x => fetchJson(x, force)));
+  if (!res.some(r => r.status === "fulfilled")) res = await Promise.allSettled(NEWS_SOURCES.filter(x => x.fallback).map(x => fetchJson(x, force)));
+  const ok = res.filter(r => r.status === "fulfilled").map(r => sanitizeNews(r.value)).filter(Boolean);
+  if (!ok.length) return false;
+  ok.sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+  if (!state.news || ok[0].updated_at >= state.news.updated_at) state.news = ok[0];
   return true;
 }
 
@@ -669,7 +713,7 @@ function render() {
   try { model = derive(); }
   catch (e) { console.error("derive", e); errs.push("données"); state.live = sanitizeLive({}); model = derive(); }
   [["statut", renderStatus], ["hémicycle", renderHero], ["duel", renderDuel], ["résultats", renderResults], ["blocs", renderBlocs],
-   ["simulateur", renderBuilder], ["pied de page", renderFoot]].forEach(([name, fn]) => {
+   ["simulateur", renderBuilder], ["actualités", renderNews], ["pied de page", renderFoot]].forEach(([name, fn]) => {
     try { fn(); } catch (e) { console.error(name, e); errs.push(name); }
   });
   $("#appError").innerHTML = errs.length
@@ -966,6 +1010,20 @@ function renderCoalition() {
   document.querySelectorAll(".pchip").forEach(b => b.setAttribute("aria-pressed", state.sel.has(b.dataset.id)));
 }
 
+const relTime = (iso) => {
+  const s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
+  return s < 90 ? "à l’instant" : s < 5400 ? `il y a ${Math.round(s / 60)} min` : s < 129600 ? `il y a ${Math.round(s / 3600)} h` : `il y a ${Math.round(s / 86400)} j`;
+};
+function renderNews() {
+  const n = state.news;
+  const items = n ? n.items.filter(i => Date.now() - Date.parse(i.published) < NEWS_MAX_AGE_MS).sort((a, b) => b.published.localeCompare(a.published)).slice(0, NEWS_SHOWN) : [];
+  $("#newsList").innerHTML = items.length
+    ? items.map(i => `<li><a href="${esc(i.url)}" rel="noopener noreferrer" target="_blank"><span class="news-t">${esc(i.title)}</span><span class="news-m"><b>${esc(i.source)}</b> · <time datetime="${esc(i.published)}">${relTime(i.published)}</time></span></a></li>`).join("")
+    : `<li class="sub" style="margin:0">${n ? "Pas d’article récent à afficher." : "Actualités indisponibles pour l’instant."} <a href="${NEWS_SEARCH}" rel="noopener noreferrer" target="_blank">Voir l’actualité sur Google Actualités</a>.</li>`;
+  const upd = n && Number.isFinite(Date.parse(n.updated_at)) ? ` · relevé à ${hhmmss(n.updated_at)}` : "";
+  $("#newsSrc").innerHTML = srcLine([{ label: "Google Actualités", url: NEWS_SEARCH }], `<span>Titres, médias et liens uniquement : presse généraliste, relevée dans Google Actualités et les flux du Monde, de France 24 et de RFI${upd}</span>`);
+}
+
 function renderFoot() {
   const l = model.live;
   const t0 = Date.parse(l.checked_at);
@@ -998,7 +1056,6 @@ function toggleTheme() {
   document.documentElement.dataset.theme = next; store.set("theme", next);
 }
 { const th = store.get("theme"); if (th) document.documentElement.dataset.theme = th; }
-$("#theme").addEventListener("click", toggleTheme);
 $("#repoLink").href = `https://github.com/${REPO}`;
 
 // lien actif dans la navigation
@@ -1030,6 +1087,9 @@ state.live = state.live || {};
 render();
 tick();
 refresh();
+const refreshNews = (force) => loadNews(force).then(ok => ok && renderNews(), () => {});
+refreshNews();
+setInterval(() => { if (!document.hidden) refreshNews(); }, NEWS_REFRESH_MS);
 setInterval(tick, 1000);
 setInterval(() => { if (!document.hidden) refresh(); }, REFRESH_MS);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
