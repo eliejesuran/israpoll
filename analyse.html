@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>2026 contre 2022 — IsraPoll</title>
+<meta name="description" content="Ce que chaque famille politique gagne ou perd entre les élections israéliennes de 2022 et celles de 2026 : droite et ultra-orthodoxes, centre et gauche, partis arabes. Résultats officiels de la CEC.">
+<meta property="og:title" content="2026 contre 2022 — IsraPoll">
+<meta property="og:description" content="Évolution des partis et des familles politiques entre 2022 et 2026.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1020'/%3E%3Cpath d='M10 46a22 22 0 0 1 44 0' fill='none' stroke='%234aa8ff' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M19 46a13 13 0 0 1 26 0' fill='none' stroke='%2312b8a6' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Heebo:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="top" id="siteHeader"></header>
+
+<main id="main">
+<div class="wrap">
+  <section class="pagehead" aria-labelledby="h1">
+    <div id="statusPill"></div>
+    <div class="eyebrow" style="margin-top:18px">Analyse · 26<sup>e</sup> Knesset contre 25<sup>e</sup> Knesset</div>
+    <h1 id="h1">2026 contre 2022</h1>
+    <p class="lead">Ce que chaque famille politique gagne ou perd par rapport aux élections du 1<sup>er</sup> novembre 2022. Les chiffres de 2022 sont les résultats officiels de la CEC ; ceux de 2026 suivent le dépouillement. <a href="index.html">← Retour à l’accueil</a></p>
+    <div id="appError"></div>
+  </section>
+
+  <section class="block" id="analyse" aria-label="Analyse" style="padding-top:22px">
+    <div class="stack">
+      <div id="anNotice"></div>
+      <div class="kpis" id="anKpis"></div>
+      <div class="card" id="camps" aria-labelledby="h-camps"></div>
+      <div id="families" class="stack"></div>
+      <div class="card" id="insights" aria-labelledby="h-ins"></div>
+      <div class="card flat" id="method"></div>
+    </div>
+  </section>
+</div>
+</main>
+
+<footer id="siteFooter"></footer>
+
+<noscript><div class="wrap"><div class="notice bad">Cette page a besoin de JavaScript pour afficher l’analyse. Les résultats officiels sont sur <a href="https://votes26.bechirot.gov.il/nationalresults">votes26.bechirot.gov.il</a>.</div></div></noscript>
+
+<script src="js/seats.js"></script>
+<script src="js/data2022.js"></script>
+<script src="js/compare.js"></script>
+<script src="js/common.js"></script>
+<script>
+"use strict";
+/* =====================================================================
+   Analyse : 2026 contre 2022, par famille politique. Logique de comparaison : js/compare.js ; données 2022 : js/data2022.js
+   ===================================================================== */
+const T22 = RESULTS_2022.totals;
+const TURNOUT_2022 = T22.voters / T22.eligible;
+const signed = (n) => (n > 0 ? "+" : n < 0 ? "−" : "±") + Math.abs(n);
+const signedPts = (d) => (d > 0.00005 ? "+" : d < -0.00005 ? "−" : "±") + (Math.abs(d) * 100).toFixed(1).replace(".", ",") + " pt";
+const dcls = (n) => (n > 0 ? "up" : n < 0 ? "down" : "flat");
+const siege = (n) => (Math.abs(n) > 1 ? "sièges" : "siège");
+
+// données de la comparaison, d'après la source active (sièges CEC > voix CEC > relais non officiel)
+function analysis() {
+  const t = model.totals, votes = {};
+  model.lists.forEach(l => { if (BY_ID[l.id]) votes[l.id] = (votes[l.id] || 0) + l.votes; });
+  const hasVotes = !!t && model.lists.length > 0;
+  const seats = {};
+  Object.entries(model.seats).forEach(([id, n]) => { if (BY_ID[id]) seats[id] = n; });
+  const passed = new Set((model.sources.cec || {}).passed || []);
+  const wasted = hasVotes ? sum(model.lists.filter(l => !passed.has(l.id)).map(l => l.votes)) : null;
+  return Compare.build({ r22: RESULTS_2022, votes26: hasVotes ? votes : null, valid26: hasVotes ? t.valid : 0, seats26: seats, hasSeats: model.active.key !== "none", wasted26: wasted });
+}
+
+function renderAnNotice() {
+  const a = model.active;
+  let html;
+  if (a.key === "none") html = `<div class="notice warn"><b>En attente des premiers chiffres de 2026.</b> Seuls les résultats de 2022 sont affichés ; la comparaison se remplira avec le dépouillement.</div>`;
+  else if (a.key === "official") html = `<div class="notice"><b>Sièges attribués par la CEC.</b> Les parts de voix 2026 portent sur les bulletins valides publiés ; les chiffres définitifs seront proclamés d’ici le ${FINAL_BY}.</div>`;
+  else html = `<div class="notice warn"><b>Comparaison provisoire.</b> Le dépouillement n’est pas terminé : les urnes restantes peuvent encore déplacer quelques sièges. Les sièges 2026 sont une <b>estimation</b> (${esc(a.label)}) ; les parts de voix portent sur les bulletins valides déjà comptés.${a.key === "press" ? " <b>Source non officielle</b> : les voix par liste ne sont pas disponibles, seuls les sièges sont comparés." : ""}</div>`;
+  $("#anNotice").innerHTML = html;
+}
+
+function renderAnKpis() {
+  const d = analysis();
+  const g = Object.fromEntries(d.groups.map(x => [x.id, x]));
+  const t = model.manual.turnout || [], last = t[t.length - 1];
+  const card = (k, v, s) => `<div class="stat"><div class="k">${k}</div><div class="v num">${v}</div><div class="s">${s}</div></div>`;
+  const camp = (id, label) => {
+    const x = g[id].tot;
+    return card(label, x.seats26 == null ? `${x.seats22}` : `${x.seats22} → ${x.seats26}`, x.dSeats == null ? "sièges en 2022" : `<span class="delta ${dcls(x.dSeats)}">${signed(x.dSeats)} ${siege(x.dSeats)}</span> · ${x.dPct == null ? "" : signedPts(x.dPct) + " de voix"}`);
+  };
+  $("#anKpis").innerHTML = [
+    card("Participation", last ? `${String(last.pct).replace(".", ",")} %` : "—", last ? `à ${esc(last.time)} · <span class="delta ${dcls(last.pct / 100 - TURNOUT_2022)}">${signedPts(last.pct / 100 - TURNOUT_2022)}</span> vs ${pc(TURNOUT_2022, 2)} en 2022` : `${pc(TURNOUT_2022, 2)} en 2022`),
+    camp("netanyahu", "Droite & ultra-orthodoxes"),
+    camp("eisenkot", "Centre & gauche"),
+    camp("arab", "Partis arabes"),
+    card("Voix sans siège", d.wasted26 == null ? pc(d.wasted22, 1) : `${pc(d.wasted22, 1)} → ${pc(d.wasted26, 1)}`, "listes sous le seuil de 3,25 %"),
+  ].join("");
+}
+
+// deux barres de 120 sièges : 2022 et 2026, par camp
+function renderCamps() {
+  const d = analysis();
+  const bar = (label, pick) => {
+    const segs = [...d.groups.map(g => [g.color, g.tot, g.name]), ["#8b93a1", d.others, "Autres listes"]]
+      .map(([c, x, n]) => [c, pick(x), n]);
+    return `<div class="cbar"><span class="cl">${label}</span><div class="cstack" role="img" aria-label="${esc(label)} : ${segs.map(([, v, n]) => `${n} ${v ?? "?"}`).join(", ")}">${segs.map(([c, v, n]) => (v ? `<i style="width:${v / 120 * 100}%;background:${c}" title="${esc(n)} : ${v}"><b>${v}</b></i>` : "")).join("")}<u title="Majorité : 61"></u></div></div>`;
+  };
+  $("#camps").innerHTML = `<div class="eyebrow">Les camps en sièges</div><h3 id="h-camps">Qui pèse combien ?</h3>
+    <p class="sub" style="margin:2px 0 14px">120 sièges, la barre verticale marque la majorité (61).</p>
+    ${bar("2022", x => x.seats22)}${d.hasSeats ? bar("2026", x => x.seats26) : `<div class="cbar"><span class="cl">2026</span><div class="sub" style="margin:0">en attente des chiffres de la CEC</div></div>`}
+    <div class="legend" style="margin-top:12px">${[...d.groups.map(g => [g.color, g.name]), ["#8b93a1", "Autres listes"]].map(([c, n]) => `<span style="--sc:${c}">${esc(n)}</span>`).join("")}</div>
+    <div class="src">${srcLine([{ label: RESULTS_2022.source.name, url: RESULTS_2022.source.url }, { label: model.active.label, url: model.active.key === "press" ? PRESS.url : CEC.national }], `<span>Le rattachement des listes à un camp est une lecture éditoriale (voir « Méthode »).</span>`)}</div>`;
+}
+
+function renderFamilies() {
+  const d = analysis();
+  const maxAbs = Math.max(5, ...d.groups.flatMap(g => g.rows).concat(d.others).map(r => Math.abs(r.dSeats || 0)));
+  const dv = (r, color) => {
+    if (r.dSeats == null) return `<span class="sub" style="margin:0">—</span>`;
+    const w = Math.abs(r.dSeats) / maxAbs * 50;
+    return `<div class="dvwrap"><div class="dv" style="--c:${color}" aria-hidden="true"><u></u>${r.dSeats ? `<i style="${r.dSeats > 0 ? "left:50%" : "right:50%"};width:${w}%"></i>` : ""}</div><b class="delta ${dcls(r.dSeats)} num">${signed(r.dSeats)}</b></div>`;
+  };
+  const pct = (p) => (p == null ? "n.d." : pc(p, 1));
+  const row = (r, color) => `<tr><td class="lst"><span class="nm">${esc(r.name)}${r.note ? `<small>${esc(r.note)}</small>` : ""}</span></td>
+      <td class="num">${r.seats22}<small class="sub2">${pc(r.pct22, 1)}</small></td>
+      <td class="num">${r.seats26 == null ? "—" : r.seats26}<small class="sub2">${pct(r.pct26)}</small></td>
+      <td class="num dpts ${r.dPct == null ? "" : dcls(r.dPct)}">${r.dPct == null ? "—" : signedPts(r.dPct)}</td>
+      <td class="dvcell">${dv(r, color)}</td></tr>`;
+  const head = `<thead><tr><th>Liste</th><th>2022<small class="sub2">sièges · voix</small></th><th>2026<small class="sub2">sièges · voix</small></th><th>Voix</th><th style="min-width:150px">Écart en sièges</th></tr></thead>`;
+  const card = (g) => `<div class="card fam" style="--bc:${g.color}"><div class="famhead"><div><div class="eyebrow" style="color:var(--muted)">${esc(g.sub || "")}</div><h3>${esc(g.name)}</h3></div>
+      <div class="famtot num"><b>${g.tot.seats22}</b>${g.tot.seats26 == null ? "" : ` → <b>${g.tot.seats26}</b> <span class="delta ${dcls(g.tot.dSeats)}">${signed(g.tot.dSeats)}</span>`}<small>sièges</small></div></div>
+      <div class="tbl-wrap"><table class="cmp">${head}<tbody>${g.rows.map(r => row(r, g.color)).join("")}</tbody></table></div></div>`;
+  const oth = { id: "others", name: "Autres listes", sub: "", color: "#8b93a1", rows: [d.others], tot: d.others };
+  $("#families").innerHTML = [...d.groups, oth].map(card).join("");
+}
+
+function renderInsights() {
+  const d = analysis();
+  const L = [];
+  if (!d.hasSeats) { $("#insights").innerHTML = `<div class="eyebrow">Ce qu’on peut en dire</div><h3 id="h-ins">En attente des chiffres de 2026</h3><p class="sub" style="margin:4px 0 0">Les observations se généreront avec le dépouillement.</p>`; return; }
+  d.groups.forEach(g => {
+    const x = g.tot;
+    L.push(`<b>${esc(g.name)}</b> : ${x.seats22} → <b>${x.seats26}</b> sièges (<span class="delta ${dcls(x.dSeats)}">${signed(x.dSeats)}</span>)${x.dPct == null ? "" : `, ${pc(x.pct22, 1)} → ${pc(x.pct26, 1)} des voix (${signedPts(x.dPct)})`}.`);
+  });
+  const rows = d.groups.flatMap(g => g.rows).filter(r => r.dSeats != null && r.from.length);
+  const up = [...rows].sort((a, b) => b.dSeats - a.dSeats)[0], down = [...rows].sort((a, b) => a.dSeats - b.dSeats)[0];
+  if (up && up.dSeats > 0) L.push(`Plus forte progression en sièges : <b>${esc(up.name)}</b> (${up.seats22} → ${up.seats26}, ${signed(up.dSeats)}).`);
+  if (down && down.dSeats < 0) L.push(`Plus fort recul en sièges : <b>${esc(down.name)}</b> (${down.seats22} → ${down.seats26}, ${signed(down.dSeats)}).`);
+  const t = model.manual.turnout || [], last = t[t.length - 1];
+  if (last) L.push(`Participation : <b>${String(last.pct).replace(".", ",")} %</b> à ${esc(last.time)} contre ${pc(TURNOUT_2022, 2)} au total en 2022 (<span class="delta ${dcls(last.pct / 100 - TURNOUT_2022)}">${signedPts(last.pct / 100 - TURNOUT_2022)}</span>).`);
+  if (d.wasted26 != null) L.push(`Les listes sous le seuil rassemblent <b>${pc(d.wasted26, 1)}</b> des voix comptées, contre ${pc(d.wasted22, 1)} en 2022.`);
+  L.push(`<i>Lecture prudente : les fusions et scissions (Ensemble, Yashar, Démocrates, Liste commune) rendent certaines comparaisons approximatives, et le dépouillement n’est pas terminé.</i>`);
+  $("#insights").innerHTML = `<div class="eyebrow">Ce qu’on peut en dire</div><h3 id="h-ins">Les faits, sans interprétation</h3><ul class="ins">${L.map(l => `<li>${l}</li>`).join("")}</ul>`;
+}
+
+function renderMethod() {
+  $("#method").innerHTML = `<h3>Méthode et limites</h3><ul class="ins" style="margin-top:8px">
+    <li><b>2022</b> : résultats officiels de la <a href="${RESULTS_2022.source.url}" rel="noopener" target="_blank">CEC</a> (voix = somme du fichier par localité, qui reproduit exactement le tableau national : 4 764 742 bulletins valides, participation ${pc(TURNOUT_2022, 2)}).</li>
+    <li><b>2026</b> : voix de la CEC dès qu’elles sont disponibles (sièges attribués par la CEC, sinon estimation Bader-Ofer avec les accords de surplus) ; à défaut, projection d’un relais non officiel, signalée comme telle.</li>
+    <li><b>Familles</b> : lecture éditoriale d’après les positions publiques des listes avant le scrutin. Quand des listes fusionnent ou se scindent, 2022 est additionné pour correspondre à 2026 (voir la note de chaque ligne).</li>
+    <li><b>Parts de voix</b> : 2026 = part des bulletins valides déjà comptés ; 2022 = part du résultat final. Les premiers bureaux dépouillés ne sont pas représentatifs.</li></ul>`;
+}
+
+App.start({
+  id: "analyse",
+  sections: [["statut", () => renderStatusRow($("#statusPill"))], ["avertissement", renderAnNotice], ["chiffres clés", renderAnKpis], ["camps", renderCamps], ["familles", renderFamilies], ["observations", renderInsights], ["méthode", renderMethod]],
+});
+</script>
+</body>
+</html>

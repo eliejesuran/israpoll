@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Résultat brut de la CEC — IsraPoll</title>
+<meta name="description" content="Résultat brut des élections israéliennes 2026 : voix, pourcentages et sièges de chaque liste tels que publiés par la Commission électorale centrale, avec la source de chaque chiffre.">
+<meta property="og:title" content="Résultat brut de la CEC — IsraPoll">
+<meta property="og:description" content="Voix, pourcentages et sièges de chaque liste, tels que publiés par la CEC.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1020'/%3E%3Cpath d='M10 46a22 22 0 0 1 44 0' fill='none' stroke='%234aa8ff' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M19 46a13 13 0 0 1 26 0' fill='none' stroke='%2312b8a6' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Heebo:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="top" id="siteHeader"></header>
+
+<main id="main">
+<div class="wrap">
+  <section class="pagehead" aria-labelledby="h1">
+    <div id="statusPill"></div>
+    <div class="eyebrow" style="margin-top:18px">Annexe · résultat brut</div>
+    <h1 id="h1">Ce que dit la Commission électorale</h1>
+    <p class="lead">Voix, pourcentages et sièges de chaque liste, tels que publiés par la CEC, sans interprétation. Tant que le dépouillement n’a pas commencé, ce tableau reste vide. <a href="index.html">← Retour à l’accueil</a></p>
+    <div id="appError"></div>
+  </section>
+
+  <section class="block" id="resultats" aria-label="Résultat brut" style="padding-top:22px">
+    <div class="stack">
+      <div id="resNotice"></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="card"><h3>Participation</h3><p class="sub" style="margin:0 0 12px">Taux de participation national relevé par la CEC dans la journée.</p><div class="turnout" id="turnout"></div><div class="src" id="turnoutSrc"></div></div>
+      <div>
+        <div class="tbl-wrap"><table id="resTable"></table></div>
+        <div class="src" id="resSrc"></div>
+      </div>
+    </div>
+  </section>
+</div>
+</main>
+
+<footer id="siteFooter"></footer>
+
+<noscript><div class="wrap"><div class="notice bad">Cette page a besoin de JavaScript pour afficher les résultats. Les résultats officiels sont sur <a href="https://votes26.bechirot.gov.il/nationalresults">votes26.bechirot.gov.il</a>.</div></div></noscript>
+
+<script src="js/seats.js"></script>
+<script src="js/common.js"></script>
+<script>
+"use strict";
+/* =====================================================================
+   Annexe : résultat brut de la CEC (voix, % et sièges par liste, participation). Code commun : js/common.js
+   ===================================================================== */
+// chiffres clés : ce que la CEC a compté à ce stade
+function renderKpis() {
+  const t = model.totals, live = model.live, hand = t && live.source && live.source.manual_cec;
+  if (!t) { $("#kpis").innerHTML = ""; return; }
+  const k = (label, value, sub, small) => `<div class="stat"><div class="k">${label}</div><div class="v num"${small ? ' style="font-size:20px"' : ""}>${value}</div><div class="s">${sub || ""}</div></div>`;
+  $("#kpis").innerHTML = [
+    k("Bulletins valides", fmt(t.valid), "comptés à ce stade"),
+    k("Votants", fmt(t.voters), t.eligible ? `${pc(t.voters / t.eligible, 1)} des inscrits (urnes dépouillées)` : ""),
+    k("Inscrits", fmt(t.eligible), "électeurs inscrits"),
+    k("Bulletins nuls", fmt(t.invalid), t.voters ? `${pc(t.invalid / t.voters, 2)} des votants` : ""),
+    k("Origine des chiffres", hand ? "Saisie à la main" : "Relevé automatique", hand ? `d’après le tableau de la CEC, relevé de ${esc(hand.as_of || "?")} (heure d’Israël)` : `publié à ${hhmmss(live.updated_at)}`, true),
+  ].join("");
+}
+
+function turnoutBlock() {
+  const t = model.manual.turnout || [];
+  if (!t.length) return `<span class="sub" style="margin:0">Pas encore de relevé.</span>`;
+  return t.map(x => {
+    const d = x.prev2022 != null ? x.pct - x.prev2022 : null;
+    return `<div class="tchip"><div class="t">${esc(x.time)}</div><div class="p num">${String(x.pct).replace(".", ",")} %</div><div class="d ${d == null ? "" : d >= 0 ? "up" : "down"}">${d == null ? "&nbsp;" : (d >= 0 ? "▲ +" : "▼ ") + d.toFixed(1).replace(".", ",") + " pt vs 2022"}</div></div>`;
+  }).join("");
+}
+
+function renderResults() {
+  const ph = phase(), live = model.live, tot = model.totals;
+  // bandeau
+  let notice = "";
+  if (!tot && live.challenge) {
+    notice = `<div class="notice bad"><b>Résultats officiels illisibles automatiquement.</b> Depuis la fermeture des bureaux, la CEC protège ses fichiers par un défi anti-bot : notre collecteur s’identifie honnêtement et ne cherche pas à le contourner. Pour les chiffres officiels, consulte <a href="${CEC.national}" rel="noopener" target="_blank">le site de la CEC</a>.</div>`;
+  } else if (!tot) {
+    notice = `<div class="notice warn"><b>Aucun résultat officiel publié pour l’instant.</b> Le site de la CEC affiche « <span class="he" dir="rtl">ממתינים לספירת הקולות</span> » (en attente du décompte). Ce tableau se remplira tout seul, sans recharger la page.</div>`;
+  } else if (live.status !== "final") {
+    const c = model.sources.cec;
+    notice = `<div class="notice warn"><b>Résultats partiels.</b> ≈ ${Math.round(c.share * 100)} % du vote attendu est dépouillé. Les premiers bureaux (kibboutzim, communes arabes ou ultra-orthodoxes) ne reflètent pas le pays : un classement provisoire peut s’inverser.</div>`;
+  } else {
+    notice = `<div class="notice"><b>Résultats publiés par la CEC.</b> Les chiffres définitifs sont proclamés au journal officiel d’ici le ${FINAL_BY}.</div>`;
+  }
+  const hand = tot && live.source && live.source.manual_cec;
+  if (live.challenge && tot && !hand) notice += `<div class="notice warn" style="margin-top:10px">La CEC bloque actuellement les lectures automatiques : ces chiffres sont le <b>dernier relevé obtenu</b> et peuvent être en retard sur <a href="${CEC.national}" rel="noopener" target="_blank">le site officiel</a>.</div>`;
+  if (live.stale) notice += `<div class="notice warn" style="margin-top:10px">Le collecteur n’a pas pu joindre la CEC au dernier relevé : ces chiffres datent de ${esc(live.updated_at || "?")}.</div>`;
+  if (hand) notice += `<div class="notice warn" style="margin-top:10px"><b>Totaux recopiés à la main.</b> Le site de la CEC bloque les lectures automatiques : ces chiffres sont recopiés depuis son tableau national${hand.as_of ? ` (relevé de ${esc(hand.as_of)}, heure d’Israël)` : ""} et ne changent qu’à chaque saisie. <a href="${CEC.national}" rel="noopener">Vérifier sur le site de la CEC</a>.</div>`;
+  if (model.active.key === "press") {
+    const pr = model.active;
+    notice += `<div class="notice warn" style="margin-top:10px"><b>Chiffres d’un relais non officiel.</b> La CEC bloque les lectures automatiques : les sièges affichés sont la projection de <a href="${PRESS.url}" rel="noopener" target="_blank">${esc(PRESS.name)}</a>, un agrégateur indépendant qui reprend le dépouillement de la CEC (${pc(pr.share, 2)} des urnes, relevé de ${esc(pr.asOf || "?")}, heure d’Israël). Ce ne sont <b>ni des résultats officiels ni un flux de la CEC</b> : vérifie sur <a href="${CEC.national}" rel="noopener" target="_blank">le site de la CEC</a>.</div>`;
+  }
+  $("#resNotice").innerHTML = notice;
+
+  $("#turnout").innerHTML = turnoutBlock();
+  const tsrc = [...new Map((model.manual.turnout || []).filter(x => x.url).map(x => [x.url, { label: x.source || "CEC", url: x.url }])).values()];
+  $("#turnoutSrc").innerHTML = tsrc.length ? srcLine(tsrc) : srcLine([{ label: "CEC", url: CEC.national }]);
+
+  // tableau
+  const head = `<thead><tr><th>Liste</th><th>Voix</th><th>%</th><th style="min-width:150px">Seuil 3,25 %</th><th>Sièges</th></tr></thead>`;
+  if (!tot) {
+    const rows = PARTIES;
+    $("#resTable").innerHTML = head + `<tbody>${rows.map(p => `<tr><td class="lst"><span class="sw" style="background:${p.color}"></span><span class="nm">${esc(p.fr)}<small>${esc(p.leader)} · <span class="he">${p.he}</span> <span class="ltr he">${p.letters}</span></small></span></td><td class="num">—</td><td class="num">—</td><td><div class="bar"><u style="left:${3.25 / 15 * 100}%"></u></div></td><td class="num">${model.sources.press ? `${model.sources.press.seats[p.id] || 0}<span class="tag" style="color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent)">relais</span>` : "—"}</td></tr>`).join("")}</tbody>`;
+    $("#resSrc").innerHTML = srcLine([{ label: "CEC — résultats nationaux", url: CEC.national }, { label: "fichier par localité (CSV)", url: CEC.csv }, ...(model.sources.press ? [{ label: `${PRESS.name} (relais non officiel)`, url: PRESS.url }] : [])],
+      `<span>Relevé : ${live.checked_at ? hhmmss(live.checked_at) : "—"} · ${model.sources.press ? "voix par liste non disponibles : seuls les sièges projetés par le relais sont affichés" : "aucune donnée à afficher"}</span>`);
+    return;
+  }
+  const seatsOf = model.sources.official ? model.sources.official.seats : model.sources.cec.seats;
+  const isOff = !!model.sources.official;
+  const passed = new Set(model.sources.cec.passed);
+  $("#resTable").innerHTML = head + `<tbody>${model.lists.filter(l => l.votes > 0).slice(0, 40).map(l => {
+    const ok = l.pct >= 0.0325;
+    return `<tr class="${ok ? "" : "under"}"><td class="lst"><span class="sw" style="background:${l.color}"></span><span class="nm">${esc(l.fr)}<small>${esc(l.leader)}${l.leader ? " · " : ""}<span class="he">${esc(l.he)}</span> <span class="ltr he">${esc(l.letters)}</span></small></span></td>
+      <td class="num">${fmt(l.votes)}</td><td class="num">${pc(l.pct, 2)}</td>
+      <td><div class="bar"><i style="width:${Math.min(l.pct / 0.15, 1) * 100}%;background:${l.color}"></i><u style="left:${3.25 / 15 * 100}%"></u></div></td>
+      <td class="num"><b>${seatsOf[l.id] || 0}</b>${ok ? "" : '<span class="tag out">sous le seuil</span>'}${!isOff && passed.has(l.id) ? '<span class="tag in">est.</span>' : ""}</td></tr>`;
+  }).join("")}</tbody><tfoot><tr><td>Total</td><td class="num">${fmt(tot.valid)}</td><td class="num">100 %</td><td class="num" colspan="2" style="text-align:right;font-weight:500;color:var(--muted)">${fmt(tot.voters)} votants · ${fmt(tot.invalid)} nuls · ${fmt(tot.eligible)} inscrits</td></tr></tfoot>`;
+  $("#resSrc").innerHTML = srcLine(
+    [{ label: "CEC — résultats nationaux", url: CEC.national }, { label: "fichier par localité (CSV)", url: CEC.csv }],
+    `<span>Voix : somme des localités publiées · Sièges : ${isOff ? "<b>attribués par la CEC</b>" : "<b>estimation</b> Bader-Ofer (la CEC n’a pas encore attribué de sièges)"} · Relevé : ${live.updated_at ? hhmmss(live.updated_at) : "—"}</span>`);
+}
+
+
+App.start({
+  id: "resultats",
+  sections: [["statut", () => renderStatusRow($("#statusPill"))], ["chiffres clés", renderKpis], ["résultats", renderResults]],
+});
+</script>
+</body>
+</html>

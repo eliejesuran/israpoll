@@ -305,7 +305,7 @@ class ManualCec(unittest.TestCase):
             shutil.rmtree(tmp)
 
     def test_party_letters_match_the_page(self):
-        with open(os.path.join(ManualFile.ROOT, "index.html"), encoding="utf-8") as f:
+        with open(os.path.join(ManualFile.ROOT, "js", "common.js"), encoding="utf-8") as f:     # PARTIES vit dans js/common.js
             page = dict(re.findall(r'\{ id: "(\w+)",[^\n]*?letters: "([^"]+)"', f.read()))
         self.assertEqual(fetch_cec.PARTY_LETTERS, page)
         self.assertLessEqual(set(page.values()), fetch_cec.KNOWN_LETTERS)
@@ -338,7 +338,7 @@ class ManualFile(unittest.TestCase):
     ROOT = os.path.join(os.path.dirname(__file__), "..")
 
     def test_exit_polls_use_known_parties_and_total_120(self):
-        with open(os.path.join(self.ROOT, "index.html"), encoding="utf-8") as f:
+        with open(os.path.join(self.ROOT, "js", "common.js"), encoding="utf-8") as f:
             ids = set(re.findall(r'\{ id: "(\w+)",\s+fr:', f.read()))
         with open(os.path.join(self.ROOT, "data", "manual.json"), encoding="utf-8") as f:
             manual = json.load(f)
