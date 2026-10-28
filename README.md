@@ -66,7 +66,7 @@ python3 -m http.server 8765      # puis http://localhost:8765
 
 Le soir du scrutin la CEC a protégé ses fichiers par un défi anti-bot (AWS WAF : HTTP 202, `x-amzn-waf-action: challenge`). **Le projet ne le contourne pas** : le collecteur s'identifie honnêtement, cesse d'insister (pause de 45 s doublée jusqu'à 10 min), publie `challenge: true` et la page l'affiche clairement. Deux replis légitimes :
 
-- **Import humain** : télécharger le fichier « תוצאות לפי יישובים » depuis [le site de la CEC](https://votes26.bechirot.gov.il/nationalresults) dans un navigateur, puis `CSV_FILE=~/Downloads/expc.csv scripts/live.sh` (un passage ; les autres collecteurs adoptent ces chiffres s'ils sont plus avancés).
+- **Import humain** : télécharger le fichier « תוצאות לפי יישובים » depuis [le site de la CEC](https://votes26.bechirot.gov.il/nationalresults) dans un navigateur, puis `scripts/import_csv.sh` : il retrouve le CSV le plus récent de `~/Downloads`, affiche un résumé (communes, bulletins valides, premières listes), refuse un fichier qui n'est pas de la CEC et demande confirmation avant de publier (`--dry` : résumé seulement). Les autres collecteurs adoptent ces chiffres s'ils sont plus avancés.
 - **Plusieurs collecteurs** : chacun adopte les chiffres plus avancés des autres (`--peer`).
 
 ### Relais presse (non officiel)

@@ -49,6 +49,7 @@
     <div class="builder">
       <div>
         <div class="toolbar" id="srcPicker" role="group" aria-label="Base de calcul"></div>
+        <p class="sub" id="srcNote" style="margin:-4px 0 14px;font-size:13.5px"></p>
         <div class="toolbar" id="presets" role="group" aria-label="Coalitions types"></div>
         <div id="picker"></div>
       </div>
@@ -299,6 +300,16 @@ function renderBuilder() {
   const labels = { official: "Résultats officiels", cec: "Calcul sur voix CEC", press: "Projection relais (non officiel)" };
   const choices = ["official", "cec", "press"].filter(k => model.sources[k]);
   $("#srcPicker").innerHTML = choices.length < 2 ? "" : choices.map(k => `<button class="btn ${model.chosen === k ? "on" : ""}" data-src="${k}" aria-pressed="${model.chosen === k}">${labels[k]}</button>`).join("");
+  // quand les deux bases existent : leur avancement et ce qui change entre elles (sinon, la bascule semble ne rien faire)
+  const c = model.sources.cec, p = model.sources.press, note = $("#srcNote");
+  if (c && p) {
+    const hand = model.live.source && model.live.source.manual_cec;
+    const diffs = Object.keys({ ...c.seats, ...p.seats }).map(id => [id, (p.seats[id] || 0) - (c.seats[id] || 0)]).filter(([, d]) => d)
+      .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]) || a[0].localeCompare(b[0]));
+    const sgn = (d) => (d > 0 ? "+" : "−") + Math.abs(d);
+    note.innerHTML = `<b>Calcul CEC</b> : ${fmt(model.totals.valid)} bulletins valides${hand ? ` (saisie, relevé de ${esc(hand.as_of || "?")})` : ""}. <b>Relais</b> : ${fmt(p.valid)} bulletins (${pc(p.share, 1)} des urnes, relevé de ${esc(p.asOf || "?")}).
+      Écart de sièges, relais − calcul CEC : ${diffs.length ? diffs.map(([id, d]) => `${esc((BY_ID[id] || { fr: id }).fr)} ${sgn(d)}`).join(", ") : "aucun"}.`;
+  } else note.textContent = "";
   $("#presets").innerHTML = model.active.key === "none" ? "" : PRESETS.map((p, i) => `<button class="btn" data-preset="${i}">${esc(p.name)}</button>`).join("");
 
   const groups = ["netanyahu", "eisenkot", "arab", "other"].map(k => {

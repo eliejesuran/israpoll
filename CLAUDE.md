@@ -142,8 +142,8 @@ ssh <utilisateur>@<ip-du-jetson> 'tail -20 ~/israpoll-collector/work/live.log; p
 # arrêter proprement : retirer les 2 lignes `israpoll-collector` du crontab PUIS tuer les PID (pas de `pkill -f` : il se tue lui-même via la commande ssh)
 # un relevé à la main / tester sans publier
 python3 -I scripts/fetch_cec.py --out /tmp/live.json --manual data/manual.json
-# import humain du fichier téléchargé sur le site de la CEC
-CSV_FILE=~/Downloads/expc.csv scripts/live.sh
+# import humain du fichier téléchargé sur le site de la CEC (résumé + confirmation ; --dry pour ne rien publier)
+scripts/import_csv.sh
 # saisie manuelle des totaux CEC (voir README) puis commit/push
 python3 -I scripts/cec_manual.py --as-of 12:30 --eligible … --voters … --valid … likud=… yashar=…
 ```
