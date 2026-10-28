@@ -4,6 +4,9 @@
 # NB : les journaux d'une Action d'un dépôt public sont publics (adresse IP et bannière du serveur FTP visibles ; les secrets sont masqués).
 set -u
 : "${FTP_HOST:?variable manquante : FTP_HOST}"
+source "$(dirname "$0")/ftp_host.sh"
+FTP_HOST=$(ftp_host_clean "$FTP_HOST") || { echo "FTP_HOST invalide : un nom d'hôte est attendu (par exemple xxxxx.ftp.infomaniak.com)"; exit 2; }
+HOST_ONLY="${FTP_HOST%%:*}"
 T() { if command -v timeout >/dev/null 2>&1; then timeout "$@"; else shift; "$@"; fi; }   # `timeout` absent sur macOS
 
 echo "== Réponse du serveur à « AUTH TLS » (FTP chiffré) — seul un identifiant anonyme est tenté, jamais le vôtre"
@@ -18,7 +21,7 @@ elif echo "$out" | grep -q -E '^\* (SSL connection|TLSv)'; then
 fi
 
 echo; echo "== FTPS implicite (port 990)"
-T 12 bash -c 'exec 3<>/dev/tcp/$0/990 && echo "port ouvert"' "$FTP_HOST" 2>&1 | head -2 || true
+T 12 bash -c 'exec 3<>/dev/tcp/$0/990 && echo "port ouvert"' "$HOST_ONLY" 2>&1 | head -2 || true
 echo "== SSH/SFTP (port 22) : bannière"
-T 10 bash -c 'exec 3<>/dev/tcp/$0/22 && head -c 80 <&3' "$FTP_HOST" 2>&1 | head -2 || true
+T 10 bash -c 'exec 3<>/dev/tcp/$0/22 && head -c 80 <&3' "$HOST_ONLY" 2>&1 | head -2 || true
 echo; echo "CONCLUSION : $verdict"

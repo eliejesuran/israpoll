@@ -58,9 +58,19 @@ class DeployFtp(unittest.TestCase):
         self.assertIn("FTP_PASSWORD", r.stderr)
         self.assertFalse(os.path.exists(self.log))
 
-    def test_host_must_be_a_bare_hostname(self):
-        self.assertEqual(self.run_script(FTP_HOST="ftp://ftp.example.test/x").returncode, 2)
-        self.assertEqual(self.run_script(FTP_HOST="ftp.example.test:21").returncode, 2)
+    def test_host_is_cleaned_and_hostile_values_are_refused(self):
+        # un « ftp://hôte/dossier » ou une valeur collée avec des espaces/retours à la ligne est ramené(e) à l'hôte seul
+        r = self.run_script(FTP_HOST="ftp://ftp.example.test/israpoll\n")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("seul le nom d'hôte est utilisé", r.stderr)
+        ups = [c for c in self.calls() if " -T " in c]
+        self.assertTrue(all("ftp://ftp.example.test/sites/eliejesuran.be/israpoll/" in c for c in ups))
+        os.remove(self.log)
+        self.assertEqual(self.run_script(FTP_HOST="ftp.example.test:21").returncode, 0)          # port explicite accepté
+        os.remove(self.log)
+        for bad in ("ftp.example.test;rm -rf", "$(id).example.test", "ftp.example.test|x", "ftp.example.test:99999999"):
+            self.assertEqual(self.run_script(FTP_HOST=bad).returncode, 2, bad)
+            self.assertFalse(os.path.exists(self.log))
 
     def test_uploads_are_encrypted_ordered_and_keep_the_password_off_the_command_line(self):
         r = self.run_script(SITE_URL="https://example.test/israpoll")

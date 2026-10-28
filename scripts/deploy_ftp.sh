@@ -15,7 +15,11 @@ cd "$(dirname "$0")/.."
 for v in FTP_HOST FTP_USER FTP_PASSWORD FTP_PATH; do
   [[ -n "${!v:-}" ]] || { echo "variable manquante : $v" >&2; exit 2; }
 done
-[[ "$FTP_HOST" != */* && "$FTP_HOST" != *:* ]] || { echo "FTP_HOST doit être un nom d'hôte seul (sans schéma, port ni chemin)" >&2; exit 2; }
+# shellcheck source=scripts/ftp_host.sh
+source "$(dirname "$0")/ftp_host.sh"
+clean=$(ftp_host_clean "$FTP_HOST") || { echo "FTP_HOST invalide : il doit contenir un nom d'hôte (lettres, chiffres, points, tirets), par exemple xxxxx.ftp.infomaniak.com" >&2; exit 2; }
+[[ "$clean" == "$FTP_HOST" ]] || echo "FTP_HOST contenait autre chose qu'un nom d'hôte (schéma, dossier, espaces) : seul le nom d'hôte est utilisé ; le dossier se règle dans FTP_PATH." >&2
+FTP_HOST="$clean"
 
 # Scripts et styles d'abord, pages HTML ensuite. Tout fichier local référencé par une page doit figurer ici (tests/test_deploy.py).
 ASSETS=(css/site.css js/seats.js js/data2022.js js/compare.js js/common.js)
