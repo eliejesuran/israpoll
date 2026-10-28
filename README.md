@@ -66,6 +66,9 @@ Le soir du scrutin la CEC a protégé ses fichiers par un défi anti-bot (AWS WA
 - **Import humain** : télécharger le fichier « תוצאות לפי יישובים » depuis [le site de la CEC](https://votes26.bechirot.gov.il/nationalresults) dans un navigateur, puis `CSV_FILE=~/Downloads/expc.csv scripts/live.sh` (un passage ; les autres collecteurs adoptent ces chiffres s'ils sont plus avancés).
 - **Plusieurs collecteurs** : chacun adopte les chiffres plus avancés des autres (`--peer`).
 
+### Relais presse (non officiel)
+Tant que la CEC bloque, le collecteur lit toutes les ~3 min la projection de sièges de [The Petek](https://www.thepetek.com/results) (agrégateur indépendant qui reprend le dépouillement de la CEC ; `robots.txt` : tout autorisé ; en-tête honnête) et la publie sous la clé `press` de `live.json`. La page ne l'utilise **que** si elle est plus avancée que les totaux CEC disponibles (bulletins valides comptés), ou à défaut de tout total CEC ; elle est toujours étiquetée « non officiel · relais presse », et le tableau des voix reste réservé à la CEC. Le relais est strict (liste inconnue, sièges ≠ 120 → rejeté) et ne recule jamais.
+
 ## Déployer
 
 1. Fork, puis *Settings → Pages → Deploy from a branch → `main` / root*.

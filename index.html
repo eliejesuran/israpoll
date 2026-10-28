@@ -371,7 +371,8 @@ details summary{cursor:pointer;font-weight:600}
     <div class="blocs" style="grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))">
       <div class="card flat"><h3>D’où viennent les chiffres</h3><ul style="padding-left:18px;margin:8px 0 0">
         <li><b>Voix et sièges</b> : fichier officiel des résultats par localité de la <a href="https://votes26.bechirot.gov.il/nationalresults" rel="noopener">Commission électorale centrale</a> (<code>media26.bechirot.gov.il/files/expc.csv</code>), additionné commune par commune.</li>
-        <li><b>Participation</b> : relevés de la CEC, relayés par la presse (lien à chaque ligne).</li></ul></div>
+        <li><b>Participation</b> : relevés de la CEC, relayés par la presse (lien à chaque ligne).</li>
+        <li><b>Relais presse (non officiel)</b> : tant que la CEC bloque les lectures automatiques, la projection de sièges de <a href="https://www.thepetek.com/results" rel="noopener">The Petek</a>, qui reprend le dépouillement de la CEC. Elle n’est utilisée que si elle est plus avancée que les totaux de la CEC dont nous disposons, et toujours étiquetée « non officiel ».</li></ul></div>
       <div class="card flat"><h3>Comment sont calculés les sièges</h3><p style="margin:8px 0 0">Seuil de 3,25&nbsp;%, quotient national, puis méthode <b>Bader-Ofer</b> avec les accords de surplus déclarés (Ensemble–Israël Beiteinou, Yashar–Démocrates, Liste commune–Ra’am, Likoud–Sionisme religieux, Shas–UTJ). La même méthode reproduit exactement les résultats officiels de 2022 (test automatique dans le dépôt). Tant que la CEC n’a pas attribué les sièges, ils sont marqués <i>estimation</i>.</p></div>
       <div class="card flat"><h3>Limites</h3><p style="margin:8px 0 0">Les premiers bureaux dépouillés ne sont pas représentatifs (communes arabes, kibboutzim, localités ultra-orthodoxes arrivent par vagues). Les résultats définitifs seront publiés au journal officiel d’ici le <b>4 novembre 2026</b> et peuvent encore bouger. Les blocs sont une lecture éditoriale, modifiable dans le simulateur.</p></div>
     </div>
@@ -421,6 +422,9 @@ const CEC = {
   national: "https://votes26.bechirot.gov.il/nationalresults",
   csv: "https://media26.bechirot.gov.il/files/expc.csv",
 };
+
+// Relais presse NON officiel : repli tant que la CEC bloque les lectures automatiques (lien fixe, jamais celui du JSON).
+const PRESS = { name: "The Petek", url: "https://www.thepetek.com/results" };
 
 const BLOCS = {
   eisenkot:  { name: "Bloc Eisenkot",   sub: "Opposition « du changement »",  color: "#12b8a6" },
@@ -540,6 +544,11 @@ function sanitizeLive(raw) {
   live.names = Object.fromEntries(Object.entries(obj(raw.names)).map(([k, v]) => [String(k), String(v)]));
   live.stale = raw.stale === true;
   live.challenge = raw.challenge === true;                       // la CEC refuse les lectures automatiques (défi anti-bot)
+  const pr = obj(raw.press), pct = +pr.counted_pct;
+  const pseats = Object.fromEntries(Object.entries(obj(pr.seats)).filter(([id, n]) => BY_ID[id] && Number.isFinite(+n) && +n >= 0 && +n <= 120).map(([id, n]) => [id, Math.round(+n)]));
+  live.press = sum(Object.values(pseats)) === 120 && Number.isFinite(pct) && pct > 0 && pct <= 100 && num(pr.valid) > 0
+    ? { seats: pseats, counted_pct: pct, valid: num(pr.valid), stations: pr.stations != null ? num(pr.stations) : null, as_of: String(pr.as_of || "").slice(0, 5) }
+    : null;
   const m = obj(raw.manual);
   live.manual = {
     final: m.final === true,
@@ -649,12 +658,18 @@ function derive() {
     const share = totals && totals.eligible > 0 ? totals.voters / (totals.eligible * turnRef) : 0;
     sources.cec = { key: "cec", label: "Estimation sur les voix CEC", chip: live.status === "final" ? "Calcul · CEC" : "Calcul · dépouillement partiel", cls: "calc", seats: r.seats, passed: r.passed, share: Math.max(0, Math.min(Number.isFinite(share) ? share : 0, 1)) };
   }
-  // 3. rien de publié : hémicycle vide, jamais un chiffre qui ne vient pas de la CEC
+  // 3. relais presse NON officiel (projection de The Petek d'après le dépouillement de la CEC) : repli tant que la CEC bloque
+  if (live.press) {
+    const pr = live.press;
+    sources.press = { key: "press", label: `Projection ${PRESS.name} (relais non officiel · dépouillement CEC de ${pr.as_of || "?"}, heure d’Israël)`, chip: "Non officiel · relais presse", cls: "nonoff", seats: pr.seats, share: pr.counted_pct / 100, valid: pr.valid, asOf: pr.as_of, stations: pr.stations };
+  }
+  // 4. rien de publié : hémicycle vide, jamais un chiffre qui ne vient pas de la CEC (ou, à défaut, d'un relais étiqueté)
   sources.none = { key: "none", label: "En attente des premiers chiffres de la CEC", chip: "En attente", cls: "nonoff", seats: {} };
 
-  // base par défaut : officiel > dépouillement
+  // base par défaut : officiel > totaux CEC > relais presse ; le relais ne passe devant les totaux CEC que s'il est plus avancé
   let def = "none";
-  if (sources.cec) def = "cec";
+  if (sources.press) def = "press";
+  if (sources.cec) def = sources.press && sources.press.valid > totals.valid ? "press" : "cec";
   if (sources.official) def = "official";
   const chosen = state.seatSource && sources[state.seatSource] ? state.seatSource : def;
 
@@ -723,7 +738,7 @@ function render() {
 function phase() {
   const live = model.live;
   if (live.status === "final") return "final";
-  if (model.totals) return "counting";
+  if (model.totals || model.active.key === "press") return "counting";
   return Date.now() < POLLS_CLOSE.getTime() ? "voting" : "closed";
 }
 
@@ -733,7 +748,7 @@ function renderStatus() {
   const map = {
     voting: ["wait", "Bureaux de vote ouverts", `fermeture dans <b class="num" id="cd">—</b>`],
     closed: ["wait", "Bureaux fermés", model.live.challenge ? "résultats officiels non lisibles automatiquement (défi anti-bot de la CEC)" : "dépouillement en attente — les premiers chiffres officiels arrivent"],
-    counting: ["", "Dépouillement en cours", "résultats partiels de la CEC, susceptibles d’évoluer"],
+    counting: ["", "Dépouillement en cours", model.active.key === "press" ? `projection d’un relais non officiel (relevé de ${esc(model.active.asOf || "?")}) · la CEC bloque les lectures automatiques` : "résultats partiels de la CEC, susceptibles d’évoluer"],
     final: ["", "Résultats publiés", "chiffres définitifs de la CEC"],
   };
   const [cls, a, b] = map[ph];
@@ -786,7 +801,7 @@ function renderHero() {
   const seats = model.seats;
   drawHemi($("#heroHemi"), seats);
   const top = partyOrder(seats).sort((x, y) => seats[y.id] - seats[x.id]);
-  $("#heroTitle").textContent = a.key === "none" ? "En attente des résultats" : a.key === "official" ? "Sièges attribués" : "Estimation en cours";
+  $("#heroTitle").textContent = a.key === "none" ? "En attente des résultats" : a.key === "official" ? "Sièges attribués" : a.key === "press" ? "Projection (relais non officiel)" : "Estimation en cours";
   $("#heroSrc").innerHTML = chipFor(a);
   $("#heroLegend").innerHTML = top.slice(0, 9).map(p => `<li style="list-style:none;display:flex;gap:8px;align-items:center;font-size:13.5px"><span class="dotc" style="width:10px;height:10px;border-radius:50%;background:${p.color};flex:none"></span>${esc(p.fr)}<b style="margin-left:auto">${seats[p.id]}</b></li>`).join("");
 
@@ -796,7 +811,7 @@ function renderHero() {
   const cec = model.sources.cec;
   const stats = [];
   stats.push(`<div class="stat"><div class="k">Participation</div><div class="v num">${last ? String(last.pct).replace(".", ",") + " %" : "—"}</div><div class="s">${last ? `à ${esc(last.time)} · CEC` : "en attente du premier relevé"}</div></div>`);
-  stats.push(`<div class="stat"><div class="k">Dépouillement</div><div class="v num">${cec ? "≈ " + Math.round(cec.share * 100) + " %" : "0 %"}</div><div class="s">${tot ? fmt(tot.valid) + " bulletins valides" : model.live.challenge ? "lecture automatique bloquée par la CEC" : "aucun bulletin compté"}</div></div>`);
+  stats.push(`<div class="stat"><div class="k">Dépouillement</div><div class="v num">${a.key === "press" ? pc(a.share, 1) : cec ? "≈ " + Math.round(cec.share * 100) + " %" : "0 %"}</div><div class="s">${a.key === "press" ? `${fmt(a.valid)} bulletins valides · relevé de ${esc(a.asOf || "?")}` : tot ? fmt(tot.valid) + " bulletins valides" : model.live.challenge ? "lecture automatique bloquée par la CEC" : "aucun bulletin compté"}</div></div>`);
   const lead = top[0];
   stats.push(`<div class="stat wide"><div class="k">En tête</div><div class="v">${lead ? esc(lead.fr) + ` <span class="num" style="color:var(--muted)">· ${seats[lead.id]}</span>` : "—"}</div><div class="s">${esc(a.label)}</div></div>`);
   $("#heroStats").innerHTML = stats.join("");
@@ -829,6 +844,10 @@ function renderResults() {
   if (live.challenge && tot && !hand) notice += `<div class="notice warn" style="margin-top:10px">La CEC bloque actuellement les lectures automatiques : ces chiffres sont le <b>dernier relevé obtenu</b> et peuvent être en retard sur <a href="${CEC.national}" rel="noopener" target="_blank">le site officiel</a>.</div>`;
   if (live.stale) notice += `<div class="notice warn" style="margin-top:10px">Le collecteur n’a pas pu joindre la CEC au dernier relevé : ces chiffres datent de ${esc(live.updated_at || "?")}.</div>`;
   if (hand) notice += `<div class="notice warn" style="margin-top:10px"><b>Totaux recopiés à la main.</b> Le site de la CEC bloque les lectures automatiques : ces chiffres sont recopiés depuis son tableau national${hand.as_of ? ` (relevé de ${esc(hand.as_of)}, heure d’Israël)` : ""} et ne changent qu’à chaque saisie. <a href="${CEC.national}" rel="noopener">Vérifier sur le site de la CEC</a>.</div>`;
+  if (model.active.key === "press") {
+    const pr = model.active;
+    notice += `<div class="notice warn" style="margin-top:10px"><b>Chiffres d’un relais non officiel.</b> La CEC bloque les lectures automatiques : les sièges affichés sont la projection de <a href="${PRESS.url}" rel="noopener" target="_blank">${esc(PRESS.name)}</a>, un agrégateur indépendant qui reprend le dépouillement de la CEC (${pc(pr.share, 2)} des urnes, relevé de ${esc(pr.asOf || "?")}, heure d’Israël). Ce ne sont <b>ni des résultats officiels ni un flux de la CEC</b> : vérifie sur <a href="${CEC.national}" rel="noopener" target="_blank">le site de la CEC</a>.</div>`;
+  }
   $("#resNotice").innerHTML = notice;
 
   $("#turnout").innerHTML = turnoutBlock();
@@ -839,8 +858,9 @@ function renderResults() {
   const head = `<thead><tr><th>Liste</th><th>Voix</th><th>%</th><th style="min-width:150px">Seuil 3,25 %</th><th>Sièges</th></tr></thead>`;
   if (!tot) {
     const rows = PARTIES;
-    $("#resTable").innerHTML = head + `<tbody>${rows.map(p => `<tr><td class="lst"><span class="sw" style="background:${p.color}"></span><span class="nm">${esc(p.fr)}<small>${esc(p.leader)} · <span class="he">${p.he}</span> <span class="ltr he">${p.letters}</span></small></span></td><td class="num">—</td><td class="num">—</td><td><div class="bar"><u style="left:${3.25 / 15 * 100}%"></u></div></td><td class="num">—</td></tr>`).join("")}</tbody>`;
-    $("#resSrc").innerHTML = srcLine([{ label: "CEC — résultats nationaux", url: CEC.national }, { label: "fichier par localité (CSV)", url: CEC.csv }], `<span>Relevé : ${live.checked_at ? hhmmss(live.checked_at) : "—"} · aucune donnée à afficher</span>`);
+    $("#resTable").innerHTML = head + `<tbody>${rows.map(p => `<tr><td class="lst"><span class="sw" style="background:${p.color}"></span><span class="nm">${esc(p.fr)}<small>${esc(p.leader)} · <span class="he">${p.he}</span> <span class="ltr he">${p.letters}</span></small></span></td><td class="num">—</td><td class="num">—</td><td><div class="bar"><u style="left:${3.25 / 15 * 100}%"></u></div></td><td class="num">${model.sources.press ? `${model.sources.press.seats[p.id] || 0}<span class="tag" style="color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent)">relais</span>` : "—"}</td></tr>`).join("")}</tbody>`;
+    $("#resSrc").innerHTML = srcLine([{ label: "CEC — résultats nationaux", url: CEC.national }, { label: "fichier par localité (CSV)", url: CEC.csv }, ...(model.sources.press ? [{ label: `${PRESS.name} (relais non officiel)`, url: PRESS.url }] : [])],
+      `<span>Relevé : ${live.checked_at ? hhmmss(live.checked_at) : "—"} · ${model.sources.press ? "voix par liste non disponibles : seuls les sièges projetés par le relais sont affichés" : "aucune donnée à afficher"}</span>`);
     return;
   }
   const seatsOf = model.sources.official ? model.sources.official.seats : model.sources.cec.seats;
@@ -895,7 +915,7 @@ function renderBlocs() {
   }
   $("#verdict").innerHTML = `<div class="eyebrow">Lecture rapide · ${esc(model.active.label)}</div><ul style="margin:8px 0 0;padding-left:20px;display:grid;gap:6px">${lines.map(l => `<li>${l}</li>`).join("")}</ul>`;
   $("#blocsSrc").innerHTML = srcLine(
-    [{ label: "CEC", url: CEC.national }],
+    [{ label: "CEC", url: CEC.national }, ...(model.active.key === "press" ? [{ label: `${PRESS.name} (relais non officiel)`, url: PRESS.url }] : [])],
     `<span>Classement des listes par camp : lecture éditoriale d’après leurs positions publiques avant le scrutin (Haaretz, Kan, Times of Israel).</span>`);
 }
 
@@ -908,7 +928,7 @@ function renderDuel() {
   const key = model.active.key;
   const top = (extra) => `<div class="duel-top"><div><div class="eyebrow">Le duel</div><h3 id="duelT">Yashar vs BB</h3></div>${chipFor(model.active)}</div>${extra}`;
   if (key === "none") { $("#duel").innerHTML = top(`<p class="headline">Le duel s’affichera avec les premiers chiffres de la CEC.</p>`); return; }
-  const name = key === "official" ? "Résultat CEC" : "Dépouillement (estimation)";
+  const name = key === "official" ? "Résultat CEC" : key === "press" ? "Projection relais (non officielle)" : "Dépouillement (estimation)";
   const seats = model.seats;
   const at = (list) => sum(list.map(id => seats[id] || 0));
   const E = idsOf("eisenkot"), N = idsOf("netanyahu"), A = idsOf("arab");
@@ -953,7 +973,7 @@ function renderDuel() {
     ${rows}
     <div class="axis num" aria-hidden="true"><span>${X0}</span><span>61 = majorité</span><span>${X1} sièges</span></div>
     <div class="legend"><span class="r">${esc(name)}</span></div>
-    <div class="src">${srcLine([{ label: "CEC", url: CEC.national }], `<span>Blocs : lecture éditoriale des camps annoncés avant le scrutin.</span>`)}</div>`);
+    <div class="src">${srcLine([{ label: "CEC", url: CEC.national }, ...(key === "press" ? [{ label: `${PRESS.name} (relais non officiel)`, url: PRESS.url }] : [])], `<span>Blocs : lecture éditoriale des camps annoncés avant le scrutin.</span>`)}</div>`);
 }
 
 /* ----- simulateur de coalition ----- */
@@ -968,8 +988,8 @@ function writeHash() {
 function renderBuilder() {
   const seats = model.seats;
   // base de calcul
-  const labels = { official: "Résultats officiels", cec: "Calcul sur voix CEC" };
-  const choices = ["official", "cec"].filter(k => model.sources[k]);
+  const labels = { official: "Résultats officiels", cec: "Calcul sur voix CEC", press: "Projection relais (non officiel)" };
+  const choices = ["official", "cec", "press"].filter(k => model.sources[k]);
   $("#srcPicker").innerHTML = choices.length < 2 ? "" : choices.map(k => `<button class="btn ${model.chosen === k ? "on" : ""}" data-src="${k}" aria-pressed="${model.chosen === k}">${labels[k]}</button>`).join("");
   $("#presets").innerHTML = model.active.key === "none" ? "" : PRESETS.map((p, i) => `<button class="btn" data-preset="${i}">${esc(p.name)}</button>`).join("");
 
@@ -1006,7 +1026,7 @@ function renderCoalition() {
     const nm = id => esc((BY_ID[id] || model.lists.find(l => l.id === id) || { fr: id }).fr);
     ul.innerHTML = opts.length ? `<li style="background:none;border:none;padding:0;font-weight:700">Pour atteindre 61, il suffit d’ajouter :</li>` + opts.slice(0, 4).map(([ids, s]) => `<li>${ids.map(nm).join(" + ")} <span style="color:var(--muted)">(+${s})</span><button data-add="${ids.join(",")}">Ajouter</button></li>`).join("") : `<li>Même avec les autres partis restants, la majorité reste hors de portée.</li>`;
   }
-  $("#coalSrc").innerHTML = srcLine([{ label: model.active.label, url: CEC.national }], `<span>${esc(model.active.chip)}</span>`);
+  $("#coalSrc").innerHTML = srcLine([{ label: model.active.label, url: model.active.key === "press" ? PRESS.url : CEC.national }], `<span>${esc(model.active.chip)}</span>`);
   document.querySelectorAll(".pchip").forEach(b => b.setAttribute("aria-pressed", state.sel.has(b.dataset.id)));
 }
 

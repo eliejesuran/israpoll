@@ -8,6 +8,7 @@ Sources, par ordre de priorité (même structure qu'en 2022, vérifiée sur les 
   CSV  par commune  : https://media26.bechirot.gov.il/files/expc.csv   (somme = résultat national)
   HTML national     : https://votes26.bechirot.gov.il/nationalresults  (sièges attribués par la CEC)
   Participation     : live-blog de NBC News (relevés de la CEC, JSON-LD) ; data/manual.json prévaut pour une même heure
+  Relais presse     : projection de The Petek (NON officiel, repli si la CEC bloque) -> clé « press » de live.json
 
 Robustesse : un relevé incohérent (fichier tronqué, page d'erreur, total qui s'effondre) ou une panne réseau
 ne remplace jamais les derniers bons chiffres ; ils sont conservés et signalés `stale` après 3 échecs de suite.
@@ -44,6 +45,21 @@ HTML_URL = "https://votes26.bechirot.gov.il/nationalresults"
 TURNOUT_URL = "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979"
 TURNOUT_HOSTS = {"www.nbcnews.com"}
 TURNOUT_SOURCE = "CEC, relayé par NBC News"
+# Relais presse (NON officiel), repli tant que la CEC bloque les lectures automatiques : The Petek, agrégateur indépendant
+# qui reprend le dépouillement de la CEC (« relevé CEC de HH:MM ») et en tire une projection de sièges (Bader-Ofer).
+# robots.txt : tout autorisé. Une requête toutes les ~3 min, en-tête honnête, jamais de défi contourné.
+PRESS_URL = "https://www.thepetek.com/results"
+PRESS_HOSTS = {"www.thepetek.com"}
+PRESS_SOURCE = "The Petek"
+PRESS_PARTIES = {       # nom affiché par la source (minuscules) -> identifiant de parti (PARTIES dans index.html)
+    "yashar": "yashar", "b'yachad": "together", "beyachad": "together", "together": "together",
+    "the democrats": "democrats", "democrats": "democrats", "yisrael beiteinu": "yb",
+    "the joint list": "joint", "joint list": "joint", "ra'am": "raam", "raam": "raam",
+    "likud": "likud", "otzma yehudit": "otzma", "shas": "shas", "united torah judaism": "utj",
+    "religious zionism & zehut": "rzp", "religious zionism": "rzp", "noam": "noam",
+    "the reservists and the economic party": "reservists", "reservists and the economic party": "reservists",
+    "amcha israel": "amcha",
+}
 UA = "Mozilla/5.0 (compatible; israpoll/1.0; +https://github.com/eliejesuran/israpoll)"
 META_COLS = {"סמל ועדה", "שם ישוב", "סמל ישוב", "בזב", "מצביעים", "פסולים", "כשרים"}
 MAX_BYTES = 20 * 1024 * 1024
@@ -69,6 +85,10 @@ def allowed_turnout(url):
     return (urlparse(url).hostname or "") in TURNOUT_HOSTS
 
 
+def allowed_press(url):
+    return (urlparse(url).hostname or "") in PRESS_HOSTS
+
+
 class Blocked(ValueError):
     """Le site répond par un défi anti-bot (JavaScript) : inutile de réessayer tout de suite."""
 
@@ -85,6 +105,7 @@ class _SameSiteOnly(urllib.request.HTTPRedirectHandler):
 
 _opener = urllib.request.build_opener(_SameSiteOnly(allowed))
 _turnout_opener = urllib.request.build_opener(_SameSiteOnly(allowed_turnout))
+_press_opener = urllib.request.build_opener(_SameSiteOnly(allowed_press))
 
 
 def get(url, timeout, tries=3, ok=allowed, opener=_opener):
@@ -257,6 +278,40 @@ def merge_turnout(manual_rows, auto_rows):
             out.append(r)
             top = max(top, pct)
     return out
+
+
+# ---------------------------------------------------------------- relais presse (non officiel)
+def parse_press(page):
+    """Projection de The Petek -> {source, url, as_of, counted_pct, valid, stations, seats{id: n}, fetched_at}.
+
+    Texte de la page : « With 76.89% of ballots counted at 10:58, … », « Projected seats from the count so far, by
+    party : Yashar 20, B'Yachad 11, … . », « valid votes counted 4,006,695 », « polling stations counted 9,224 ».
+    Strict : liste inconnue, sièges ≠ 120 ou pourcentage absurde -> ValueError (mieux vaut ne rien montrer qu'un faux chiffre).
+    """
+    text = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", page, flags=re.S)
+    text = html.unescape(re.sub(r"<[^>]+>", " ", text)).replace("\u2019", "'")
+    text = re.sub(r"\s+", " ", text)
+    m = re.search(r"With (\d{1,3}(?:\.\d+)?)% of ballots counted at (\d{1,2}):(\d{2})", text)
+    block = re.search(r"Projected seats from the count so far, by party\s*:\s*(.+?)\s\.(?:\s|$)", text)
+    valid = re.search(r"valid votes counted\s*([\d,]+)", text)
+    if not (m and block and valid):
+        raise ValueError("relevé du relais introuvable (structure de la page changée ?)")
+    pct = float(m.group(1))
+    seats = {}
+    for item in block.group(1).split(","):
+        im = re.fullmatch(r"\s*(.+?)\s+(\d{1,3})\s*", item)
+        if not im:
+            raise ValueError(f"entrée illisible dans la projection : {item.strip()!r}")
+        pid = PRESS_PARTIES.get(im.group(1).strip().lower())
+        if pid is None:
+            raise ValueError(f"liste inconnue dans la projection : {im.group(1).strip()!r}")
+        seats[pid] = seats.get(pid, 0) + int(im.group(2))
+    stations = re.search(r"polling stations counted\s*([\d,]+)", text)
+    if sum(seats.values()) != 120 or not (0 < pct <= 100) or not to_int(valid.group(1)):
+        raise ValueError("projection incohérente (120 sièges, pourcentage et bulletins attendus)")
+    return {"source": PRESS_SOURCE, "url": PRESS_URL, "as_of": f"{int(m.group(2)):02d}:{m.group(3)}", "counted_pct": pct,
+            "valid": to_int(valid.group(1)), "stations": to_int(stations.group(1)) if stations else None,
+            "seats": seats, "fetched_at": now_iso()}
 
 
 # ---------------------------------------------------------------- saisie de secours
@@ -441,6 +496,7 @@ def main():
     ap.add_argument("--csv-url", default=CSV_URL)
     ap.add_argument("--html-url", default=HTML_URL)
     ap.add_argument("--turnout-url", default=TURNOUT_URL)
+    ap.add_argument("--press-url", default=PRESS_URL)
     ap.add_argument("--csv-file", help="fichier expc.csv téléchargé à la main sur le site de la CEC (remplace la lecture réseau)")
     ap.add_argument("--peer", help="live.json publié par un autre collecteur : adopté s'il a des chiffres plus avancés que les nôtres")
     ap.add_argument("--timeout", type=int, default=20)
@@ -523,10 +579,28 @@ def main():
             log["turnout"] = f"indisponible : {e}"
     manual = {**manual, "turnout": merge_turnout(manual.get("turnout"), list(auto.values()))}
 
+    # relais presse (non officiel) : le dernier relevé reste affiché si la source tombe ; le dépouillement ne recule jamais
+    press = prev.get("press") if isinstance(prev.get("press"), dict) else None
+    if a.skip_html:
+        log["press"] = "non relu (cycle rapide)"
+    else:
+        try:
+            fresh = parse_press(get(a.press_url, a.timeout, tries=2, ok=allowed_press, opener=_press_opener))
+            if press and fresh["valid"] < press.get("valid", 0):
+                log["press"] = f"ignoré : recul du dépouillement ({fresh['valid']} < {press.get('valid')})"
+            else:
+                press = fresh
+                log["press"] = f"ok ({fresh['counted_pct']} % dépouillés, relevé de {fresh['as_of']})"
+        except (urllib.error.URLError, ValueError, OSError) as e:
+            log["press"] = f"indisponible : {e}"
+
     body = build(prev, manual, csv_res, html_res, log)
+    body["press"] = press
     body["challenge"] = challenge
     body["blocked"] = {"strikes": strikes, "until": until} if strikes else None
     stable = {k: v for k, v in body.items() if k not in ("fails", "source", "blocked")}   # ce qui compte pour « les données ont changé »
+    if isinstance(stable.get("press"), dict):
+        stable["press"] = {k: v for k, v in stable["press"].items() if k != "fetched_at"}
     digest = hashlib.sha1(json.dumps(stable, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     body["digest"] = digest
     body["updated_at"] = prev.get("updated_at") if prev.get("digest") == digest and prev.get("updated_at") else now_iso()
@@ -538,7 +612,7 @@ def main():
         json.dump(body, f, ensure_ascii=False, indent=1, sort_keys=True)
         f.write("\n")
     os.replace(tmp, a.out)                  # écriture atomique : un lecteur ne voit jamais un fichier à moitié écrit
-    print(f"[{body['checked_at']}] statut={body['status']}{' STALE' if body['stale'] else ''} csv={log.get('csv')} html={log.get('html')} participation={log.get('turnout')}{' | ' + log['peer'] if 'peer' in log else ''}", file=sys.stderr)
+    print(f"[{body['checked_at']}] statut={body['status']}{' STALE' if body['stale'] else ''} csv={log.get('csv')} html={log.get('html')} participation={log.get('turnout')} relais={log.get('press')}{' | ' + log['peer'] if 'peer' in log else ''}", file=sys.stderr)
 
 
 if __name__ == "__main__":

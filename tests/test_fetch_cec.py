@@ -447,5 +447,75 @@ class AntiBot(unittest.TestCase):
             self.assertEqual(mine["status"], "waiting")
 
 
+PRESS_PAGE = """<html><head><script>var x = "Projected seats from the count so far, by party : Fake 999 ."</script></head><body>
+<p>With 76.89% of ballots counted at 10:58, the Netanyahu bloc leads the Change bloc 54 to 47, with 19 for the Arab parties.</p>
+<p>Projected seats from the count so far, by party : <b>Yashar</b> 20, B&#x27;Yachad 11, The Democrats 8, Yisrael Beiteinu 8,
+The Joint List 13, Ra&#x27;am 6, Likud 27, Otzma Yehudit 7, Shas 7, United Torah Judaism 7, Religious Zionism &amp; Zehut 6 . 47 seats for the opposition bloc.</p>
+<dl><dd>4,006,695</dd><dt>valid votes counted</dt></dl>
+</body></html>"""
+
+
+class Press(unittest.TestCase):
+    def test_parse_real_looking_page(self):
+        r = fetch_cec.parse_press(PRESS_PAGE.replace("</dd><dt>valid votes counted</dt>", "</dd>").replace("<dd>4,006,695", "valid votes counted <dd>4,006,695"))
+        self.assertEqual(r["as_of"], "10:58")
+        self.assertEqual(r["counted_pct"], 76.89)
+        self.assertEqual(r["valid"], 4006695)
+        self.assertEqual(r["seats"]["together"], 11)
+        self.assertEqual(r["seats"]["rzp"], 6)
+        self.assertEqual(sum(r["seats"].values()), 120)         # le script de la page (« Fake 999 ») est ignoré
+
+    def page(self, **kw):
+        t = PRESS_PAGE.replace("</dd><dt>valid votes counted</dt>", "</dd>").replace("<dd>4,006,695", "valid votes counted <dd>4,006,695")
+        for old, new in kw.items():
+            t = t.replace(old.replace("_", " "), new)
+        return t
+
+    def test_strict_on_unknown_party_wrong_total_or_layout_change(self):
+        with self.assertRaises(ValueError):
+            fetch_cec.parse_press(self.page(Likud_27="Parti inconnu 27"))
+        with self.assertRaises(ValueError):
+            fetch_cec.parse_press(self.page(Likud_27="Likud 28"))              # 121 sièges
+        with self.assertRaises(ValueError):
+            fetch_cec.parse_press("<html>autre mise en page</html>")
+
+    def run_main(self, tmp, *args):
+        out = os.path.join(tmp, "out.json")
+        with mock.patch.object(sys, "argv", ["fetch_cec.py", "--out", out, *args]), mock.patch.dict(os.environ, {"COLLECTOR_ID": "jetson"}):
+            fetch_cec.main()
+        with open(out, encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_press_is_kept_when_the_source_fails_and_never_goes_backwards(self):
+        good = self.page()
+        fewer = good.replace("4,006,695", "3,000,000")
+        with tempfile.TemporaryDirectory() as tmp:
+            prev = os.path.join(tmp, "prev.json")
+
+            def fake(page_or_exc):
+                def _get(url, *a, **k):
+                    if url.startswith("https://www.thepetek.com"):
+                        if isinstance(page_or_exc, Exception):
+                            raise page_or_exc
+                        return page_or_exc
+                    raise fetch_cec.Blocked("défi")
+                return _get
+
+            with mock.patch.object(fetch_cec, "get", fake(good)):
+                first = self.run_main(tmp)
+            self.assertEqual(first["press"]["valid"], 4006695)
+            self.assertIn("ok", first["source"]["fetch"]["press"])
+            json.dump(first, open(prev, "w"))
+            with mock.patch.object(fetch_cec, "get", fake(OSError("réseau coupé"))):
+                down = self.run_main(tmp, "--prev", prev)
+            self.assertEqual(down["press"]["valid"], 4006695)                   # le dernier relevé reste
+            self.assertIn("indisponible", down["source"]["fetch"]["press"])
+            with mock.patch.object(fetch_cec, "get", fake(fewer)):
+                back = self.run_main(tmp, "--prev", prev)
+            self.assertEqual(back["press"]["valid"], 4006695)                   # un relevé en recul est ignoré
+            self.assertIn("recul", back["source"]["fetch"]["press"])
+            self.assertEqual(back["status"], "waiting")                         # le relais ne devient jamais un résultat officiel
+
+
 if __name__ == "__main__":
     unittest.main()
