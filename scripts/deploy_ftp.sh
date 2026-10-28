@@ -29,9 +29,21 @@ cfg=$(mktemp); chmod 600 "$cfg"; trap 'rm -f "$cfg"' EXIT
 esc() { printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'; }
 printf 'user = "%s:%s"\n' "$(esc "$FTP_USER")" "$(esc "$FTP_PASSWORD")" > "$cfg"
 
+hint() {   # explication en français du code de sortie de curl
+  case "$1" in
+    64)       echo "→ le serveur n'accepte pas le FTP sur TLS explicite (AUTH TLS) à cette adresse. Vérifie que FTP_HOST est le nom du serveur FTP de l'hébergeur (pas le nom de domaine du site). Le diagnostic ci-dessous liste les modes que le serveur propose." >&2 ;;
+    67|10)   echo "→ identifiant ou mot de passe FTP refusé (FTP_USER / FTP_PASSWORD)." >&2 ;;
+    35|51|58|59|60|77|83) echo "→ échec du chiffrement ou certificat non reconnu : FTP_HOST doit être le nom officiel du serveur FTP (pas son adresse IP)." >&2 ;;
+    6|7|28)   echo "→ serveur injoignable (nom inconnu, connexion refusée ou délai dépassé) : vérifie FTP_HOST." >&2 ;;
+    9|78)     echo "→ dossier ou fichier refusé par le serveur : vérifie FTP_PATH et les droits de l'utilisateur FTP." >&2 ;;
+  esac
+}
+
 upload() {   # upload <fichier local> <chemin distant relatif au dossier du site>
+  local rc=0
   curl --silent --show-error --fail ${tls[@]+"${tls[@]}"} --ftp-create-dirs --connect-timeout 20 --retry 3 --retry-delay 2 \
-       -K "$cfg" -T "$1" "ftp://${FTP_HOST}/${base}/$2"
+       -K "$cfg" -T "$1" "ftp://${FTP_HOST}/${base}/$2" || rc=$?
+  if (( rc )); then echo "échec du dépôt de $2 (curl : code $rc)" >&2; hint "$rc"; exit "$rc"; fi
   echo "déposé : $2"
 }
 

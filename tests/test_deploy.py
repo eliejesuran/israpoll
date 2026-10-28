@@ -24,7 +24,7 @@ case "$last" in
     path="${last#https://example.test/israpoll/}"; path="${path%%\?*}"
     if [ -n "${SHIM_STALE:-}" ]; then echo "version périmée"; else cat "$REPO/$path"; fi ;;
 esac
-exit 0
+exit "${SHIM_EXIT:-0}"
 """
 
 
@@ -84,6 +84,14 @@ class DeployFtp(unittest.TestCase):
         with open(self.cfglog, encoding="utf-8") as f:
             self.assertIn('user = "elie:a\\"b\\\\c"', f.read())
 
+    def test_a_failed_upload_stops_with_curls_code_and_a_plain_explanation(self):
+        r = self.run_script(SHIM_EXIT="64")
+        self.assertEqual(r.returncode, 64)
+        self.assertIn("TLS explicite", r.stderr)                 # code 64 : le serveur refuse le FTP chiffré
+        self.assertEqual(len(self.calls()), 1)                   # on s'arrête au premier échec
+        self.assertNotIn("s3cr3t", r.stderr + r.stdout)
+        self.assertEqual(self.run_script(SHIM_EXIT="67").returncode, 67)
+
     def test_tls_can_only_be_switched_off_explicitly(self):
         self.run_script(FTP_TLS="off")
         self.assertFalse(any("--ssl-reqd" in c for c in self.calls() if " -T " in c))
@@ -111,7 +119,7 @@ class DeployFtp(unittest.TestCase):
     def test_workflow_runs_when_site_files_change_and_skips_when_secrets_are_missing(self):
         with open(os.path.join(ROOT, ".github", "workflows", "deploy-eliejesuran.yml"), encoding="utf-8") as f:
             wf = f.read()
-        for path in ('"index.html"', '"resultats.html"', '"analyse.html"', '"css/**"', '"js/**"', '"scripts/deploy_ftp.sh"'):
+        for path in ('"index.html"', '"resultats.html"', '"analyse.html"', '"css/**"', '"js/**"', '"scripts/deploy_ftp.sh"', '"scripts/ftp_diagnose.sh"'):
             self.assertIn(path, wf)
         self.assertIn("ready=false", wf)                      # sans secrets : rien n'est déployé, rien n'échoue
         self.assertIn("contents: read", wf)                   # jeton en lecture seule

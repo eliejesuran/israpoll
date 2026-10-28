@@ -12,6 +12,7 @@ on:
       - "js/**"
       - "deploy/eliejesuran/**"
       - "scripts/deploy_ftp.sh"
+      - "scripts/ftp_diagnose.sh"
       - ".github/workflows/deploy-eliejesuran.yml"
   workflow_dispatch:
 
@@ -53,3 +54,8 @@ jobs:
           FTP_PATH: ${{ secrets.FTP_PATH }}
           SITE_URL: https://eliejesuran.be/israpoll
         run: scripts/deploy_ftp.sh
+      - name: Diagnostic du serveur (sans identifiants) si le dépôt a échoué
+        if: failure() && steps.cfg.outputs.ready == 'true'
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+        run: scripts/ftp_diagnose.sh
