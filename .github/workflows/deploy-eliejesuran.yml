@@ -1,0 +1,55 @@
+name: Déploiement sur eliejesuran.be
+# À chaque modification du site sur `main`, dépose les fichiers dans https://eliejesuran.be/israpoll/ (FTPS, Infomaniak).
+# Tant que les secrets ci-dessous ne sont pas enregistrés, le workflow se termine sans rien faire (voir deploy/eliejesuran/README.md).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "resultats.html"
+      - "analyse.html"
+      - "css/**"
+      - "js/**"
+      - "deploy/eliejesuran/**"
+      - "scripts/deploy_ftp.sh"
+      - ".github/workflows/deploy-eliejesuran.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-eliejesuran
+  cancel-in-progress: true        # un déploiement plus récent remplace celui qui est en cours
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configuration présente ?
+        id: cfg
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PATH: ${{ secrets.FTP_PATH }}
+        run: |
+          missing=""
+          for v in FTP_HOST FTP_USER FTP_PASSWORD FTP_PATH; do [ -n "${!v}" ] || missing="$missing $v"; done
+          if [ -n "$missing" ]; then
+            echo "::notice::Déploiement ignoré : secrets manquants :$missing (voir deploy/eliejesuran/README.md)"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Déposer le site (FTPS) et vérifier
+        if: steps.cfg.outputs.ready == 'true'
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PATH: ${{ secrets.FTP_PATH }}
+          SITE_URL: https://eliejesuran.be/israpoll
+        run: scripts/deploy_ftp.sh
