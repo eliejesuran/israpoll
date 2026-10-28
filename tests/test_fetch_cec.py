@@ -316,6 +316,7 @@ class ManualCec(unittest.TestCase):
         try:
             path = os.path.join(tmp, "manual.json")
             shutil.copy(os.path.join(ManualFile.ROOT, "data", "manual.json"), path)
+            cec_manual.write(path, None)                  # le vrai fichier peut déjà porter une saisie : on part du fichier sans
             with open(path, encoding="utf-8") as f:
                 original = f.read()
             for valid in (1000, 2000):

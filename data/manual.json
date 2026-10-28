@@ -5,8 +5,10 @@
     { "time": "10:00", "pct": 16.7, "prev2022": 15.9, "source": "CEC, relayé par NBC News", "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979" },
     { "time": "12:00", "pct": 31.5, "prev2022": 28.4, "source": "CEC, relayé par NBC News", "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979" },
     { "time": "14:00", "pct": 44.9, "prev2022": null, "source": "CEC, relayé par NBC News", "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979" },
-    { "time": "18:00", "pct": 66.7, "prev2022": 57.7, "source": "CEC, relayé par NBC News", "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979" }
+    { "time": "18:00", "pct": 66.7, "prev2022": 57.7, "source": "CEC, relayé par NBC News", "url": "https://www.nbcnews.com/world/israel/live-blog/israel-election-live-updates-netanyahu-eisenkot-voters-war-iran-gaza-rcna604979" },
+    { "time": "22:00", "pct": 77.7, "prev2022": 70.6, "source": "CEC (clôture, 5 695 682 votants), relayé par ynet", "url": "https://www.ynet.co.il/news/blogs/article/hjvyjpc2fe" }
   ],
+  "final_turnout_est": 77.7,
   "exit_polls": [
     { "channel": "Kan 11", "url": "https://www.inn.co.il/news/709477",
       "seats": {"likud": 25, "yashar": 21, "together": 14, "democrats": 10, "joint": 10, "yb": 8, "otzma": 7, "raam": 7, "rzp": 6, "shas": 6, "utj": 6} },
@@ -14,5 +16,55 @@
       "seats": {"likud": 24, "yashar": 22, "together": 12, "joint": 11, "democrats": 9, "yb": 9, "shas": 8, "raam": 7, "utj": 6, "otzma": 6, "rzp": 6} },
     { "channel": "Channel 13", "url": "https://www.inn.co.il/news/709477",
       "seats": {"likud": 25, "yashar": 23, "together": 14, "joint": 10, "democrats": 9, "yb": 7, "raam": 7, "utj": 7, "shas": 6, "otzma": 6, "rzp": 6} }
-  ]
+  ],
+  "cec": {
+    "as_of": "07:26",
+    "url": "https://votes26.bechirot.gov.il/nationalresults",
+    "totals": {
+      "eligible": 7331981,
+      "voters": 2758594,
+      "valid": 2746397,
+      "invalid": 12197
+    },
+    "votes": {
+      "likud": 571627,
+      "yashar": 468460,
+      "together": 252883,
+      "joint": 233963,
+      "democrats": 194528,
+      "utj": 176599,
+      "yb": 169988,
+      "shas": 153764,
+      "otzma": 148508,
+      "rzp": 135032,
+      "raam": 93655,
+      "reservists": 73171,
+      "amcha": 45924,
+      "haredi": 6465,
+      "נר": 5682,
+      "noam": 4450,
+      "בי": 2819,
+      "ד": 2014,
+      "צדק": 952,
+      "בד": 669,
+      "י": 548,
+      "נקי": 513,
+      "רץ": 503,
+      "צף": 408,
+      "קך": 406,
+      "פה": 391,
+      "בקר": 339,
+      "קץ": 331,
+      "קה": 325,
+      "ה": 258,
+      "ק": 241,
+      "נף": 228,
+      "ז": 221,
+      "נץ": 193,
+      "יק": 192,
+      "זץ": 123,
+      "צבי": 21,
+      "כן": 3
+    }
+  }
 }
