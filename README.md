@@ -2,9 +2,9 @@
 
 Une page web unique (HTML + un peu de JS, **sans build ni dépendance**) qui affiche, pour les élections à la 26ᵉ Knesset du **27 octobre 2026** :
 
-1. **Le résultat brut**, tel que publié par la [Commission électorale centrale](https://votes26.bechirot.gov.il/nationalresults) (voix, %, seuil de 3,25 %, sièges), avec la source à chaque bloc ;
-2. **Les blocs pressentis** (coalition sortante, bloc Eisenkot, partis arabes) et ce qu'il leur manque pour atteindre 61 sièges ;
-3. **Un simulateur** : coche des partis, vois si ta coalition a la majorité, et partage-la par lien.
+1. **Un simulateur**, juste sous l'hémicycle : coche des partis, vois si ta coalition a la majorité, et partage-la par lien ;
+2. **Le résultat brut**, tel que publié par la [Commission électorale centrale](https://votes26.bechirot.gov.il/nationalresults) (voix, %, seuil de 3,25 %, sièges), avec la source à chaque bloc ;
+3. **Les blocs pressentis** (coalition sortante, bloc Eisenkot, partis arabes) et ce qu'il leur manque pour atteindre 61 sièges.
 
 > English: a dependency-free, open-source live dashboard for Israel's 2026 Knesset election — official CEC results, bloc math and a coalition builder. Independent project, not affiliated with the CEC.
 
@@ -21,7 +21,7 @@ branche `data` : live.json ──(API GitHub ~1 min · raw 5 min)──►  inde
 - **GitHub Actions ne convient pas** : depuis les serveurs de GitHub, la CEC répond par un défi anti-bot (HTTP 202 à corps vide). Le collecteur doit donc tourner depuis une IP non filtrée (un ordinateur personnel, un petit VPS).
 - Les **voix** sont la somme du fichier officiel par localité. Vérifié sur 2022 : le total reproduit exactement les résultats nationaux publiés par la CEC.
 - Les **sièges** : si la CEC les affiche, on les reprend ; sinon ils sont **estimés** (seuil 3,25 % + quotient + méthode Bader-Ofer + accords de surplus) et marqués « est. ». Le calcul reproduit exactement les 120 sièges de 2022 (`tests/seats.test.mjs`).
-- Avant le dépouillement, **aucun sondage n'est présenté comme un résultat** : le tableau reste vide, les sondages sont dans leur propre section, étiquetés comme tels.
+- **Aucun sondage n'est affiché** (ni sondages d'avant-scrutin, ni sorties des urnes) : tant que la CEC n'a rien publié, l'hémicycle, le tableau et le simulateur restent vides.
 
 ### Participation : relevée automatiquement
 La CEC publie la participation toutes les ~2 h sans flux lisible. Le collecteur lit le live-blog de NBC News, qui cite chaque relevé de la CEC (heure + chiffre + comparaison 2022) dans un JSON structuré, ~1 h 30 après l'heure de référence. Le parseur est volontairement strict (mention de la CEC et de la participation, heure locale, plage 07:00–22:00, chiffre qui ne recule pas) : en cas de doute il ignore l'entrée. `source.fetch.turnout` de `live.json` dit si la lecture a marché. Un relevé saisi à la main dans `manual.json` prévaut pour la même heure.
@@ -39,7 +39,7 @@ python3 -I scripts/cec_manual.py --clear                # retire la saisie ; le 
 L'assistant écrit la clé `cec` de `manual.json` (le reste du fichier n'est pas touché) et refuse, sans rien écrire, une liste inconnue, un total incohérent ou une somme des listes hors de 85–100 % des bulletins valides. Le collecteur relit le fichier depuis `main` à chaque tour (~30 s) et n'en tient compte que si la saisie est plus avancée que le flux automatique et pas plus ancienne que le dernier relevé (une nouvelle saisie peut corriger la précédente). La page affiche alors un bandeau « Totaux recopiés à la main » avec l'heure du relevé : ce sont des chiffres recopiés, pas le flux de la CEC. Les sièges restent estimés (Bader-Ofer) ; il n'y a pas de saisie des sièges officiels.
 
 ### Ce qui est fait à la main : `data/manual.json`
-Les sorties des urnes (Kan 11, Channel 12, Channel 13) n'ont pas de flux lisible (annonces télévisées) ; la participation peut aussi être corrigée ici. Ils sont saisis dans [`data/manual.json`](data/manual.json) (une PR suffit — le collecteur relit ce fichier à chaque tour, sans redéploiement). Les sièges y sont indexés par identifiant de parti (`likud`, `yashar`, `together`, `democrats`, `yb`, `shas`, `otzma`, `utj`, `rzp`, `raam`, `joint`, `reservists`…, voir `PARTIES` dans `index.html`).
+La participation peut être saisie ou corrigée dans [`data/manual.json`](data/manual.json) (une PR suffit — le collecteur relit ce fichier à chaque tour, sans redéploiement), ainsi que, en secours, les totaux de la CEC (clé `cec`, voir plus haut). Les sorties des urnes qui y figurent encore (`exit_polls`) ne sont **plus affichées** par la page ; les identifiants de parti sont ceux de `PARTIES` dans `index.html` (`likud`, `yashar`, `together`, `democrats`, `yb`, `shas`, `otzma`, `utj`, `rzp`, `raam`, `joint`, `reservists`…).
 
 ## Lancer en local
 
@@ -47,7 +47,7 @@ Les sorties des urnes (Kan 11, Channel 12, Channel 13) n'ont pas de flux lisible
 python3 -m http.server 8765      # puis http://localhost:8765
 ```
 
-- `?demo=1` (dépouillement partiel), `?demo=exit` (sorties des urnes), `?demo=final` (résultat final) : **chiffres simulés** pour tester l'interface.
+- `?demo=1` (dépouillement partiel), `?demo=final` (résultat final) : **chiffres simulés** pour tester l'interface.
 - `python3 scripts/fetch_cec.py --out data/live.json --manual data/manual.json` : un relevé à la main.
 - `scripts/live.sh 20000 30` : boucle de collecte qui publie sur la branche `data` (nécessite les droits de push).
 
@@ -80,7 +80,6 @@ python3 -I -m unittest discover tests
 - Les premiers bureaux dépouillés ne sont pas représentatifs : tout classement provisoire peut s'inverser.
 - Les résultats définitifs sont proclamés au journal officiel (*Reshumot*) au plus tard le 4 novembre 2026 ; ils peuvent encore évoluer d'ici là.
 - Le rattachement des listes aux blocs est une **lecture éditoriale** (positions publiques avant le scrutin), modifiable dans `PARTIES`.
-- Sondages : dernière vague du 21–23 octobre 2026, compilée par [israel2026.co.il](https://israel2026.co.il/en/election-polls.html) et recoupée avec Haaretz / Arutz Sheva.
 
 ## Licence
 
