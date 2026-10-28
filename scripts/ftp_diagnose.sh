@@ -1,18 +1,24 @@
 #!/usr/bin/env bash
-# Diagnostic SANS identifiants : quels modes de connexion le serveur FTP propose-t-il ? (aucun mot de passe n'est envoyé)
+# Diagnostic SANS identifiants : le serveur FTP propose-t-il le FTP chiffré (TLS explicite) ? Aucun mot de passe n'est envoyé.
 # Lancé automatiquement par le workflow quand le dépôt des fichiers échoue. Variable : FTP_HOST (nom d'hôte seul).
+# NB : les journaux d'une Action d'un dépôt public sont publics (adresse IP et bannière du serveur FTP visibles ; les secrets sont masqués).
 set -u
 : "${FTP_HOST:?variable manquante : FTP_HOST}"
-probe() { echo; echo "== $1"; shift; "$@" 2>&1 | head -"${LINES_MAX:-14}"; }
+T() { if command -v timeout >/dev/null 2>&1; then timeout "$@"; else shift; "$@"; fi; }   # `timeout` absent sur macOS
 
-probe "FTP sur TLS explicite (port 21, commande AUTH TLS) — le mode attendu par le déploiement" \
-  timeout 25 openssl s_client -starttls ftp -connect "${FTP_HOST}:21" -brief </dev/null
-probe "FTPS implicite (port 990)" \
-  timeout 15 openssl s_client -connect "${FTP_HOST}:990" -brief </dev/null
-probe "FTP en clair (port 21) : bannière seule" \
-  timeout 10 bash -c 'exec 3<>/dev/tcp/$0/21 && head -c 300 <&3' "$FTP_HOST"
-probe "SSH/SFTP (port 22) : bannière" \
-  timeout 10 bash -c 'exec 3<>/dev/tcp/$0/22 && head -c 120 <&3' "$FTP_HOST"
-echo
-echo "Lecture : « Verification: OK » + « CONNECTION ESTABLISHED » sur la 1re sonde = FTP sur TLS explicite disponible."
-echo "Sinon, si la bannière SSH apparaît, le dépôt peut passer en SFTP ; si seul le FTP en clair répond, il ne faut PAS l'utiliser."
+echo "== Réponse du serveur à « AUTH TLS » (FTP chiffré) — seul un identifiant anonyme est tenté, jamais le vôtre"
+out=$(T 25 curl -sv --ssl-reqd --max-time 20 "ftp://${FTP_HOST}/" 2>&1 || true)
+echo "$out" | grep -E '^(\* (Connected|SSL connection|TLSv)|< 220 |> AUTH|< [0-9]{3} )' | grep -v -i 'pass' | head -12
+
+verdict="Indéterminé : relis les lignes ci-dessus."
+if echo "$out" | grep -q -E '^< (500|502|504|534) .*(security|not implemented|TLS|SSL)'; then
+  verdict="CE SERVEUR NE PROPOSE PAS LE FTP CHIFFRÉ (il répond « non implémenté » à AUTH TLS) : il n'accepte que le FTP en clair, donc le déploiement refuse (à raison) d'y envoyer le mot de passe. Prends dans le Manager de l'hébergeur le « serveur FTP » dédié (du type xxxxx.ftp.infomaniak.com, souvent différent du nom de domaine du site) et mets-le dans le secret FTP_HOST."
+elif echo "$out" | grep -q -E '^\* (SSL connection|TLSv)'; then
+  verdict="Le FTP chiffré fonctionne sur ce serveur : le problème vient des identifiants (FTP_USER / FTP_PASSWORD) ou du dossier (FTP_PATH)."
+fi
+
+echo; echo "== FTPS implicite (port 990)"
+T 12 bash -c 'exec 3<>/dev/tcp/$0/990 && echo "port ouvert"' "$FTP_HOST" 2>&1 | head -2 || true
+echo "== SSH/SFTP (port 22) : bannière"
+T 10 bash -c 'exec 3<>/dev/tcp/$0/22 && head -c 80 <&3' "$FTP_HOST" 2>&1 | head -2 || true
+echo; echo "CONCLUSION : $verdict"

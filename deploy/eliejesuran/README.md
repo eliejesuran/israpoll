@@ -9,7 +9,8 @@ Les données (résultats, actualités) ne passent pas par là : la page les lit 
 
 1. **Infomaniak Manager → Hébergement web → eliejesuran.be → FTP / SSH** : créer un utilisateur FTP **dédié** (pas ton compte principal),
    idéalement limité au dossier `israpoll` (il n'a alors accès à rien d'autre). Noter le **serveur** (du type `xxxxx.ftp.infomaniak.com`).
-   Le dossier `israpoll` est créé automatiquement s'il n'existe pas.
+   Le dossier `israpoll` est créé automatiquement s'il n'existe pas. **`FTP_HOST` = ce nom de serveur FTP, pas `eliejesuran.be`** : le serveur du
+   site lui-même n'accepte que le FTP en clair, que le déploiement refuse par sécurité.
 2. **Enregistrer quatre secrets GitHub**, toi-même, dans un terminal (chaque commande demande la valeur ; elle n'est ni affichée ni conservée) :
 
    ```bash
@@ -42,6 +43,7 @@ Les données (résultats, actualités) ne passent pas par là : la page les lit 
 | Symptôme | Piste |
 |---|---|
 | « secrets manquants » | Les quatre secrets doivent exister (*Settings → Secrets and variables → Actions*) |
+| `curl: (64) Requested SSL level failed` | Le serveur indiqué dans `FTP_HOST` ne propose pas le FTP chiffré. **Cas rencontré** : `FTP_HOST` = le nom de domaine du site, dont le serveur répond « 500 This security scheme is not implemented » à `AUTH TLS` (FTP en clair seulement). Utilise le **serveur FTP dédié** affiché dans le Manager Infomaniak (type `xxxxx.ftp.infomaniak.com`) ; l'étape « Diagnostic » du workflow l'explique en clair |
 | `curl: (67)` / `530 Login incorrect` | Identifiant ou mot de passe FTP |
 | `curl: (60)` certificat | `FTP_HOST` doit être le nom officiel du serveur FTP Infomaniak (pas l'adresse IP) |
 | `curl: (9)` / `550` accès refusé | `FTP_PATH` : le dossier est mal indiqué ou hors des droits de l'utilisateur FTP |
