@@ -9,6 +9,8 @@ Sources, par ordre de priorité (même structure qu'en 2022, vérifiée sur les 
   HTML national     : https://votes26.bechirot.gov.il/nationalresults  (sièges attribués par la CEC)
   Participation     : live-blog de NBC News (relevés de la CEC, JSON-LD) ; data/manual.json prévaut pour une même heure
   Relais presse     : projection de The Petek (NON officiel) -> clé « press » de live.json
+  Wikipédia         : tableau des résultats de l'article « 2026 Israeli legislative election » (NON officiel : bénévoles
+                      qui recopient le tableau de la CEC) via l'API MediaWiki -> clé « wiki » de live.json
 Le site de la CEC (CSV et HTML) n'est interrogé que si on le demande (--poll-cec) : il répond par un défi anti-bot.
 
 Robustesse : un relevé incohérent (fichier tronqué, page d'erreur, total qui s'effondre) ou une panne réseau
@@ -38,7 +40,7 @@ import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 CSV_URL = "https://media26.bechirot.gov.il/files/expc.csv"
 HTML_URL = "https://votes26.bechirot.gov.il/nationalresults"
@@ -63,6 +65,22 @@ PRESS_PARTIES = {       # nom affiché par la source (minuscules) -> identifiant
     "the reservists and the economic party": "reservists", "reservists and the economic party": "reservists",
     "amcha israel": "amcha",
 }
+# Wikipédia (NON officiel) : l'API MediaWiki est faite pour les robots (en-tête qui s'identifie, requêtes en série). Le tableau des
+# résultats de l'article reprend celui de la CEC (« Source: Central Elections Committee ») : voix brutes de chaque liste.
+WIKI_API = "https://en.wikipedia.org/w/api.php"
+WIKI_PAGE = "2026_Israeli_legislative_election"
+WIKI_URL = "https://en.wikipedia.org/wiki/" + WIKI_PAGE
+WIKI_HOSTS = {"en.wikipedia.org"}
+WIKI_SOURCE = "Wikipédia"
+WIKI_UA = "israpoll/1.0 (+https://github.com/eliejesuran/israpoll)"
+WIKI_MAX_DROP = 0.02            # une relecture qui perd plus de 2 % des bulletins valides est écartée (vandalisme, tableau en chantier)
+WIKI_PARTIES = {                # nom affiché par l'article (minuscules, tirets simples) -> identifiant de parti ; les petites listes
+    "likud": "likud", "yashar": "yashar", "joint list": "joint", "together": "together", "the democrats": "democrats",   # ne sont pas reprises :
+    "yisrael beiteinu": "yb", "ra'am": "raam", "united torah judaism": "utj", "otzma yehudit": "otzma", "shas": "shas",  # l'article a déjà
+    "religious zionism-zehut": "rzp", "the reservists-new economic": "reservists", "amcha yisrael": "amcha",             # inversé deux noms
+    "haredi public": "haredi", "noam": "noam",                                                                          # de listes minuscules
+}
+WIKI_REQUIRED = {"likud", "yashar", "joint", "together", "democrats", "yb", "raam", "utj", "otzma", "shas", "rzp"}
 UA = "Mozilla/5.0 (compatible; israpoll/1.0; +https://github.com/eliejesuran/israpoll)"
 META_COLS = {"סמל ועדה", "שם ישוב", "סמל ישוב", "בזב", "מצביעים", "פסולים", "כשרים"}
 MAX_BYTES = 20 * 1024 * 1024
@@ -92,6 +110,10 @@ def allowed_press(url):
     return (urlparse(url).hostname or "") in PRESS_HOSTS
 
 
+def allowed_wiki(url):
+    return (urlparse(url).hostname or "") in WIKI_HOSTS
+
+
 class Blocked(ValueError):
     """Le site répond par un défi anti-bot (JavaScript) : inutile de réessayer tout de suite."""
 
@@ -109,14 +131,15 @@ class _SameSiteOnly(urllib.request.HTTPRedirectHandler):
 _opener = urllib.request.build_opener(_SameSiteOnly(allowed))
 _turnout_opener = urllib.request.build_opener(_SameSiteOnly(allowed_turnout))
 _press_opener = urllib.request.build_opener(_SameSiteOnly(allowed_press))
+_wiki_opener = urllib.request.build_opener(_SameSiteOnly(allowed_wiki))
 
 
-def get(url, timeout, tries=3, ok=allowed, opener=_opener):
+def get(url, timeout, tries=3, ok=allowed, opener=_opener, ua=None):
     """GET avec quelques essais : le site de la CEC répond parfois 202 + corps vide (filtre anti-bot) ou coupe
     la poignée de main TLS. Seuls les hôtes *.bechirot.gov.il sont autorisés (ou ceux de `ok`), redirections comprises."""
     if not ok(url):
         raise ValueError(f"hôte non autorisé : {url}")
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Cache-Control": "no-cache"})
+    req = urllib.request.Request(url, headers={"User-Agent": ua or UA, "Cache-Control": "no-cache"})
     last = None
     for i in range(tries):
         try:
@@ -315,6 +338,84 @@ def parse_press(page):
     return {"source": PRESS_SOURCE, "url": PRESS_URL, "as_of": f"{int(m.group(2)):02d}:{m.group(3)}", "counted_pct": pct,
             "valid": to_int(valid.group(1)), "stations": to_int(stations.group(1)) if stations else None,
             "seats": seats, "fetched_at": now_iso()}
+
+
+# ---------------------------------------------------------------- Wikipédia (non officiel)
+def _wiki_name(s):
+    """Nom d'une liste dans le wikitexte -> minuscules, sans liens ni balises, tirets simples."""
+    s = re.sub(r"<[^>]+>", " ", s)
+    s = re.sub(r"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]", r"\1", s)             # [[cible|texte]] -> texte
+    s = html.unescape(s).replace("\u2019", "'")
+    s = re.sub(r"[\u2010-\u2015\u2212]", "-", s)
+    return re.sub(r"\s+", " ", s).strip().lower()
+
+
+def parse_wiki(results, infobox=""):
+    """Wikitexte de la section « Results » (modèle {{Election results}}) et de l'en-tête de l'article ->
+    {valid, invalid, eligible, votes{lettres de vote: voix} des listes principales, others, counted_pct, as_of}.
+
+    Strict : tableau incomplet, liste principale introuvable (nom changé ?), somme des listes ≠ bulletins valides ou
+    reste des petites listes invraisemblable -> ValueError (mieux vaut ne rien montrer qu'un faux chiffre).
+    L'en-tête (pourcentage dépouillé, heure du relevé) est facultatif.
+    """
+    t = re.sub(r"<!--.*?-->", "", results, flags=re.S)
+
+    def field(name):
+        m = re.search(r"\|\s*" + name + r"\s*=\s*([\d,]+)", t)
+        return to_int(m.group(1)) if m else 0
+
+    valid, invalid, eligible = field("valid"), field("invalid"), field("electorate")
+    names = {int(n): _wiki_name(v) for n, v in re.findall(r"\|\s*party(\d+)\s*=\s*(.*?)\s*(?=\|\s*[A-Za-z_]+\d*\s*=|\n|$)", t)}
+    votes = {int(n): to_int(v) for n, v in re.findall(r"\|\s*votes(\d+)\s*=\s*([\d,]+)", t)}
+    if not valid or len(names) < 30 or set(names) != set(votes):
+        raise ValueError("tableau des résultats introuvable ou incomplet (structure de l'article changée ?)")
+    total = sum(votes.values())
+    if abs(total - valid) > max(5, SUM_TOLERANCE * valid):
+        raise ValueError(f"somme des listes ({total}) ≠ bulletins valides ({valid})")
+    if eligible and valid + invalid > eligible:
+        raise ValueError("plus de votants que d'inscrits")
+    mapped = {}
+    for n, name in names.items():
+        pid = WIKI_PARTIES.get(name)
+        if pid is None:
+            continue
+        if pid in mapped:
+            raise ValueError(f"liste en double : {name!r}")
+        mapped[pid] = votes[n]
+    if WIKI_REQUIRED - set(mapped):
+        raise ValueError("liste principale introuvable : " + ", ".join(sorted(WIKI_REQUIRED - set(mapped))))
+    others = valid - sum(mapped.values())
+    if others < 0 or others > 0.04 * valid:
+        raise ValueError(f"reste des petites listes invraisemblable ({others} voix)")
+
+    ib = re.sub(r"<!--.*?-->", "", infobox, flags=re.S)
+    rep = re.search(r"\|\s*reporting\s*=\s*(\d{1,3}(?:\.\d+)?)", ib)
+    upd = re.search(r"\|\s*last_update\s*=\s*(\d{1,2}):(\d{2}),\s*\d{1,2} October 2026", ib)
+    pct = float(rep.group(1)) if rep else None
+    return {"valid": valid, "invalid": invalid, "eligible": eligible, "others": others,
+            "votes": {PARTY_LETTERS[pid]: n for pid, n in mapped.items()},
+            "counted_pct": pct if pct is not None and 0 < pct <= 100 else None,
+            "as_of": f"{int(upd.group(1)):02d}:{upd.group(2)}" if upd else ""}
+
+
+def fetch_wiki(timeout):
+    """Trois petites requêtes à l'API MediaWiki (sections, tableau des résultats, en-tête) -> dict prêt pour live.json."""
+    def call(**params):
+        q = urlencode({**params, "format": "json", "formatversion": 2})
+        return json.loads(get(f"{WIKI_API}?{q}", timeout, tries=2, ok=allowed_wiki, opener=_wiki_opener, ua=WIKI_UA))["parse"]
+
+    sections = call(action="parse", page=WIKI_PAGE, prop="sections")["sections"]
+    idx = next((s["index"] for s in sections if s.get("line") == "Results" and str(s.get("index", "")).isdigit()), None)
+    if idx is None:
+        raise ValueError("section « Results » introuvable (structure de l'article changée ?)")
+    res = call(action="parse", page=WIKI_PAGE, prop="wikitext|revid", section=idx)
+    try:
+        head = call(action="parse", page=WIKI_PAGE, prop="wikitext", section=0)["wikitext"]
+    except (urllib.error.URLError, ValueError, OSError, KeyError, TypeError):
+        head = ""                                          # facultatif : pourcentage dépouillé et heure du relevé
+    out = parse_wiki(res["wikitext"], head)
+    out.update({"source": WIKI_SOURCE, "url": WIKI_URL, "revid": int(res.get("revid") or 0) or None, "fetched_at": now_iso()})
+    return out
 
 
 # ---------------------------------------------------------------- saisie de secours
@@ -607,12 +708,30 @@ def main():
         except (urllib.error.URLError, ValueError, OSError) as e:
             log["press"] = f"indisponible : {e}"
 
+    # Wikipédia (non officiel) : voix par liste recopiées de la CEC par des bénévoles ; le dernier relevé reste si la source tombe
+    wiki = prev.get("wiki") if isinstance(prev.get("wiki"), dict) else None
+    if a.skip_html:
+        log["wiki"] = "non relu (cycle rapide)"
+    else:
+        try:
+            fresh = fetch_wiki(a.timeout)
+            if wiki and fresh["valid"] < wiki.get("valid", 0) * (1 - WIKI_MAX_DROP):
+                log["wiki"] = f"ignoré : recul du dépouillement ({fresh['valid']} < {wiki.get('valid')})"
+            else:
+                wiki = fresh
+                log["wiki"] = f"ok ({fresh['valid']} bulletins valides, relevé de {fresh['as_of'] or '?'}, révision {fresh['revid']})"
+        except (urllib.error.URLError, ValueError, OSError, KeyError, TypeError) as e:
+            log["wiki"] = f"indisponible : {e}"
+
     body = build(prev, manual, csv_res, html_res, log, polled=a.poll_cec or bool(a.csv_file))
     body["press"] = press
+    body["wiki"] = wiki
     body["blocked"] = {"strikes": strikes, "until": until} if strikes else None
     stable = {k: v for k, v in body.items() if k not in ("fails", "source", "blocked")}   # ce qui compte pour « les données ont changé »
     if isinstance(stable.get("press"), dict):
         stable["press"] = {k: v for k, v in stable["press"].items() if k != "fetched_at"}
+    if isinstance(stable.get("wiki"), dict):                 # la révision change à chaque modification de l'article, même hors tableau
+        stable["wiki"] = {k: v for k, v in stable["wiki"].items() if k not in ("fetched_at", "revid")}
     digest = hashlib.sha1(json.dumps(stable, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     body["digest"] = digest
     body["updated_at"] = prev.get("updated_at") if prev.get("digest") == digest and prev.get("updated_at") else now_iso()
@@ -624,7 +743,7 @@ def main():
         json.dump(body, f, ensure_ascii=False, indent=1, sort_keys=True)
         f.write("\n")
     os.replace(tmp, a.out)                  # écriture atomique : un lecteur ne voit jamais un fichier à moitié écrit
-    print(f"[{body['checked_at']}] statut={body['status']}{' STALE' if body['stale'] else ''} csv={log.get('csv')} html={log.get('html')} participation={log.get('turnout')} relais={log.get('press')}{' | ' + log['peer'] if 'peer' in log else ''}", file=sys.stderr)
+    print(f"[{body['checked_at']}] statut={body['status']}{' STALE' if body['stale'] else ''} csv={log.get('csv')} html={log.get('html')} participation={log.get('turnout')} relais={log.get('press')} wiki={log.get('wiki')}{' | ' + log['peer'] if 'peer' in log else ''}", file=sys.stderr)
 
 
 if __name__ == "__main__":

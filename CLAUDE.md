@@ -14,7 +14,7 @@ avant de toucher au code.
 
 **Intégrité des chiffres**
 - **Jamais de chiffre inventé ni d'« à peu près ».** La page n'affiche que des chiffres de la CEC (sièges attribués, ou estimation
-  Bader-Ofer sur les voix de la CEC). Le seul repli accepté est le **relais presse** (The Petek), toujours étiqueté « non officiel ».
+  Bader-Ofer sur les voix de la CEC). Les seules sources non officielles acceptées sont **Wikipédia** (base par défaut depuis le 28/10) et le **relais presse** (The Petek), toujours étiquetés « non officiel » et cités (liens + révision Wikipédia).
 - **Aucun sondage n'est affiché** (ni d'avant-scrutin, ni sorties des urnes) : décision du propriétaire du projet. Les sorties des urnes ont
   été retirées de `data/manual.json` (28/10).
 - Les rattachements de listes à un camp (`PARTIES.bloc`, `GROUPS` de `js/compare.js`) sont une **lecture éditoriale** : toujours
@@ -54,6 +54,7 @@ framework, pas de bibliothèque. Scripts classiques (pas de modules ES) : les pa
 
 ```
 CEC ─(totaux recopiés par un humain, ou CSV téléchargé et importé)─┐   (le site de la CEC n'est pas interrogé)
+Wikipédia (API MediaWiki : voix par liste, non officiel) ───────────┤
 NBC live-blog (participation) ─────────────────────────────────────┤  scripts/fetch_cec.py  ──►  live.json
 The Petek (projection de sièges, relais NON officiel) ─────────────┤        ▲ data/manual.json (lu sur `main` à chaque tour)
 saisie manuelle des totaux CEC (data/manual.json, clé `cec`) ──────┘        │
@@ -72,7 +73,7 @@ flux RSS presse ──► scripts/fetch_news.py ──push force──► branch
 | `js/seats.js` | Seuil 3,25 % + quotient + Bader-Ofer avec accords de surplus (UMD : navigateur et Node) |
 | `js/compare.js` | Comparaison 2022 → 2026 (`GROUPS` = familles et correspondances ; pur, testé) |
 | `js/data2022.js` | Résultats officiels 2022 (CEC), somme exacte du fichier par localité |
-| `scripts/fetch_cec.py` | Collecteur : participation NBC, relais presse, totaux saisis ou CSV importé, adoption des relevés des autres collecteurs ; avec `--poll-cec` seulement : CSV et HTML de la CEC (sièges), pause anti-bot |
+| `scripts/fetch_cec.py` | Collecteur : participation NBC, relais presse, Wikipédia (API MediaWiki), totaux saisis ou CSV importé, adoption des relevés des autres collecteurs ; avec `--poll-cec` seulement : CSV et HTML de la CEC (sièges), pause anti-bot |
 | `scripts/live.sh` | Boucle de collecte + publication `data` et `news` + mise à jour automatique du clone supervisé |
 | `scripts/fetch_news.py` | Titres de presse FR (RSS) → `news.json` (titre, média, lien, date uniquement) |
 | `scripts/cec_manual.py` | Assistant de saisie manuelle des totaux CEC (clé `cec` de `manual.json`) |
@@ -82,9 +83,12 @@ flux RSS presse ──► scripts/fetch_news.py ──push force──► branch
 | `tests/` | `*.test.mjs` (Node, sans dépendance) et `test_*.py` (unittest) |
 
 ### Modèle de la page (`derive()` dans `js/common.js`)
-Sources de sièges, par priorité : **`official`** (sièges attribués par la CEC) > **`cec`** (Bader-Ofer sur les voix CEC, y compris saisies à
-la main) > **`press`** (relais non officiel) > **`none`** (hémicycle vide). Le relais ne passe devant `cec` que si `press.valid >
-totals.valid` (plus de bulletins comptés). Le choix manuel (`state.seatSource`) est respecté tant que la source existe.
+Sources de sièges, par priorité : **`official`** (sièges attribués par la CEC) > **`wiki`** (Bader-Ofer sur les voix de l'article Wikipédia, non officiel ;
+**base par défaut** tant que `wiki.valid >= totals.valid` de la CEC) > **`cec`** (Bader-Ofer sur les voix CEC, y compris saisies à la main) >
+**`press`** (relais non officiel) > **`none`** (hémicycle vide). Le relais ne passe devant la base (`wiki` ou `cec`) que s'il a plus de bulletins
+valides. Chaque source porte ses `links` (Wikipédia : permalien de la révision lue + CEC) : les pages les affichent tels quels. Tableau, chiffres clés et
+analyse lisent `model.totals`/`model.lists`, qui sont ceux de la CEC, sauf si `wiki` est choisie ET strictement plus avancée (`model.voteSource`) ;
+les petites listes de Wikipédia y sont regroupées en « Autres listes » (`x_others`). Le choix manuel (`state.seatSource`) est respecté tant que la source existe.
 `model` = `{ live, manual, totals, lists, sources, chosen, seats, active }` ; `model.seats` = `{ idParti: sièges }` de la source active.
 
 ### Pages et rendu
@@ -97,7 +101,7 @@ Toute chaîne dynamique passe par `esc()` ; les URL par `safeUrl()` (http/https 
 
 ### Données publiées
 `live.json` (branche `data`) : `status` (`waiting|counting|final`), `totals`, `votes` (par lettre de vote de la CEC), `official_seats`,
-`manual` (copie de `manual.json` + participation automatique), `press`, `stale` (seulement avec `--poll-cec`), `source.fetch` (journal par source),
+`manual` (copie de `manual.json` + participation automatique), `press`, `wiki` (voix des 15 listes suivies par lettre de vote, `others`, `valid`, `invalid`, `eligible`, `counted_pct`, `as_of`, `revid`), `stale` (seulement avec `--poll-cec`), `source.fetch` (journal par source),
 `collector` (`jetson`/`local`), `checked_at` (dernière vérif) / `updated_at` (dernier changement), `digest`.
 La page lit **API GitHub** (`api.github.com/.../contents/live.json?ref=data`, ~1 min, 60 req/h/IP) **et** `raw.githubusercontent.com`
 (5 min de cache) et garde la plus récente (`checked_at`) ; une source en retard ne fait jamais reculer la page.
@@ -180,6 +184,9 @@ python3 -I scripts/cec_manual.py --as-of 12:30 --eligible … --voters … --val
 - **`force-push` sur les branches `data` et `news`** : branches orphelines à un seul commit, volontairement (l'historique ne grossit pas) ;
   ne jamais y mettre autre chose que `live.json` / `news.json`.
 - **Veille du Mac** : peut couper une session en plein travail ; `caffeinate -i -w <pid>` retient la machine tant que le processus tourne.
+- **Wikipédia** : l'article a déjà inversé le nom de deux listes minuscules (Hakahal 831 / « Fixing… » 829, alors que la CEC donne HaTikoun 831 et HaKahal 829) : ne jamais
+  mapper les petites listes par leur nom. L'API exige un `User-Agent` qui s'identifie (URL du dépôt) ; pas d'adresse e-mail personnelle dans le code. Le tableau n'a pas de
+  sièges (commentaires « spéculatifs »). Retard de l'ordre de l'heure sur la CEC. L'infobox donne `reporting` (% d'urnes) et `last_update` (heure d'Israël).
 - **Heure** : les relevés de la CEC et The Petek sont en heure d'Israël ; The Petek affiche « 27 Oct » même après minuit (libellé erroné de la source).
 - **Les listes 2022 et 2026 partagent des lettres de vote** (`ב` = Foyer juif en 2022, Otzma Yehudit en 2026) : `data2022.js` est indexé par lettre
   **de 2022** seulement pour documenter la source ; la logique n'utilise que les identifiants (`likud22`, `likud`…).
@@ -240,7 +247,7 @@ de 2022 (renommé) ; (6) tests de cohérence page/collecteur repointés sur `js/
 | B6 | `common.js` (`derive`) | `cec.share` (« ≈ X % du vote attendu ») vient de la participation finale estimée, pas des urnes dépouillées | Écart avec le « 76,89 % des urnes » de la presse ; libellé à clarifier ou remplacer par `press.counted_pct` quand disponible |
 | B7 | `fetch_cec.py` (`parse_html`) | Écrit pour la mise en page 2022 et une heuristique 2026 **jamais vue en conditions réelles** ; ne tourne plus qu'avec `--poll-cec` | Les sièges officiels de la CEC ne sont lus que si la lecture est réactivée et la page conforme ; sinon estimation Bader-Ofer (pas de saisie manuelle des sièges officiels) |
 | B8 | `fetch_cec.py` (`parse_turnout`) | Dépend de la structure JSON-LD du live-blog NBC ; la dernière mise à jour de ce live-blog précède la clôture | En cas d'échec : saisie manuelle de la participation (`manual.json`) |
-| B9 | `fetch_cec.py` (`parse_press`) | Lit le **texte** de la page The Petek (aucune API) ; un changement de mise en page rejette le relevé | Le dernier relevé reste affiché ; la source est facultative |
+| B9 | `fetch_cec.py` (`parse_press`, `parse_wiki`) | The Petek : lit le **texte** de la page (aucune API). Wikipédia : dépend du modèle `{{Election results}}` et des noms de listes ; retard d'~1 h, bénévoles | Un changement de mise en page rejette le relevé ; le dernier relevé reste affiché ; les deux sources sont facultatives |
 | B10 | `fetch_news.py` | Liste blanche `MEDIA` tenue à la main : un média absent est écarté sans message | Ajouter son nom tel qu'il apparaît dans Google Actualités |
 | B11 | `live.sh` | Le relevé des actualités (≈ 5–20 s) s'exécute dans la boucle principale, une fois par ~10 min | Un tour de collecte CEC est retardé d'autant ; piste : sous-processus en arrière-plan |
 | B12 | `js/compare.js` | La note « fusion annoncée avec le Likoud » (Nouvel Espoir) s'appuie sur une source secondaire (Wikipédia, juillet 2026) | À revérifier avec la liste officielle des 38 listes |
@@ -257,6 +264,8 @@ de 2022 (renommé) ; (6) tests de cohérence page/collecteur repointés sur `js/
 - 28/10 matin : sondages et sorties des urnes retirés de la page (décision du propriétaire) ; fil « À lire » ajouté.
 - 28/10 : lecture automatique du site de la CEC **arrêtée** à la demande du propriétaire (`--poll-cec` / `CEC_POLL=1` pour la réactiver) ; la page ne mentionne plus
   de blocage, elle indique seulement la source de chaque chiffre ; `exit_polls` supprimé de `manual.json`.
+- 28/10 : **Wikipédia ajoutée comme jeu de données** (comme The Petek) et mise **par défaut** à la demande du propriétaire, citée partout ; slogan d'accueil retiré (« …, en direct. Les chiffres
+  officiels… Chaque chiffre est sourcé. »).
 - 28/10 : hébergement sur le domaine personnel de l'utilisateur (déploiement par Action GitHub) **abandonné** : l'offre Infomaniak de base n'expose que le FTP
   en clair (port 21) et HTTPS (443) — ni FTPS (`AUTH TLS` → « 500 not implemented »), ni SFTP/SSH (port 22 fermé). Le site reste sur GitHub Pages ; l'utilisateur gère
   lui-même le `.htaccess` de son domaine. Voir §5.

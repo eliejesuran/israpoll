@@ -79,7 +79,7 @@ function analysis() {
   const hasVotes = !!t && model.lists.length > 0;
   const seats = {};
   Object.entries(model.seats).forEach(([id, n]) => { if (BY_ID[id]) seats[id] = n; });
-  const passed = new Set((model.sources.cec || {}).passed || []);
+  const passed = new Set((model.voteSource || {}).passed || []);
   const wasted = hasVotes ? sum(model.lists.filter(l => !passed.has(l.id)).map(l => l.votes)) : null;
   const data = Compare.build({ r22: RESULTS_2022, votes26: hasVotes ? votes : null, valid26: hasVotes ? t.valid : 0, seats26: seats, hasSeats: model.active.key !== "none", wasted26: wasted });
   _an = { model, data };
@@ -91,7 +91,7 @@ function renderAnNotice() {
   let html;
   if (a.key === "none") html = `<div class="notice warn"><b>En attente des premiers chiffres de 2026.</b> Seuls les résultats de 2022 sont affichés ; la comparaison se remplira avec le dépouillement.</div>`;
   else if (a.key === "official") html = `<div class="notice"><b>Sièges attribués par la CEC.</b> Les parts de voix 2026 portent sur les bulletins valides publiés ; les chiffres définitifs seront proclamés d’ici le ${FINAL_BY}.</div>`;
-  else html = `<div class="notice warn"><b>Comparaison provisoire.</b> Le dépouillement n’est pas terminé : les urnes restantes peuvent encore déplacer quelques sièges. Les sièges 2026 sont une <b>estimation</b> (${esc(a.label)}) ; les parts de voix portent sur les bulletins valides déjà comptés.${a.key === "press" ? " <b>Source non officielle</b> : les voix par liste ne sont pas disponibles, seuls les sièges sont comparés." : ""}</div>`;
+  else html = `<div class="notice warn"><b>Comparaison provisoire.</b> Le dépouillement n’est pas terminé : les urnes restantes peuvent encore déplacer quelques sièges. Les sièges 2026 sont une <b>estimation</b> (${esc(a.key === "wiki" ? "voix Wikipédia" : a.label)}) ; les parts de voix portent sur les bulletins valides déjà comptés.${a.key === "press" ? " <b>Source non officielle</b> : les voix par liste ne sont pas disponibles, seuls les sièges sont comparés." : ""}${a.key === "wiki" ? " <b>Source non officielle</b> : voix d’après l’article Wikipédia, qui reprend le tableau de la CEC ; les petites listes y sont regroupées." : ""}</div>`;
   $("#anNotice").innerHTML = html;
 }
 
@@ -127,7 +127,7 @@ function renderCamps() {
     <p class="sub" style="margin:2px 0 14px">120 sièges, la barre verticale marque la majorité (61).</p>
     ${bar("2022", x => x.seats22)}${d.hasSeats ? bar("2026", x => x.seats26) : `<div class="cbar"><span class="cl">2026</span><div class="sub" style="margin:0">en attente des chiffres de la CEC</div></div>`}
     <div class="legend" style="margin-top:12px">${[...d.groups.map(g => [g.color, g.name]), ["#8b93a1", "Autres listes"]].map(([c, n]) => `<span style="--sc:${c}">${esc(n)}</span>`).join("")}</div>
-    <div class="src">${srcLine([{ label: RESULTS_2022.source.name, url: RESULTS_2022.source.url }, { label: model.active.label, url: model.active.key === "press" ? PRESS.url : CEC.national }], `<span>Le rattachement des listes à un camp est une lecture éditoriale (voir « Méthode »).</span>`)}</div>`;
+    <div class="src">${srcLine([{ label: RESULTS_2022.source.name, url: RESULTS_2022.source.url }, ...model.active.links], `<span>Le rattachement des listes à un camp est une lecture éditoriale (voir « Méthode »).</span>`)}</div>`;
 }
 
 function renderFamilies() {
@@ -175,7 +175,7 @@ function renderInsights() {
 function renderMethod() {
   $("#method").innerHTML = `<h3>Méthode et limites</h3><ul class="ins" style="margin-top:8px">
     <li><b>2022</b> : résultats officiels de la <a href="${RESULTS_2022.source.url}" rel="noopener" target="_blank">CEC</a> (voix = somme du fichier par localité, qui reproduit exactement le tableau national : 4 764 742 bulletins valides, participation ${pc(TURNOUT_2022, 2)}).</li>
-    <li><b>2026</b> : voix de la CEC dès qu’elles sont disponibles (sièges attribués par la CEC, sinon estimation Bader-Ofer avec les accords de surplus) ; à défaut, projection d’un relais non officiel, signalée comme telle.</li>
+    <li><b>2026</b> : sièges attribués par la CEC dès qu’elle les publie ; sinon estimation Bader-Ofer avec les accords de surplus, sur les voix de la base choisie — par défaut le tableau de l’article <a href="${WIKI.url}" rel="noopener" target="_blank">Wikipédia</a> qui reprend celui de la CEC (non officiel), ou les voix de la CEC quand elles sont plus avancées. À défaut, projection d’un relais non officiel, signalée comme telle.</li>
     <li><b>Familles</b> : lecture éditoriale d’après les positions publiques des listes avant le scrutin. Quand des listes fusionnent ou se scindent, 2022 est additionné pour correspondre à 2026 (voir la note de chaque ligne).</li>
     <li><b>Parts de voix</b> : 2026 = part des bulletins valides déjà comptés ; 2022 = part du résultat final. Les premiers bureaux dépouillés ne sont pas représentatifs.</li></ul>`;
 }

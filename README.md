@@ -11,8 +11,8 @@ Un site statique (HTML + JS, **sans build ni dépendance**) en trois pages pour 
 ## Comment ça marche
 
 ```
-totaux de la CEC (recopiés ou fichier importé) + relais presse + participation
-        │  toutes les 30 s  (scripts/live.sh → scripts/fetch_cec.py)
+Wikipédia (voix par liste) + totaux de la CEC (recopiés ou fichier importé) + relais presse + participation
+        │  toutes les 30 s (Wikipédia et relais : ~3 min)  (scripts/live.sh → scripts/fetch_cec.py)
         ▼
 branche `data` : live.json ──(API GitHub ~1 min · raw 5 min)──►  pages (GitHub Pages) ── recalculent les sièges (js/seats.js)
 
@@ -25,6 +25,7 @@ Structure : `index.html`, `resultats.html`, `analyse.html` ; `css/site.css` (sty
 - **Le site de la CEC n'est pas interrogé automatiquement** : il répond par un défi anti-bot (HTTP 202 à corps vide) que le projet ne contourne pas. Les chiffres de la CEC viennent donc d'une personne (totaux recopiés ou fichier téléchargé, voir plus bas). Le collecteur peut tourner sur n'importe quelle petite machine (un ordinateur, un Jetson, un VPS) ; les actualités (flux RSS publics) n'ont pas ce problème : voir ci-dessous.
 - Les **voix** sont la somme du fichier officiel par localité. Vérifié sur 2022 : le total reproduit exactement les résultats nationaux publiés par la CEC.
 - Les **sièges** : si la CEC les affiche, on les reprend ; sinon ils sont **estimés** (seuil 3,25 % + quotient + méthode Bader-Ofer + accords de surplus) et marqués « est. ». Le calcul reproduit exactement les 120 sièges de 2022 (`tests/seats.test.mjs`).
+- **Source par défaut : Wikipédia (non officielle).** Le tableau des résultats de l'article [« 2026 Israeli legislative election »](https://en.wikipedia.org/wiki/2026_Israeli_legislative_election) reprend celui de la CEC (« Source : Central Elections Committee ») ; le collecteur le relit toutes les ~3 min par l'API MediaWiki (voir plus bas). Elle est toujours étiquetée « non officiel · Wikipédia » et citée avec le numéro de révision lu.
 - **Aucun sondage n'est affiché** (ni sondages d'avant-scrutin, ni sorties des urnes) : tant que la CEC n'a rien publié, l'hémicycle, le tableau et le simulateur restent vides — sauf le relais presse, explicitement étiqueté « non officiel » (voir plus bas).
 
 ### Actualités : titres de presse relevés par le collecteur
@@ -69,6 +70,13 @@ Le soir du scrutin la CEC a protégé ses fichiers par un défi anti-bot (AWS WA
 - **Import humain** : télécharger le fichier « תוצאות לפי יישובים » depuis [le site de la CEC](https://votes26.bechirot.gov.il/nationalresults) dans un navigateur, puis `scripts/import_csv.sh` : il retrouve le CSV le plus récent de `~/Downloads`, affiche un résumé (communes, bulletins valides, premières listes), refuse un fichier qui n'est pas de la CEC et demande confirmation avant de publier (`--dry` : résumé seulement). Les autres collecteurs adoptent ces chiffres s'ils sont plus avancés.
 - **Totaux recopiés** : voir plus haut (`scripts/cec_manual.py`).
 - **Plusieurs collecteurs** : chacun adopte les chiffres plus avancés des autres (`--peer`).
+
+### Wikipédia (non officiel, base par défaut)
+L'API MediaWiki est faite pour les robots : le collecteur s'identifie (`User-Agent` avec l'adresse du dépôt) et fait 3 petites requêtes en série toutes les ~3 min (liste des sections, section « Results », en-tête de l'article). Il lit le modèle `{{Election results}}` : voix brutes des listes, bulletins valides et nuls, inscrits, puis, dans l'en-tête, le pourcentage d'urnes dépouillées et l'heure du relevé. Les bénévoles de Wikipédia recopient le tableau de la CEC avec un retard d'environ une heure et ont déjà inversé le nom de deux listes minuscules : le collecteur ne reprend donc **que les 15 listes suivies par leur nom** et regroupe le reste en « autres listes ».
+
+- **Contrôles stricts** (`parse_wiki`) : tableau complet (≥ 30 listes), somme des listes = bulletins valides (0,5 %), 11 listes principales retrouvées, reste des petites listes < 4 % ; sinon le relevé est rejeté. Une relecture qui perd plus de 2 % des bulletins valides est écartée (vandalisme, tableau en chantier) ; une petite correction est suivie.
+- **Choix de la base** : sièges officiels de la CEC > **Wikipédia** (tant qu'elle n'a pas moins de bulletins que les totaux de la CEC) > totaux de la CEC ; le relais presse ne passe devant que s'il est plus avancé. Le bouton du simulateur permet de changer de base.
+- **Citation** : chaque page cite l'article et la révision lue (permalien). Le texte de Wikipédia est sous licence [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) ; l'[historique](https://en.wikipedia.org/w/index.php?title=2026_Israeli_legislative_election&action=history) donne les auteurs.
 
 ### Relais presse (non officiel)
 Le collecteur lit toutes les ~3 min la projection de sièges de [The Petek](https://www.thepetek.com/results) (agrégateur indépendant qui reprend le dépouillement de la CEC ; `robots.txt` : tout autorisé ; en-tête honnête) et la publie sous la clé `press` de `live.json`. La page ne l'utilise **que** si elle est plus avancée que les totaux CEC disponibles (bulletins valides comptés), ou à défaut de tout total CEC ; elle est toujours étiquetée « non officiel · relais presse », et le tableau des voix reste réservé à la CEC. Le relais est strict (liste inconnue, sièges ≠ 120 → rejeté) ; un net recul du dépouillement (plus de 2 % de bulletins en moins) est écarté, une petite correction de la source est suivie.

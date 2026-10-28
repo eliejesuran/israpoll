@@ -28,6 +28,13 @@ const CEC = {
 // Relais presse NON officiel : projection qui reprend le dépouillement de la CEC (lien fixe, jamais celui du JSON).
 const PRESS = { name: "The Petek", url: "https://www.thepetek.com/results" };
 
+// Wikipédia (NON officiel) : le tableau des résultats de l'article reprend celui de la CEC. Liens fixes, jamais ceux du JSON.
+const WIKI = {
+  name: "Wikipédia", url: "https://en.wikipedia.org/wiki/2026_Israeli_legislative_election",
+  rev: "https://en.wikipedia.org/w/index.php?title=2026_Israeli_legislative_election&oldid=",
+  history: "https://en.wikipedia.org/w/index.php?title=2026_Israeli_legislative_election&action=history",
+};
+
 const BLOCS = {
   eisenkot:  { name: "Bloc Eisenkot",   sub: "Opposition « du changement »",  color: "#12b8a6" },
   arab:      { name: "Partis arabes",   sub: "Ni dans l’un, ni dans l’autre bloc", color: "#1f9d55" },
@@ -141,6 +148,15 @@ function sanitizeLive(raw) {
   live.press = sum(Object.values(pseats)) === 120 && Number.isFinite(pct) && pct > 0 && pct <= 100 && num(pr.valid) > 0
     ? { seats: pseats, counted_pct: pct, valid: num(pr.valid), stations: pr.stations != null ? num(pr.stations) : null, as_of: String(pr.as_of || "").slice(0, 5) }
     : null;
+  // Wikipédia : voix des listes suivies (lettres de vote de la CEC) + reste des petites listes ; la somme doit retomber sur les bulletins valides
+  const wk = obj(raw.wiki);
+  const wvotes = Object.fromEntries(Object.entries(obj(wk.votes)).filter(([k]) => BY_LETTERS[k]).map(([k, v]) => [k, Math.round(num(v))]));
+  const wvalid = Math.round(num(wk.valid)), wothers = Math.round(num(wk.others)), wpct = +wk.counted_pct;
+  live.wiki = wvalid > 0 && Object.keys(wvotes).length >= 10 && Math.abs(sum(Object.values(wvotes)) + wothers - wvalid) <= Math.max(5, 0.005 * wvalid)
+    ? { votes: wvotes, others: wothers, valid: wvalid, invalid: Math.round(num(wk.invalid)), eligible: Math.round(num(wk.eligible)),
+        counted_pct: Number.isFinite(wpct) && wpct > 0 && wpct <= 100 ? wpct : null, as_of: String(wk.as_of || "").slice(0, 5),
+        revid: Number.isInteger(+wk.revid) && +wk.revid > 0 ? +wk.revid : null }
+    : null;
   const m = obj(raw.manual);
   live.manual = {
     final: m.final === true,
@@ -201,54 +217,76 @@ function makeDemo(kind) {
 function derive() {
   const live = state.live || {};
   const manual = live.manual || {};
-  const totals = live.totals && live.totals.valid > 0 ? live.totals : null;
+  const cecTotals = live.totals && live.totals.valid > 0 ? live.totals : null;
+  const wk = live.wiki || null;
+  const names = live.names || {};
+  const turnRef = (manual.final_turnout_est || 68) / 100;
+  const clamp01 = (x) => Math.max(0, Math.min(Number.isFinite(x) ? x : 0, 1));
 
-  // listes de la CEC
-  const lists = [];
-  if (live.votes && totals) {
-    const names = live.names || {};
-    Object.entries(live.votes).forEach(([letters, votes]) => {
+  // listes à partir de voix par lettre de vote (« ? » = reste des petites listes que Wikipédia ne détaille pas)
+  const listsOf = (votes, valid) => {
+    const out = Object.entries(votes).map(([letters, n]) => {
       const p = BY_LETTERS[letters];
-      lists.push(p
-        ? { ...p, votes, letters }
-        : { id: "x_" + letters, fr: MINOR[letters] || names[letters] || `Liste ${letters}`, he: names[letters] || "", letters, leader: "", bloc: "other", color: "#8b93a1", votes });
-    });
-    lists.sort((a, b) => b.votes - a.votes);
-  }
-  const valid = totals ? totals.valid : 0;
-  lists.forEach(l => (l.pct = valid ? l.votes / valid : 0));
+      if (p) return { ...p, votes: n, letters };
+      if (letters === "?") return { id: "x_others", fr: "Autres listes", he: "", letters: "—", leader: "", bloc: "other", color: "#8b93a1", votes: n };
+      return { id: "x_" + letters, fr: MINOR[letters] || names[letters] || `Liste ${letters}`, he: names[letters] || "", letters, leader: "", bloc: "other", color: "#8b93a1", votes: n };
+    }).sort((a, b) => b.votes - a.votes);
+    out.forEach(l => (l.pct = valid ? l.votes / valid : 0));
+    return out;
+  };
+  const cecLists = live.votes && cecTotals ? listsOf(live.votes, cecTotals.valid) : [];
+  const wkLists = wk ? listsOf({ ...wk.votes, ...(wk.others > 0 ? { "?": wk.others } : {}) }, wk.valid) : [];
+  const allocate = (lists) => { const v = {}; lists.forEach(l => (v[l.id] = l.votes)); return Seats.allocate(v, PACTS); };
 
   const sources = {};
+  const cecLinks = [{ label: "CEC — résultats nationaux", url: CEC.national }];
   // 1. sièges officiels
   if (live.official_seats) {
     const seats = {};
     Object.entries(live.official_seats).forEach(([letters, n]) => { const p = BY_LETTERS[letters]; seats[p ? p.id : "x_" + letters] = n; });
-    sources.official = { key: "official", label: "Sièges attribués par la CEC", chip: "Officiel", cls: "official", seats };
+    sources.official = { key: "official", label: "Sièges attribués par la CEC", chip: "Officiel", cls: "official", seats, links: cecLinks };
   }
-  // 2. estimation Bader-Ofer sur les voix comptées
-  if (lists.length) {
-    const votes = {}; lists.forEach(l => (votes[l.id] = l.votes));
-    const r = Seats.allocate(votes, PACTS);
-    const turnRef = (manual.final_turnout_est || 68) / 100;
-    const share = totals && totals.eligible > 0 ? totals.voters / (totals.eligible * turnRef) : 0;
-    sources.cec = { key: "cec", label: "Estimation sur les voix CEC", chip: live.status === "final" ? "Calcul · CEC" : "Calcul · dépouillement partiel", cls: "calc", seats: r.seats, passed: r.passed, share: Math.max(0, Math.min(Number.isFinite(share) ? share : 0, 1)) };
+  // 2. estimation Bader-Ofer sur les voix comptées de la CEC
+  if (cecLists.length) {
+    const r = allocate(cecLists);
+    const share = cecTotals && cecTotals.eligible > 0 ? cecTotals.voters / (cecTotals.eligible * turnRef) : 0;
+    sources.cec = { key: "cec", label: "Estimation sur les voix CEC", chip: live.status === "final" ? "Calcul · CEC" : "Calcul · dépouillement partiel", cls: "calc", seats: r.seats, passed: r.passed, share: clamp01(share), valid: cecTotals.valid, links: cecLinks };
   }
-  // 3. relais presse NON officiel (projection de The Petek d'après le dépouillement de la CEC)
+  // 3. Wikipédia, NON officiel : les voix par liste de l'article, qui reprend le tableau de la CEC (même méthode de calcul que 2.)
+  if (wk) {
+    const r = allocate(wkLists);
+    const share = wk.counted_pct != null ? wk.counted_pct / 100 : wk.eligible > 0 ? (wk.valid + wk.invalid) / (wk.eligible * turnRef) : 0;
+    sources.wiki = {
+      key: "wiki", label: `Voix ${WIKI.name} (d’après le tableau de la CEC${wk.as_of ? ` · relevé de ${wk.as_of}, heure d’Israël` : ""})`, chip: `Non officiel · ${WIKI.name}`, cls: "nonoff",
+      seats: r.seats, passed: r.passed, share: clamp01(share), valid: wk.valid, asOf: wk.as_of, revid: wk.revid,
+      links: [{ label: `${WIKI.name} — « 2026 Israeli legislative election »${wk.revid ? ` (révision ${wk.revid})` : ""}`, url: wk.revid ? WIKI.rev + wk.revid : WIKI.url }, ...cecLinks],
+    };
+  }
+  // 4. relais presse NON officiel (projection de The Petek d'après le dépouillement de la CEC)
   if (live.press) {
     const pr = live.press;
-    sources.press = { key: "press", label: `Projection ${PRESS.name} (relais non officiel · dépouillement CEC de ${pr.as_of || "?"}, heure d’Israël)`, chip: "Non officiel · relais presse", cls: "nonoff", seats: pr.seats, share: pr.counted_pct / 100, valid: pr.valid, asOf: pr.as_of, stations: pr.stations };
+    sources.press = { key: "press", label: `Projection ${PRESS.name} (relais non officiel · dépouillement CEC de ${pr.as_of || "?"}, heure d’Israël)`, chip: "Non officiel · relais presse", cls: "nonoff", seats: pr.seats, share: pr.counted_pct / 100, valid: pr.valid, asOf: pr.as_of, stations: pr.stations,
+      links: [{ label: `${PRESS.name} (relais non officiel)`, url: PRESS.url }, ...cecLinks] };
   }
-  // 4. rien de publié : hémicycle vide, jamais un chiffre qui ne vient pas de la CEC (ou, à défaut, d'un relais étiqueté)
-  sources.none = { key: "none", label: "En attente des premiers chiffres de la CEC", chip: "En attente", cls: "nonoff", seats: {} };
+  // 5. rien de publié : hémicycle vide, jamais un chiffre qui ne vient pas de la CEC (ou, à défaut, d'une source étiquetée)
+  sources.none = { key: "none", label: "En attente des premiers chiffres de la CEC", chip: "En attente", cls: "nonoff", seats: {}, links: cecLinks };
 
-  // base par défaut : officiel > totaux CEC > relais presse ; le relais ne passe devant les totaux CEC que s'il est plus avancé
-  let def = "none";
-  if (sources.press) def = "press";
-  if (sources.cec) def = sources.press && sources.press.valid > totals.valid ? "press" : "cec";
+  // base par défaut : officiel > Wikipédia (si elle n'a pas moins de bulletins que les totaux CEC) > totaux CEC ; le relais presse ne passe
+  // devant que s'il est plus avancé que cette base
+  const base = sources.wiki && (!sources.cec || sources.wiki.valid >= cecTotals.valid) ? "wiki" : sources.cec ? "cec" : null;
+  const baseValid = base === "wiki" ? sources.wiki.valid : base === "cec" ? cecTotals.valid : 0;
+  let def = base || (sources.press ? "press" : "none");
+  if (sources.press && sources.press.valid > baseValid) def = "press";
   if (sources.official) def = "official";
   const chosen = state.seatSource && sources[state.seatSource] ? state.seatSource : def;
 
-  return { live, manual, totals, lists, sources, def, chosen, seats: sources[chosen].seats, active: sources[chosen] };
+  // voix affichées (tableau, chiffres clés, analyse) : celles de la CEC, sauf si Wikipédia est choisie ET plus avancée
+  const useWiki = chosen === "wiki" && (!cecTotals || wk.valid > cecTotals.valid);
+  const totals = useWiki ? { eligible: wk.eligible, voters: wk.valid + wk.invalid, valid: wk.valid, invalid: wk.invalid } : cecTotals;
+  const lists = useWiki ? wkLists : cecLists;
+  const voteSource = useWiki ? sources.wiki : sources.cec || null;
+
+  return { live, manual, totals, cecTotals, lists, voteSource, sources, def, chosen, seats: sources[chosen].seats, active: sources[chosen] };
 }
 
 /* =====================================================================
@@ -257,8 +295,16 @@ function derive() {
 function phase() {
   const live = model.live;
   if (live.status === "final") return "final";
-  if (model.totals || model.active.key === "press") return "counting";
+  if (model.totals || model.active.key === "press" || model.active.key === "wiki") return "counting";
   return Date.now() < POLLS_CLOSE.getTime() ? "voting" : "closed";
+}
+
+// d'où viennent les chiffres de la base active (pastille d'état)
+function sourceNow() {
+  const a = model.active, at = a.asOf ? ` (relevé de ${esc(a.asOf)}, heure d’Israël)` : "";
+  if (a.key === "wiki") return `source : ${WIKI.name}, d’après le tableau de la CEC${at}`;
+  if (a.key === "press") return `source : ${esc(PRESS.name)}, relais non officiel du dépouillement de la CEC${at}`;
+  return "résultats partiels de la CEC, susceptibles d’évoluer";
 }
 
 // [phase, [classe, titre, détail]] : la pastille d'état est la même sur toutes les pages
@@ -267,7 +313,7 @@ function phaseInfo() {
   const map = {
     voting: ["wait", "Bureaux de vote ouverts", `fermeture dans <b class="num" id="cd">—</b>`],
     closed: ["wait", "Bureaux fermés", "dépouillement en attente — les premiers chiffres arrivent"],
-    counting: ["", "Dépouillement en cours", model.active.key === "press" ? `source : ${esc(PRESS.name)}, relais non officiel du dépouillement de la CEC (relevé de ${esc(model.active.asOf || "?")}, heure d’Israël)` : "résultats partiels de la CEC, susceptibles d’évoluer"],
+    counting: ["", "Dépouillement en cours", sourceNow()],
     final: ["", "Résultats publiés", "chiffres définitifs de la CEC"],
   };
   return { ph, info: map[ph] };
@@ -335,7 +381,7 @@ function mountChrome(pageId) {
   const foot = $("#siteFooter");
   if (foot) foot.innerHTML = `<div class="wrap"><div class="cols">
       <div><h4>IsraPoll</h4>Projet indépendant, <b>non affilié</b> à la Commission électorale centrale ni à un parti. Code libre (MIT)&nbsp;: <a href="https://github.com/${REPO}" rel="noopener">github.com/${REPO}</a>. Les contributions sont bienvenues.</div>
-      <div><h4>Vérifier soi-même</h4><ul><li><a href="${CEC.national}" rel="noopener">Résultats nationaux (CEC)</a></li><li><a href="https://votes26.bechirot.gov.il/cityresults" rel="noopener">Par localité (CEC)</a></li><li><a href="https://www.bechirot.gov.il/" rel="noopener">bechirot.gov.il</a></li></ul></div>
+      <div><h4>Vérifier soi-même</h4><ul><li><a href="${CEC.national}" rel="noopener">Résultats nationaux (CEC)</a></li><li><a href="https://votes26.bechirot.gov.il/cityresults" rel="noopener">Par localité (CEC)</a></li><li><a href="https://www.bechirot.gov.il/" rel="noopener">bechirot.gov.il</a></li><li><a href="${WIKI.url}" rel="noopener">Article Wikipédia (voix par liste)</a></li></ul></div>
       <div><h4>Cette page</h4><div id="footStatus"></div></div>
     </div></div>`;
   const th = store.get("theme"); if (th) document.documentElement.dataset.theme = th;

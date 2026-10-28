@@ -56,7 +56,8 @@
    ===================================================================== */
 // chiffres clés : ce que la CEC a compté à ce stade
 function renderKpis() {
-  const t = model.totals, live = model.live, hand = t && live.source && live.source.manual_cec;
+  const t = model.totals, live = model.live, fromWiki = !!model.voteSource && model.voteSource.key === "wiki";
+  const hand = !fromWiki && t && live.source && live.source.manual_cec;
   if (!t) { $("#kpis").innerHTML = ""; return; }
   const k = (label, value, sub, small) => `<div class="stat"><div class="k">${label}</div><div class="v num"${small ? ' style="font-size:20px"' : ""}>${value}</div><div class="s">${sub || ""}</div></div>`;
   $("#kpis").innerHTML = [
@@ -64,7 +65,7 @@ function renderKpis() {
     k("Votants", fmt(t.voters), t.eligible ? `${pc(t.voters / t.eligible, 1)} des inscrits (urnes dépouillées)` : ""),
     k("Inscrits", fmt(t.eligible), "électeurs inscrits"),
     k("Bulletins nuls", fmt(t.invalid), t.voters ? `${pc(t.invalid / t.voters, 2)} des votants` : ""),
-    k("Origine des chiffres", hand ? "Tableau de la CEC" : "Fichier de la CEC", hand ? `recopié, relevé de ${esc(hand.as_of || "?")} (heure d’Israël)` : `fichier par localité, publié à ${hhmmss(live.updated_at)}`, true),
+    k("Origine des chiffres", fromWiki ? "Wikipédia" : hand ? "Tableau de la CEC" : "Fichier de la CEC", fromWiki ? `d’après le tableau de la CEC${model.voteSource.asOf ? `, relevé de ${esc(model.voteSource.asOf)} (heure d’Israël)` : ""}` : hand ? `recopié, relevé de ${esc(hand.as_of || "?")} (heure d’Israël)` : `fichier par localité, publié à ${hhmmss(live.updated_at)}`, true),
   ].join("");
 }
 
@@ -86,14 +87,19 @@ function renderResults() {
       ? `<div class="notice warn"><b>Voix par liste non disponibles pour l’instant.</b> Seuls les sièges projetés par un relais non officiel sont affichés ci-dessous.</div>`
       : `<div class="notice warn"><b>Aucun résultat publié pour l’instant.</b> Ce tableau se remplira tout seul, sans recharger la page.</div>`;
   } else if (live.status !== "final") {
-    const c = model.sources.cec;
-    notice = `<div class="notice warn"><b>Résultats partiels.</b> ≈ ${Math.round(c.share * 100)} % du vote attendu est dépouillé. Les premiers bureaux (kibboutzim, communes arabes ou ultra-orthodoxes) ne reflètent pas le pays : un classement provisoire peut s’inverser.</div>`;
+    const a = model.active, relay = a.key === "wiki" || a.key === "press", share = relay ? a.share : model.voteSource.share;
+    notice = `<div class="notice warn"><b>Résultats partiels.</b> ≈ ${Math.round(share * 100)} % ${relay ? "des urnes sont dépouillées" : "du vote attendu est dépouillé"}. Les premiers bureaux (kibboutzim, communes arabes ou ultra-orthodoxes) ne reflètent pas le pays : un classement provisoire peut s’inverser.</div>`;
   } else {
     notice = `<div class="notice"><b>Résultats publiés par la CEC.</b> Les chiffres définitifs sont proclamés au journal officiel d’ici le ${FINAL_BY}.</div>`;
   }
-  const hand = tot && live.source && live.source.manual_cec;
+  const fromWiki = !!model.voteSource && model.voteSource.key === "wiki";
+  const hand = !fromWiki && tot && live.source && live.source.manual_cec;
   const origin = [];
   if (hand) origin.push(`<b>Voix :</b> totaux nationaux de la CEC, recopiés depuis <a href="${CEC.national}" rel="noopener" target="_blank">son tableau</a>${hand.as_of ? ` (relevé de ${esc(hand.as_of)}, heure d’Israël)` : ""}.`);
+  if (model.active.key === "wiki") {
+    const w = model.active, [art] = w.links;
+    origin.push(`<b>${fromWiki ? "Voix et sièges" : "Sièges"} :</b> d’après l’article <a href="${esc(art.url)}" rel="noopener" target="_blank">Wikipédia « 2026 Israeli legislative election »</a>, qui reprend le tableau de la CEC (${pc(w.share, 1)} des urnes${w.asOf ? `, relevé de ${esc(w.asOf)}, heure d’Israël` : ""}) — <b>non officiel</b>.`);
+  }
   if (model.active.key === "press") {
     const pr = model.active;
     origin.push(`<b>Sièges :</b> projection de <a href="${PRESS.url}" rel="noopener" target="_blank">${esc(PRESS.name)}</a>, un agrégateur indépendant qui reprend le dépouillement de la CEC (${pc(pr.share, 2)} des urnes, relevé de ${esc(pr.asOf || "?")}, heure d’Israël) — <b>non officiel</b>.`);
@@ -114,9 +120,9 @@ function renderResults() {
       `<span>Relevé : ${live.checked_at ? hhmmss(live.checked_at) : "—"} · ${model.sources.press ? "voix par liste non disponibles : seuls les sièges projetés par le relais sont affichés" : "aucune donnée à afficher"}</span>`);
     return;
   }
-  const seatsOf = model.sources.official ? model.sources.official.seats : model.sources.cec.seats;
+  const seatsOf = model.sources.official ? model.sources.official.seats : model.voteSource.seats;
   const isOff = !!model.sources.official;
-  const passed = new Set(model.sources.cec.passed);
+  const passed = new Set(model.voteSource.passed);
   $("#resTable").innerHTML = head + `<tbody>${model.lists.filter(l => l.votes > 0).slice(0, 40).map(l => {
     const ok = l.pct >= 0.0325;
     return `<tr class="${ok ? "" : "under"}"><td class="lst"><span class="sw" style="background:${l.color}"></span><span class="nm">${esc(l.fr)}<small>${esc(l.leader)}${l.leader ? " · " : ""}<span class="he">${esc(l.he)}</span> <span class="ltr he">${esc(l.letters)}</span></small></span></td>
@@ -124,9 +130,10 @@ function renderResults() {
       <td><div class="bar"><i style="width:${Math.min(l.pct / 0.15, 1) * 100}%;background:${l.color}"></i><u style="left:${3.25 / 15 * 100}%"></u></div></td>
       <td class="num"><b>${seatsOf[l.id] || 0}</b>${ok ? "" : '<span class="tag out">sous le seuil</span>'}${!isOff && passed.has(l.id) ? '<span class="tag in">est.</span>' : ""}</td></tr>`;
   }).join("")}</tbody><tfoot><tr><td>Total</td><td class="num">${fmt(tot.valid)}</td><td class="num">100 %</td><td class="num" colspan="2" style="text-align:right;font-weight:500;color:var(--muted)">${fmt(tot.voters)} votants · ${fmt(tot.invalid)} nuls · ${fmt(tot.eligible)} inscrits</td></tr></tfoot>`;
+  const wikiLinks = fromWiki || model.active.key === "wiki" ? model.sources.wiki.links.slice(0, 1) : [];
   $("#resSrc").innerHTML = srcLine(
-    [{ label: "CEC — résultats nationaux", url: CEC.national }, { label: "fichier par localité (CSV)", url: CEC.csv }],
-    `<span>Voix : somme des localités publiées · Sièges : ${isOff ? "<b>attribués par la CEC</b>" : "<b>estimation</b> Bader-Ofer (la CEC n’a pas encore attribué de sièges)"} · Relevé : ${live.updated_at ? hhmmss(live.updated_at) : "—"}</span>`);
+    [...wikiLinks, { label: "CEC — résultats nationaux", url: CEC.national }, ...(fromWiki ? [] : [{ label: "fichier par localité (CSV)", url: CEC.csv }])],
+    `<span>Voix : ${fromWiki ? "tableau de l’article Wikipédia, reprise de celui de la CEC" : "somme des localités publiées"} · Sièges : ${isOff ? "<b>attribués par la CEC</b>" : "<b>estimation</b> Bader-Ofer (la CEC n’a pas encore attribué de sièges)"} · Relevé : ${live.updated_at ? hhmmss(live.updated_at) : "—"}</span>`);
 }
 
 

@@ -306,7 +306,9 @@ class ManualCec(unittest.TestCase):
 
     def test_party_letters_match_the_page(self):
         with open(os.path.join(ManualFile.ROOT, "js", "common.js"), encoding="utf-8") as f:     # PARTIES vit dans js/common.js
-            page = dict(re.findall(r'\{ id: "(\w+)",[^\n]*?letters: "([^"]+)"', f.read()))
+            src = f.read()
+        table = src[src.index("const PARTIES = ["):src.index("\n];", src.index("const PARTIES = ["))]         # pas la ligne « Autres listes » de derive()
+        page = dict(re.findall(r'\{ id: "(\w+)",[^\n]*?letters: "([^"]+)"', table))
         self.assertEqual(fetch_cec.PARTY_LETTERS, page)
         self.assertLessEqual(set(page.values()), fetch_cec.KNOWN_LETTERS)
 
@@ -340,6 +342,7 @@ class ManualFile(unittest.TestCase):
 
 import http.server
 import threading
+import urllib.parse
 import urllib.request
 
 
@@ -522,6 +525,133 @@ class Press(unittest.TestCase):
                 tweaked = self.run_main(tmp, "--prev", prev)
             self.assertEqual(tweaked["press"]["valid"], 4005000)
             self.assertEqual(back["status"], "waiting")                         # le relais ne devient jamais un résultat officiel
+
+
+WIKI_MAIN = [
+    ("[[Likud]]", 1006726), ("[[Yashar (political party)|Yashar]]", 786109), ("[[Joint List]]", 446240), ("[[Together (Israel)|Together]]", 436588),
+    ("[[The Democrats (Israel)|The Democrats]]", 316161), ("[[Yisrael Beiteinu]]", 289291), ("[[Ra'am]]", 283615), ("[[United Torah Judaism]]", 276498),
+    ("[[Otzma Yehudit]]", 269385), ("[[Shas]]", 257898), ("[[Religious Zionist Party|Religious Zionism]]\u2013[[Zehut]]", 231703),
+    ("[[The Reservists (political party)|The Reservists]]\u2013[[New Economic Party|New Economic]]", 127844), ("[[Amcha Yisrael]]", 78377),
+    ("[[Jerusalem Faction|The Color Black]]", 9502), ("[[Haredi Public]]", 9029), ("[[Noam (political party)|Noam]]", 7530),
+]
+WIKI_ROWS = WIKI_MAIN + [(f"Petite liste {i}", 100 + i) for i in range(20)] + [("Achi <i>(withdrawn)</i>", 47), ("[[Blue and White (political party)|Blue and White]] <i>(withdrawn)</i>", 5)]
+WIKI_HEAD = "{{Infobox election\n| turnout = 77.7% ({{increase}} 7.07pp)\n| reporting = 93.2 <!-- source? -->\n| last_update = 14:32, 28 October 2026\n}}"
+
+
+def wiki_results(rows=WIKI_ROWS, valid=None, invalid=21649, electorate=7331981):
+    valid = sum(v for _, v in rows) if valid is None else valid
+    out = "== Results ==\n{{Election results\n|reporting=\n"
+    for i, (name, v) in enumerate(rows[:-2], 1):
+        out += f"\n|party{i}={name}\n|votes{i}={v}\n|seats{i}=<!-- speculative, seats can\u2019t be assigned 25 -->\n|sc{i}= New\n"
+    n = len(rows)                     # les deux dernières lignes sont collées sur une même ligne, comme dans l'article réel
+    out += f"|party{n - 1}={rows[-2][0]}|party{n}={rows[-1][0]}|turnoutsw=<!-- 7. something -->\n"
+    out += f"|votes{n - 1}={rows[-2][1]}\n|votes{n}={rows[-1][1]}\n"
+    return out + f"|electorate = {electorate}\n|invalid = {invalid}\n|valid = {valid}\n|totalvotes = 5695682 <!-- counted as of 14:32 local time: 4875751 -->\n}}}}"
+
+
+class Wiki(unittest.TestCase):
+    def test_parse_maps_main_lists_and_ignores_the_rest(self):
+        r = fetch_cec.parse_wiki(wiki_results(), WIKI_HEAD)
+        self.assertEqual((r["valid"], r["invalid"], r["eligible"]), (sum(v for _, v in WIKI_ROWS), 21649, 7331981))
+        self.assertEqual(len(r["votes"]), 15)                                # les 15 listes suivies ; « The Color Black » et le reste vont dans `others`
+        self.assertEqual(r["votes"]["מחל"], 1006726)                      # Likoud, par sa lettre de vote
+        self.assertEqual(r["votes"]["ני"], 7530)                           # Noam
+        self.assertEqual(r["valid"] - sum(r["votes"].values()), r["others"])   # le reste des petites listes
+        self.assertEqual((r["counted_pct"], r["as_of"]), (93.2, "14:32"))
+
+    def test_header_is_optional(self):
+        r = fetch_cec.parse_wiki(wiki_results(), "")
+        self.assertEqual((r["counted_pct"], r["as_of"]), (None, ""))
+
+    def test_strict_on_renamed_list_bad_sum_or_unfinished_table(self):
+        renamed = [("[[Likud Party]]" if n == "[[Likud]]" else n, v) for n, v in WIKI_ROWS]
+        with self.assertRaisesRegex(ValueError, "introuvable"):
+            fetch_cec.parse_wiki(wiki_results(renamed))
+        with self.assertRaisesRegex(ValueError, "somme"):
+            fetch_cec.parse_wiki(wiki_results(valid=sum(v for _, v in WIKI_ROWS) + 90000))
+        with self.assertRaisesRegex(ValueError, "incomplet"):
+            fetch_cec.parse_wiki(wiki_results(WIKI_ROWS[:20]))
+        twice = WIKI_ROWS[:-3] + [("[[Shas]]", 5)] + WIKI_ROWS[-2:]
+        with self.assertRaisesRegex(ValueError, "double"):
+            fetch_cec.parse_wiki(wiki_results(twice))
+        with self.assertRaisesRegex(ValueError, "invraisemblable"):
+            fetch_cec.parse_wiki(wiki_results([(n, v) for n, v in WIKI_ROWS if "Haredi" not in n and "Noam" not in n and "Color" not in n] + [("Autre", 2500000)]))
+
+    def fake_get(self, results, head=WIKI_HEAD, revid=1382415353, calls=None):
+        def _get(url, *a, **k):
+            if not url.startswith("https://en.wikipedia.org/w/api.php"):
+                raise fetch_cec.Blocked("défi")
+            if calls is not None:
+                calls.append((url, k.get("ua")))
+            q = dict(urllib.parse.parse_qsl(urllib.parse.urlparse(url).query))
+            if q.get("prop") == "sections":
+                body = {"parse": {"sections": [{"line": "Background", "index": "3"}, {"line": "Results", "index": "42"}]}}
+            elif q.get("section") == "42":
+                body = {"parse": {"wikitext": results, "revid": revid}}
+            elif q.get("section") == "0":
+                body = {"parse": {"wikitext": head}}
+            else:
+                raise AssertionError(url)
+            return json.dumps(body)
+        return _get
+
+    def run_main(self, tmp, *args):
+        out = os.path.join(tmp, "out.json")
+        with mock.patch.object(sys, "argv", ["fetch_cec.py", "--out", out, *args]), mock.patch.dict(os.environ, {"COLLECTOR_ID": "jetson"}):
+            fetch_cec.main()
+        with open(out, encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_published_kept_on_failure_followed_on_small_correction_ignored_on_sharp_drop(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as tmp:
+            prev = os.path.join(tmp, "prev.json")
+            with mock.patch.object(fetch_cec, "get", self.fake_get(wiki_results(), calls=calls)):
+                first = self.run_main(tmp)
+            w = first["wiki"]
+            self.assertEqual((w["valid"], w["as_of"], w["counted_pct"], w["revid"], w["source"]), (sum(v for _, v in WIKI_ROWS), "14:32", 93.2, 1382415353, "Wikipédia"))
+            self.assertIn("ok", first["source"]["fetch"]["wiki"])
+            self.assertEqual(first["status"], "waiting")                       # Wikipédia ne devient jamais un résultat officiel
+            self.assertTrue(all(ua == fetch_cec.WIKI_UA for _, ua in calls) and len(calls) == 3)    # trois requêtes, en-tête qui s'identifie
+            json.dump(first, open(prev, "w"))
+
+            def broken(*a, **k):
+                raise OSError("réseau coupé")
+            with mock.patch.object(fetch_cec, "get", broken):
+                down = self.run_main(tmp, "--prev", prev)
+            self.assertEqual(down["wiki"]["valid"], w["valid"])                  # le dernier relevé reste
+            self.assertIn("indisponible", down["source"]["fetch"]["wiki"])
+
+            corrected = [(n, v - 1000 if n == "[[Likud]]" else v) for n, v in WIKI_ROWS]   # -0,02 % : suivi
+            with mock.patch.object(fetch_cec, "get", self.fake_get(wiki_results(corrected), revid=7)):
+                fixed = self.run_main(tmp, "--prev", prev)
+            self.assertEqual(fixed["wiki"]["valid"], w["valid"] - 1000)
+            self.assertEqual(fixed["wiki"]["revid"], 7)
+            self.assertEqual(fixed["digest"] == first["digest"], False)           # les voix ont changé
+
+            halved = [(n, v // 2) for n, v in WIKI_ROWS]                          # -50 % : vandalisme ou tableau en chantier
+            with mock.patch.object(fetch_cec, "get", self.fake_get(wiki_results(halved))):
+                back = self.run_main(tmp, "--prev", prev)
+            self.assertEqual(back["wiki"]["valid"], w["valid"])
+            self.assertIn("recul", back["source"]["fetch"]["wiki"])
+
+    def test_revision_and_fetch_time_do_not_change_the_digest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            prev = os.path.join(tmp, "prev.json")
+            with mock.patch.object(fetch_cec, "get", self.fake_get(wiki_results(), revid=1)):
+                a = self.run_main(tmp)
+            json.dump(a, open(prev, "w"))
+            with mock.patch.object(fetch_cec, "get", self.fake_get(wiki_results(), revid=2)):
+                b = self.run_main(tmp, "--prev", prev)
+            self.assertEqual(b["wiki"]["revid"], 2)
+            self.assertEqual(a["digest"], b["digest"])
+
+    def test_not_queried_on_fast_cycles(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(fetch_cec, "get", self.fake_get(wiki_results(), calls=calls)):
+            out = self.run_main(tmp, "--skip-html")
+        self.assertEqual(calls, [])
+        self.assertIsNone(out["wiki"])
 
 
 if __name__ == "__main__":
