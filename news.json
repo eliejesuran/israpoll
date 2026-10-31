@@ -1,0 +1,133 @@
+{
+ "schema": 1,
+ "updated_at": "2026-10-31T12:59:50Z",
+ "query": "élections israéliennes OR \"législatives en Israël\" OR Knesset when:3d",
+ "feeds": {
+  "Google Actualités": "ok (61)",
+  "Le Monde": "ok (4)",
+  "France 24": "ok (22)",
+  "RFI": "ok (17)"
+ },
+ "items": [
+  {
+   "title": "En Israël, le casse-tête de l'opposition pour trouver une majorité à la Knesset",
+   "source": "RFI",
+   "url": "https://www.rfi.fr/fr/moyen-orient/20261031-en-isra%C3%ABl-le-casse-t%C3%AAte-de-l-opposition-pour-trouver-une-majorit%C3%A9-%C3%A0-la-knesset",
+   "published": "2026-10-31T12:59:12Z"
+  },
+  {
+   "title": "Israël : l’opposition envisage une élection directe du Premier ministre pour sortir de l’impasse politique",
+   "source": "i24NEWS",
+   "url": "https://news.google.com/rss/articles/CBMi_AFBVV95cUxNcnpwakgwaTgzT2ctR0pWV2NIZUg4MWxfUWdFODcxdFZyQVVMcmVvRWpJaGFma3lraWZCUkVERWVsYm03MnN1T3phSXRJTm9LQlpKbUo4ekVqendrOXoyV2dSRE4wZ1ZaNDJoZmQ2VWduUGt5Sk5CcTYyUVZlSFRwSVJRTHl1SnBJQmFQNS1BY0lZU25CalNZeDRNNWIwT1BoVmlFcDhJdm1zNlJzQ19jak9qcFdXeFJ2SUJRZUtDUUVXMVRNcEl1Z1hoOHFWZ1UyYl8xTU02N2lvUGxSOWUzSmwtVnFuV29jbEdMdDMwa2FOUGVQRmV1MS1sckE?oc=5",
+   "published": "2026-10-31T07:13:09Z"
+  },
+  {
+   "title": "Denis Charbit : \"L'avenir démocratique d'Israël passe par les partis arabes\"",
+   "source": "La Libre.be",
+   "url": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxQN3JCZDBtRVpCLUE4N1hleEJqeU56TW95WXVQMnE5ci1ydzE5d0h3QUhHbVdnTjJibjBDSEJla0dYemJDbGNoZEZKNHBLc0xYRXBjYkxsWHZRRF9Oa29hQlBvbVJUU1N3SFBUQWlxT3ZXWmd0N2VTVzR0bVVrd3hZMk83eE5TVXlfc1QwcFZ3ZmQwQkVsOTlaRUpnN1ZiN3JLZ0pYamxZT0xBYmVRMmtKd0Jab1ByYTlIaU5MNTcxLUxCc3A4TnF3TmZKMkd4ZDVKUDRUNXY2a0J3S1FCUDJ6Qi1taEJHYXdJNHRNMWpvcng?oc=5",
+   "published": "2026-10-31T06:03:00Z"
+  },
+  {
+   "title": "Élections législatives en Israël : la coalition de Benyamin Nétanyahou en tête, sans majorité",
+   "source": "franceinfo",
+   "url": "https://news.google.com/rss/articles/CBMihgJBVV95cUxQamtvRHp6UjZzRG5QaHl0dWx0QzR2dXduM0dPV0labzlhNG5Sc2ltRmpVZGJKMHVLMmg4WXlLaUFfT2hlSUFrZTQ5aHRHWW5YSHc0UEFBZUFKT3ItaV9UVlhrdEFtMHZBZ01BVlptMWtSZ3h6Uk0wekNua1FuMG84LUNWRFZPSjVNUWVrUnVwMUk2NVg4Vk9ucF9ZNDd6ZEQ4NEZBd2tmM3ZGcnJiblpiaVoxcHctWVRTU1RLcnVCR3VNc21yODFOMkRjMkdvTUhTR3I1ejBJYUkxX09zdWt1U0l6UzgtNE5hU1dBclUyQ2pfM2wxZmxIcUFxc3VGSFMtOVExbzh3?oc=5",
+   "published": "2026-10-30T23:28:10Z"
+  },
+  {
+   "title": "Législatives en Israël: Isaac Herzog, un président au cœur des tractations",
+   "source": "RFI",
+   "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxOT2hqOXRUZmZMUFl2WGNiSlYyUDRlUm80dktDLWlrNEM5WGpkaXBMUlkydnZPcGRYNTVvSjQwUHNlcE5McTlOd2ZOOUVNWG5RNkpxUF9pZ0hSdVJvai00dF9TWFdMZmY0VnhMZHh5MnlZcDNVWDZhZm5LRkNkdjBQeFB3OWpIalAzY3BlSVJ4dXB2WFRGNjlnNG5sYnlwc2dIZFNQQ3FGQUE0NmFSV3FwS3cyY1BYZzU1eEdEeENGRUhHYk9sTDhXYVBUX2tqdTdxUkE?oc=5",
+   "published": "2026-10-30T21:31:09Z"
+  },
+  {
+   "title": "Les partis arabes triomphent aux élections en Israël : \"Ils ont compris que la seule solution, c'est de jouer le jeu de la démocratie\"",
+   "source": "La Libre.be",
+   "url": "https://news.google.com/rss/articles/CBMivgJBVV95cUxNVVZISWNmaGdoY2Z3YXVINkVTWkwzWkVDQ1dSRDh6YnltYzFkSjJnNjN2dWxSNGVwOUozcWk2bUFMQmlvYlktUkp1bjhRNnotOFg4VzVreHNYTDk4c2wyX0EwTFozdEVRS1ZHV1FXcjBOaEFYczZnSm9oNko4QkV3WkxsdHIxMXZ5VXBzT1otcnFkQjhVS2VKZVRKbE1wS2FXZE5qYk5QRmVQWnVOeS1ZNFpseTlUN3FGWHY5SkVCejBRVngyem44U1VUaGo3QVExbG1mU01aQkZjR19vekRyMXJINWR6OVFnM3ZIa3lQMkk1MUNlNEN2T2pMNWdwRV8tODVra2xaOWNLOVVrVnBnaS1EclEtc0pKdE1xQV9jRGpsQmN0LUU0SHF3b1VRRXQyemV5SWd2YVNsTHlMU3c?oc=5",
+   "published": "2026-10-30T18:47:00Z"
+  },
+  {
+   "title": "Le monde dans tous ses États - Législatives en Israël : Netanyahu à quitte ou double ?",
+   "source": "France 24",
+   "url": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxNdGRlRHFzeW5CY2t5UjBJWlVjdmltTHdGaGV6MjlFVk1tQkZSeGlYaExjOFBfbWVlYmNkaGNkdlJfOXJoR1paTWpuU05GYVVTdHRHbjc5ZnRXbXNGUzM0QWRESkRvN29rTGVCcDg1MlJnc05mZENWQkRTeHdmYlU1YkFQZXU1cVUxWUhqLUhmcVl4YjlVUnBFZTlqQ1Y0UVByenZ4WW1JanR1QnBETDFVMHdpODRTdVp0dWNaajg3aV9mcTBIekNFSHlETXVYU1FBT29MbWdZVnlzTVFScldxSU8zVnJBdnM?oc=5",
+   "published": "2026-10-30T17:00:24Z"
+  },
+  {
+   "title": "Législatives en Israël : Netanyahu à quitte ou double ?",
+   "source": "France 24",
+   "url": "https://www.france24.com/fr/%C3%A9missions/le-monde-dans-tous-ses-%C3%A9tats/20261030-l%C3%A9gislatives-en-isra%C3%ABl-netanyahu-%C3%A0-quitte-ou-double",
+   "published": "2026-10-30T17:00:24Z"
+  },
+  {
+   "title": "Le monde devant soi - Élections en Israël: ni vainqueurs, ni vaincus",
+   "source": "Slate.fr",
+   "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQUXY3d1BNVEdUUmFIczEzNFVNemt6NUozdHpYSC1VSDNKUGxoUE9HbHpzYjdjUlNCVzNtRzVDWlZqQ3R4eXNvekF6NFJVSXhwX1k4TjNiRkhrVHhtanhsS0xQTWxzTmt4MVNCRWMyYUtUUFgyc3hxbjNtWDRWd2RsRHRnenA4czRERzk0UHM5U3RrWDBDSnV3aDRVR3JHMmVFTTZONFNPd2VKZEVNT0NqOWxYaEY0WlduZGc?oc=5",
+   "published": "2026-10-30T16:10:00Z"
+  },
+  {
+   "title": "Israël : une infographie pour visualiser la nouvelle Knesset sans majorité",
+   "source": "Courrier international",
+   "url": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxQQTM5UDNxOEQzMXhHNk9LZHhMeS1vR3lSQ1hhajA0LThrOUpQNE5aZEQzNXdQSVBHV1dLdFFMVzAyVG1FSnBBd0lFUDV4ZFZlZTRlZ3RLUW1WRjJJM3YzVDBnOVV4VFZCcE03aHdSSldEWENWMXc4NjB5Q1JwbE9abm1NRlo0ZFl2aU5nWWZ6ZmNRdUVkVG9qVlk1UnJjOHBBWVFkcGV2V1h0SEVDZWJHc1N1VVUwWldMUHBMNGVPZzE3bEFVamZLWFdtLVI4TTFjV3o0V2dtMA?oc=5",
+   "published": "2026-10-30T15:12:33Z"
+  },
+  {
+   "title": "Législatives en Israël : pourquoi les partis arabes sont au coeur du débat politique ?",
+   "source": "Challenges",
+   "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNYmRtbmVScXctR2M4eXJsX3VUZ2M0dTBJS2Y3eXBBVEpMVjV4RGotNmpZZDd3b1NuSXljVUpIYWpjQmsyUFRRQlVTSlNIQ0FVWGwyRFpBWDBkQmd2TmlPLTk5THZEUlc4aU5XbGdOM1o4WERKb0UwLTR5OEhpWksyM1dSZkd1Wk1Oek9OOF9pdlp6eTZuOHZiNEU3STZmcVFYNnloZGp3LXlxR19ZenNSMWl2SlVMRE5DekRjdEdkeTA1T1YyaDJwWkJTODA?oc=5",
+   "published": "2026-10-30T14:04:39Z"
+  },
+  {
+   "title": "Législatives en Israël : les négociations pour former un nouvel exécutif s'annoncent compliquées",
+   "source": "France 24",
+   "url": "https://www.france24.com/fr/vid%C3%A9o/20261030-l%C3%A9gislatives-en-isra%C3%ABl-les-n%C3%A9gociations-pour-former-un-nouvel-ex%C3%A9cutif-s-annoncent-compliqu%C3%A9es",
+   "published": "2026-10-30T13:56:08Z"
+  },
+  {
+   "title": "Elections législatives en Israël : le pays a un avenir à la seule condition d’un partenariat judéo-arabe, par Dror Mishani",
+   "source": "Libération",
+   "url": "https://news.google.com/rss/articles/CBMirwJBVV95cUxQOG16dG0tTlBWUC1oVkw5d3RJMkFMM3RYVllWVXhYR2dreURoal9KaXFMSW4yTlhTeHN2eE9ScVdacWxPQnZ6Vjg0WUgyUGl3ZzJORmdRbDVBUS1GY0t5dEtyc2w2VWdGcDFsMmZ3MnV5SXRCRk5KNHZKUWRMYTlkTTZQb1dhV0wwdnZaWXpfZFV4b3k5X2RYekpnRHlfYjhvZEN1Z2xnT3AzblBJRzNiaDVLOWZDQTJMQWdtdTZKa1dyWElLeV9ZUWlHVXRhQVNxM1NKVlVxNWY5MlB6RS00UWwxUnJMLWtCRGJRVjBvQlcwZXVjMER1Y3hSaERZZEhkYU5idkFWdkJEM0lXNC1mSWpLQkpWYldKV3dzVDg1VFI4bDg0cktiZnJ6SHVROFk?oc=5",
+   "published": "2026-10-30T13:24:12Z"
+  },
+  {
+   "title": "Les partis arabes qui ont fait une percée historique en Israël peuvent-ils renverser Netanyahu ?",
+   "source": "Le HuffPost",
+   "url": "https://news.google.com/rss/articles/CBMi7wFBVV95cUxOc1R1OHItaXo2c0lyc2pVaWxEWFFYcHZGZGhpOHNCa0FtcnRnSEgyVlI4aGd1emo3Wll4VXU2VEoxQU5veVkxVHVESjV1Yjk4RENhODA3aUxNRTFPLXJjdDF1bDhiWkowM1ZUYlkzUDFEVjRMYWszRHZPWVcyMk9IRjdlSVVnQTJhNU5XcENVX2FRMk9sWkN5WDB1Vmkzemhkb3BFZm11TEhsY3RZb3I3YTAzNmtmUm9iVmtWT3FjUFR1UlJwTGVGdllzYkVKazhrN0lHN2MxSEx1dkcxT2hFYlplWUo3TEpzbXM2V180aw?oc=5",
+   "published": "2026-10-30T11:57:02Z"
+  },
+  {
+   "title": "Élections en Israël : le camp de Netanyahou en tête mais sans majorité, selon les résultats définitifs",
+   "source": "Le Figaro",
+   "url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxPd055NXpFREdsY3FVRzBUSHZGRzdaU1RUS2w4VHZLcDNwOWtDNElQWGQwNzAzN0tXNGpJV1MyeC1zV3I5cFdVQkZuQnRQSmUzYlZBaS1ITVRaUWVtTVpQcEZfdy1TNmdYM25WR285cWQzZXR4b0s3OXhubkRkWDhPVmlMWU1TYmxSeEpYNnRaLV9PR2RVUFBMUHdOZnVlTHJCZjdEOWkwY3NSQllGRzRHeThTUmxjc25CMXl0YUNtTnNHM2ZWdHhFa2tGWXB6a0RvUDZyelRoelB1d25zUk5F?oc=5",
+   "published": "2026-10-30T09:08:27Z"
+  },
+  {
+   "title": "Résultats définitifs des législatives en Israël : le bloc de Netanyahu en tête mais sans majorité",
+   "source": "Euronews",
+   "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNNEFMOXhGS1BGYWxET1ZhNDBMbjFHa2VOSWhNajJtZWwtVUlQSVY0dGdRbkZnckNIemZmRjhadTVZY2NBS05ZTmVpYmVhTkU3Tk5Pa0dEaTZYWG1sWjQyT0o0NHpGSHNRajhITHlRMExBQWVKNHRGU0NRdlRuMFEwT3JRX0ZrNkduSGNFQXZJQTg4TFV5eWhDYzBTem4wZUZIMTlvVUxyT0FvUUtjSzJ6YWlhaUx6eHg5WmdR?oc=5",
+   "published": "2026-10-30T08:57:21Z"
+  },
+  {
+   "title": "En Israël, Isaac Herzog, le président honorifique devenu arbitre d’une Knesset sans majorité",
+   "source": "Le Monde",
+   "url": "https://news.google.com/rss/articles/CBMi9wFBVV95cUxPUjk5MXMyT1FHNkN1ZmdXY0xqcHhMS3BXcDl1dm5ISEVvRFdVOGJBSDlQN0xOTEg5cGNUNm5lNUFWVWVvNDFRWl81cVpnWVBxeWllYXRxd3A0bTFUMldGVC1lX2x0UWd4UF84TldadDhHald0ckt3WHQ2bjd6ZnVySG9FUGxqQU44dVB0SThjMERlTEhsbVhxMndLTHJNcGotbDN5cGlwb0hwaTU0ekh3M3NJa1l6T19LN2R6VldvX0NDNVNEMDR2MTRlMHhna1REOUVLQWR1Wk1TOUR5aVdycC1nVjBCMmNrT3ZjTFlIWFpXSTV3SENF?oc=5",
+   "published": "2026-10-30T08:05:15Z"
+  },
+  {
+   "title": "La coalition de droite et d'extrême droite de Benyamin Nétanyahou en tête, mais sans majorité après la publication des résultats définitifs des élections législatives israéliennes",
+   "source": "franceinfo",
+   "url": "https://news.google.com/rss/articles/CBMi8gJBVV95cUxNSm5nRUc1MlhFQ3NYRWRQM3FtOHdwNTZBY1NCYVZ2Mmw2akkzb2JQejlXdDRQTDB4Q0dSYlRlVnVtQjYyWk9GZmE3Z3hCRGwtUkVpUTVJNTRRcEtQNHduQkx6cXJOa3JuNEdzS1QtVWRSR2lBYlhsTlM4YkNrYWdfajc3dkpDYlRGTnNKeFc3Nl9VWFNtMU9WNzU5SDBjeWZtVDFmMDZVRXBFUnRfVmxkaWxxc1ItQVlYSjRUcTU2bDZpUGNKMFZmWjZPWmI5Vno2aXUzV09vVHZEM01ZQmozU2w3ZUtJWmxVV1Rickx2S01VUFN1MmJiZHBjcnVKZDJldG5uZUZ2LU15NEFIR3hyLW5kYlBqN1pfRHJZeE5mYWZrNVk0UU5iZnAzSDZKeE8zQTRZOWJqZlFCMm9BTllGQmx6Z0JWWjE1Vk1ZSjBaV09SdjVSUjdYMnotMTIwM1FGVmRBSVhLT2VmS1pFc2Z5Wi1n?oc=5",
+   "published": "2026-10-30T07:56:02Z"
+  },
+  {
+   "title": "Législatives en Israël : le poids inédit des partis arabes",
+   "source": "franceinfo",
+   "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxPZ2ZXVTVzZ0ZUYk9FUmd5Tks5djFxTk5UTW41dFB3c0p4UnVqWFdkWlBNazZfMUpHM2tRcnE0VVM1SHdfTHVkQ2E0OVE5dmN2TkNXV2QyaHdWNjBKcFdtbzhUd2tZN2x3TklDZFNYS21uZGMtNlVWWi1tck5penQwMmFrajBKbHFoaXRSSmhDcEphU2NKWFpNWmdMRWduWW9sZjRFbXpiQ0hodlVwYUtvSWlTWmZlVmU0U2hGY2RlamlMM2tia0w5R0twUXJORmpCNkk0RHR1a2Q?oc=5",
+   "published": "2026-10-30T07:55:16Z"
+  },
+  {
+   "title": "Législatives en Israël : en tête mais sans majorité, Benyamin Netanyahou crie à la fraude électorale",
+   "source": "L'Express",
+   "url": "https://news.google.com/rss/articles/CBMihgJBVV95cUxQMUpRRVMtTTNUdHZrNVpIbHh1dkdtVzhWcUJKVkhaRm1fR0lGYzhaOUxyTS0xaFJ4alNuU1pDcUQzRFp1LV81RzN5a0JuN3I0cERzSktuV0F3ZVN4Wk8yZHVRLWlpUmdDdWFLQWxZdDhiM3FXOWVySE45YnNXdFFla1RmaWVKbVNUOXBwUXIzdnZtNENSWnRiMGtENmVwQ1ZiWDNlaTlrNGdtcEdQWG1VSDJ1bEdPUjJzamRkQkVCaU9jci1lT0t1WC1jN2NZdWhsYnB1M2gzUHo3NUVCUE5US3E3VnRZWmZPOEdSeEJ1Z3FrbHhLMGVRemIzenZJSDN0TXdiUTJn?oc=5",
+   "published": "2026-10-30T07:29:51Z"
+  }
+ ]
+}
