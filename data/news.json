@@ -1,133 +1,133 @@
 {
  "schema": 1,
- "updated_at": "2026-10-28T16:28:28Z",
+ "updated_at": "2026-11-05T10:21:54Z",
  "query": "élections israéliennes OR \"législatives en Israël\" OR Knesset when:3d",
  "feeds": {
-  "Google Actualités": "ok (67)",
-  "Le Monde": "ok (9)",
-  "France 24": "ok (23)",
-  "RFI": "ok (16)"
+  "Google Actualités": "ok (24)",
+  "Le Monde": "ok (2)",
+  "France 24": "ok (13)",
+  "RFI": "ok (7)"
  },
  "items": [
   {
-   "title": "Législatives en Israël: «Les partis palestiniens souhaitent soutenir un gouvernement d'opposition à Netanyahu»",
-   "source": "RFI",
-   "url": "https://www.rfi.fr/fr/podcasts/invit%C3%A9-international/20261028-l%C3%A9gislatives-en-isra%C3%ABl-les-partis-palestiniens-souhaitent-soutenir-un-gouvernement-d-opposition-%C3%A0-netanyahu",
-   "published": "2026-10-28T16:13:54Z"
+   "title": "Législatives en Israël : Netanyahou persiste et signe sur les accusations de fraude électorale",
+   "source": "Ouest-France",
+   "url": "https://news.google.com/rss/articles/CBMi_wFBVV95cUxNbDFiUjRaTmhFRHB1djNxRnBJMFJ1eU1xQmNiQmhOUlVyMi04SGJtUkotUnNJZmpyUmlGaUlFTmxvaUtZQUJfNDkzODVWcDNubml3QkpuNnFNRHB3SGt5VS1RZEtaRTdpVUdGM21rd1YxTVlZSGNBU0d5RG9CTVh3aVN2bFNUb0ZXaDZsS3dSRjZHUVhLUnNLMGh4czdkVEk0Wl9PTGdGSzl3cl9kRzY2aG1OcGhGcFVYSmZJMVNRUE9WQ0NuVEVFZXk2MU9WNlZZaXAyYUVUWWdTLU53SHhnLS1Jd3dSZ2JFcExib1R1cXZxX0MtOUZtUWRhLU9lams?oc=5",
+   "published": "2026-11-04T22:38:43Z"
   },
   {
-   "title": "Législatives en Israël : le parti de Benyamin Netanyahou accuse les formations arabes d’avoir «volé les élections»",
-   "source": "Le Figaro",
-   "url": "https://news.google.com/rss/articles/CBMi7gFBVV95cUxPUmhvb2d2Q2t2TDF4SlBEbUU4Q3dURDJsVk9rUmVxRXVSbEZKWVlUMnJuRjVnOEVuUzR6M2QyT3l2UDlqa3kxU09fSFFOdjZHWjJSREUtLXo5ald2dFUtQktQeEtMVXJjQ01ybVZzWHZLRnJkRG5HbFdwc1VULXFqUUVjV0JqcTJIQXJJR0JqblVjbkp6NmlBcmhQVmVnc2oxVElBNVNRVWhQQWdXVHoxOWhHUEFHSzIzVm10UHNiQ3dRS1MxMkc0aWtJZ3FqbXJxTHQwS1lyb3FBNWpIcHpucEVTV01WQTlMa3NiM21n?oc=5",
-   "published": "2026-10-28T16:02:07Z"
-  },
-  {
-   "title": "Législatives en Israël : quels sont les premiers enseignements des élections ?",
-   "source": "Le Monde",
-   "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxNRmJQNDFyajE3ZFhVQnF0aUluNk84M1hlV2xZbWpCYXhVRGFkSEJvVWVqX0pORDB1U1BJRTJTUFE3Q1g4TFZnVmpzUWZqUWdfR3YyWUYwNURnR0tUbklwLTlrZnJMMlduelozdVE0dmh1ZTU2YmVxRGphbElERmlCeUQzVkp2VHU1bDV2Vm9NUU5Hd1U0YUpuUzM0djgxbllXbkhDdGJoT3llRDZjdFlzRkh5UUJ6QUUwWklWczVwWS1kUUV3VGlRSXBON3loRjFGX0M5T0pfYWN3Zw?oc=5",
-   "published": "2026-10-28T16:00:06Z"
-  },
-  {
-   "title": "Élections en Israël : le Liban dans l'espoir d'un nouveau gouvernement prêt à négocier la paix",
-   "source": "France 24",
-   "url": "https://www.france24.com/fr/vid%C3%A9o/20261028-%C3%A9lections-en-isra%C3%ABl-le-liban-dans-l-espoir-d-un-nouveau-gouvernement-pr%C3%AAt-%C3%A0-n%C3%A9gocier",
-   "published": "2026-10-28T15:56:13Z"
-  },
-  {
-   "title": "Israël : le président appelle à \"tout faire\" pour éviter de nouvelles élections",
-   "source": "France 24",
-   "url": "https://www.france24.com/fr/vid%C3%A9o/20261028-isra%C3%ABl-le-pr%C3%A9sident-appelle-%C3%A0-tout-faire-pour-%C3%A9viter-de-nouvelles-%C3%A9lections",
-   "published": "2026-10-28T15:48:07Z"
-  },
-  {
-   "title": "Israël : pas de majorité, et maintenant ? Parlons-en avec Alexandra Schwartzbrod et Lucas Menget",
-   "source": "France 24",
-   "url": "https://www.france24.com/fr/%C3%A9missions/parlons-en-les-invit%C3%A9s/20261028-isra%C3%ABl-pas-de-majorit%C3%A9-et-maintenant-parlons-en-avec-alexandra-schwartzbrod-et-lucas-menget",
-   "published": "2026-10-28T14:47:57Z"
-  },
-  {
-   "title": "Percée des partis arabes lors des élections législatives en Israël : une minorité discriminée bientôt faiseuse de roi",
-   "source": "RTBF",
-   "url": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxNLTgtdjVBNzlBeWw2Y2RPMVVCN3pUaXZQRGMzN0p6SzBTSjByUEJUazdXWmdPUi1aNC1WQWNpcVVrQ1Q0QlZpWkE4WnZUblN2cGZ4RFM4N25SUEpGZmV0Nk1vUXphSXR1UFRKRlVKTGhkaGFtcFRRUnQyU3BKU3dla3paR3FzTW1aWHlyb1ExLWMxUGZVeUxnMlhSNG9rRzZIVTJBMlRjRkc0eWhVN2tYZFU5T1kyUUxhQXg1YjZuaWlvT3dEZ1V6QWQzOUlLNmlPQnZJSVdlakduVF9KNF9Ib2VTaUJIalE?oc=5",
-   "published": "2026-10-28T14:23:55Z"
-  },
-  {
-   "title": "EN DIRECT, législatives en Israël : retrouvez la répartition des sièges par parti selon les derniers résultats partiels, après le dépouillement de plus de 85 % des suffrages exprimés",
-   "source": "Le Monde",
-   "url": "https://www.lemonde.fr/international/live/2026/10/28/en-direct-legislatives-en-israel-isaac-herzog-le-president-israelien-exhorte-les-partis-politiques-a-tout-faire-pour-former-une-coalition-gouvernementale-malgre-l-absence-de-majorite-claire_6801217_3210.html",
-   "published": "2026-10-28T14:03:44Z"
-  },
-  {
-   "title": "Législatives en Israël : Benyamin Nétanyahou provisoirement en tête",
+   "title": "Législatives en Israël : Benyamin Nétanyahou évoque \"de graves soupçons\" d'ingérences étrangères",
    "source": "franceinfo",
-   "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxPc216aFVyR3Q3UUtkeHVDeHJRYmdwUnBEVUw0Mkh2QXJwZy1VZG9ZeDVfaDNCd1JiVmhPSl9NNGVLcnB4QlNlU1lYN3k4TnJvREVBTXZmcUt5dHVVc3BYM2F2eF81b0stS1pxN2ZaSWxhYlc3ZTlrZ3ROY3RQMFFfTHR0YXZONWZsU2Q1TjNIT1RZNkVWcDM3OFNTNEdZcHFQMTNyNUhsMzU0SWRsczAzeWw1cDBCcVFuc1BiQ0NtWEtOUXU3eDdOaS1uRVZqQQ?oc=5",
-   "published": "2026-10-28T14:00:54Z"
+   "url": "https://news.google.com/rss/articles/CBMiiAJBVV95cUxOU3hMRElQaUxHUnF6N2gtQ3E1VDZtUmZPN3hXVFR1YnROTFI0ZVIyMWVlQS11YnktWllURDRSLXhMZm1pMUZKVk51Umg5ZFItQ3V4YThJOU9SbGN5YmRBMHJMb05ySFhFZllLcHAwSUtWWFZGR0IyNTUyUndjdExhTXM4NnpYVnZ3R1NJaDI4REVFYW1tbi1iOHRLRG1ob3hDcndvQW4tYWFVOEtfRlFqYzNnVzdOakxzV2ZyclNFUnBpcHZPcVBGWFdzcmVSbWJfMXBQTXpGeUliaGxsckpRWGZldU10V1dZSXFQZDJBNDRXR3BwME9oU1hiZHY2THNqTF9ycjQydmU?oc=5",
+   "published": "2026-11-04T22:05:26Z"
   },
   {
-   "title": "Législatives en Israël : participation massive et situation bloquée",
-   "source": "Mediapart",
-   "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNa2k5dUJ2X0xTTDI1T21TYUJ1bzRtbGhoUjA4aDdldThSU0d0SXY3eVFhNTVyblJVdXFzNjVIb0tPUk5BRnRScUlpU2FjYVNYRTBRSTZTTGtDWlRoYURTVE5XQkxaQjIzRXVOSUYzOFJ4RjhUV3FZcmtVcFRyeUtjTk9rZG1hVWY0aFVNdGRrZ0RudFpsMm9YbkpnVGRUdEYzZjFER045VHVyZDdYUnVObFdGc0s1b2piZnhV?oc=5",
-   "published": "2026-10-28T13:56:31Z"
+   "title": "Législatives en Israël : Netanyahu assure qu'il existe de \"graves soupçons\" d'ingérence étrangère",
+   "source": "France 24",
+   "url": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxNOHJpVFF1b2NsWnVRbnhNWFVwLWxONjhFN1NWSzRWT3QtZ2RKQ1JBQ2FVWl9XNW9XUE5tX1N1cmhXMEdGNV9mX2ZLSDFFb3dKbW9vX1lyaEVOeWV6c3VpbmtIQ253NDg2SlRObzlhbWJwelh4MTE1R25DVnlBUF9HejVOU2JobzN5aDBCVzdYREUtd2RCVG5ZeXl4Z1h1NTRtVzNLamh4bFAxSm5qRGx6NkZ2UlJ4S0pnS09DVE5LVnBxaTMzQlk5bXc5bE8yNUhoeWxoSThFYllQa0xQUWhXUXF4Vl90VXRMRWE1U21jTjU?oc=5",
+   "published": "2026-11-04T21:56:30Z"
   },
   {
-   "title": "Élections législatives en Israël : qui sont ces électeurs Arabes israéliens, dont les partis pourraient jouer un rôle clé dans la formation du gouvernement",
-   "source": "franceinfo",
-   "url": "https://news.google.com/rss/articles/CBMikAJBVV95cUxPSDg4VzJJZW5YTXFJc0tWeEJNM19vakw2WHJISGs3TVkxLVpDTkl0VzZzNy1DQWVEbG5Jd0E4OWZEZ2lrQW9XbjhVSkhOejNSVTBxSlZzaHRGbk1JS2hVR0c2OWZmSkUxbFdITDV2XzFqNWlxU0xnTlkwZHJyUVpEUVdtNVZFb1ctSWVpWmVRLWtQelpsQkZDS3pXdENNbHA2Sl9RV3BnamtmX3hLcklCaVhQdU5BM0l3QmMxckxCZl9vbFhyOENuRGh2Yk05cE1NdGYyNXUyWm0yblZlWnViVTBhSXZhYUIxSVNybHc2RE0zN0dOTmZRR282Q1pJMDgxMmdZZ19lbFRHNFduTjFHUg?oc=5",
-   "published": "2026-10-28T13:55:18Z"
-  },
-  {
-   "title": "Elections législatives en Israël - Israël: l'UE prête à un dialogue \"franc et ouvert\" avec le prochain gouvernement",
+   "title": "Elections législatives en Israël - Eisenkot s'engage à renouveler les relations avec Washington s'il devient Premier ministre",
    "source": "La Libre.be",
-   "url": "https://news.google.com/rss/articles/CBMimgJBVV95cUxORTlTcVA4RC1Fc0pUQVJhczlGbzIyTUZSV291bGlpREhfOXFXX0JKMWtEa1FqSVlSY1RDTmZ6WUpOamhwN1VSd28ta19oVHBEejNVcENGU0ZMdUZOajBYLWl0S2NMSkw1cnczdkdZRzhtLXZnaUxTNWg3WjUxdjFwQWJLR0NLQ0h5Zlhpc2FSaFdIMWFnUWJ1bTZLTnhhSVBFd0hObi00ejJPaVFsRE94VTk3dV9UTk5MTlJWNUVLSnNRUFdYMnZHdy1LYWlOZ3VjcU5QODdEWGdVTHlQM3NWVzNESG9SMUx1MzF4X09WODUtVU9XcW1VRVdkRy1oYnYxYWdrSzN0TkNXUmRCQVJuR1BDUTFJNWlfOHc?oc=5",
-   "published": "2026-10-28T13:34:00Z"
+   "url": "https://news.google.com/rss/articles/CBMiqgJBVV95cUxOc0dWYS16MXZmMnFnV1Z4eV9MTFpqUzJPcFZYc2Q4SE5nVzhZUmNLbUdHdHR4dUVjVmJVNFUtY3psVzJJUXR5SnpTRlJiT1hlSmVrUTdmQVA4WUFCOVVkZGRWSWo2eGEtdEt1ajJqSjNPczB3MnlwUzZ0Y3hOZ2tZcGpmRXhZbUVNb1lrdEtlMnNNTTA4Nk1qaEVZM0Z5dUM2Y1hCQVhrQnctNklEcnV3dnhwSkRTcXdKYVF0d2taTmZMZXgybkFLMHVSakMyazhkNmtCNW9UdWduSjNkUXU4N2QwTDZJSm1hZmYzWEk5ZGw5OEpIN3dJd2ZlNGRRZUtkNFItcVh0OTVodlVYRUhMVk0xMnhBUUI5RlF2bHhEeU51TDhCRU9ac0V3?oc=5",
+   "published": "2026-11-04T20:14:00Z"
   },
   {
-   "title": "Élections législatives en Israël : l'UE prête à un dialogue «franc et ouvert» avec le prochain gouvernement",
-   "source": "Le Figaro",
-   "url": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxPYnI1RDc4b09HOW9YemtYOFdWaGxoR2J1TnljSzV3OTdMOWdWZFE3bzZPS05BS2RiY25qekdUdGx0Y1ZjeHhPSk5fUTFpLTRPaExWNFpucnpqeXpmbEoxbVJhR2tIa2hrX0hLd2ktNUkyXzl0OEgtcENnWGQ4XzJ0TmlDYTNlc051SjVUNkFRYldRWUdHLTViVUpvVWpKaThJY2pKNHZNV1hGeU9waUxnV1BwOUlEcE90aVVzQ281MnQwSXJKU1FfZWtaTW0yZ1JXdFBoWUZHN2dTVE9XSkxRM3MwdmE?oc=5",
-   "published": "2026-10-28T13:29:01Z"
+   "title": "Législatives en Israël : Netanyahou dit qu’il « existe de graves soupçons » d’ingérence étrangère",
+   "source": "Le Soir",
+   "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQWndNYjBvQ0ZGS2VuNTRWMFFwM1kxQ2l2bWR1b0RRd1l3UGYwRG4wSnNaQldYUHpoTWlJMHBZeUZndHdDNGpnMV9tVkU1Q2xtUm5JM0NLWm9jQUkxLWFmTF9TQUFIWEp1cHlOUjJmekR3alZGZmd3cXBWelBoYVpLcVBmWU5rY2RhT3hra0VLazBGOU9QZnM4NUZyY3BTdFJyMVpybFEwYm5jNG51blBOOWltZEh1NUhOTXNGQ2hvSmxOVTd1YVE?oc=5",
+   "published": "2026-11-04T20:13:54Z"
   },
   {
-   "title": "Elections législatives en Israël : Isaac Herzog, le discret président qui détient les clefs du prochain gouvernement",
-   "source": "RTBF",
-   "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxNTE5xa1JPX21ZZDBBa2x5T3pZLWRHZkJYa1hhb3pkZlZ6THhUT2xub0xCdnUzQzNuQ21VM0NfMnVVaEFiRjA2N1J5aUtqY3RLaDAtWmxkOHd2bTBadmNfaEloSmdOUkpoc2tTb2ZhUHJQYVhGMEdYUmlOd3pvWm1sSG5XSjktQVNLWTlHaWllS0tDZTVZQi1icU1IRW9WRnBjSlJXakJqcWFVdG1jYUQxRGctZkE2bm41a0tBdk9kS2JXU21QaTRpdDNXMVFjWlUtdUZMOTc3MnVVZmNDNWdDTlhqVQ?oc=5",
-   "published": "2026-10-28T13:26:48Z"
+   "title": "Législatives en Israël : Netanyahou accuse l’ingérence étrangère",
+   "source": "Le Soir",
+   "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQak0zNW9lT01Sdjd5cjB1b3FMLS1KMmhPYmhlZ2NSZ0lMakJFeFFObGpUN091YkszZzFfUURXZi1zU0pXTW1qbS1DNnRRN1dGU3FHR2tXeFczT1hDTnJDdGhhNjR2b1FmcENRVmkzMUh1aHVQcUxaN3A3ZWo2OHVVREstLXFyR0pkOHJ0VFAzdFZVRVJwYUg0SGZQUGV5V1ZHVW5VWjZYQklGYnRZSjFN?oc=5",
+   "published": "2026-11-04T20:13:54Z"
   },
   {
-   "title": "Législatives en Israël: Le président appelle à \"tout faire\" pour éviter de nouvelles élections malgré l'impasse qui se dessine",
+   "title": "Elections législatives en Israël : Netanyahu dit qu'il \"existe de graves soupçons\" d'ingérence étrangère dans les élections",
    "source": "La Libre.be",
-   "url": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxNRnRLSEZsdHpvd1JGM2k0OFREQUdDcEkydUhNc1pUUlcySE1KdzAzcnhWc2YzRHh4YU4zX1R3dkZNMDRObGN3MUhHTURwMS1pQkpzMXpmakZHaVJfOHlYLS1NT21Semp3bFMxZlEwS1ZmNVkxaHdfLVN6S2xMeFE1Mk5PSFBKT1dFNWFDd2tpdFJHcmxtSnVEZURFb3lmcldIVWc3T0ZnM2MtTURJRUJkM2ZfdUNGS25ELURmUzEyX2FTVi1mb1hzR0JvLVJpYzBjcmdHbnFIV2pYM255U1NMc3A4OUt6ZHZpdS1oM3JEaEM?oc=5",
-   "published": "2026-10-28T13:10:00Z"
+   "url": "https://news.google.com/rss/articles/CBMirwJBVV95cUxQeU8xamlfUjAzcDlBQWtRWlNxRnN3R1BXMXE2T1FoamZWLVM3UXlxVGJDSkpHMUNJZFNvUEhmR3JaTy0xSU9wT1MwcmdZZFVhYmItTjJERk9XZWJvVUZsUlFIWDg4S1k5Vl82REFiTjR1RFRKNmFUb2dKNVA5VDhOM1ZJeXdDTndvZWFkZDNBZE1MMFRtRzl0eDVDZGhsM2NKS2tRYVJtZm8wOHctZERHdlpUWnRpcEFVSEo2V1hCZ0M3dU9ramxiUmlWTk5iVnA4Tmt5N1ZvcG9RTkZpejA2NFBTZ2duVzMxM2d1U2pBRnJkcUhCMlQ3Umg1MG5XWUJyb2R3QmpFNUp1UkFkaGk3NGJLN2lYUUlsWjBFQWpzaG9NMEdoa0ljcEtORHU2ZTg?oc=5",
+   "published": "2026-11-04T20:05:00Z"
   },
   {
-   "title": "Nouvelle élection, union avec les partis arabes : sans majorité, quels scénarios après les législatives en Israël ?",
-   "source": "Le HuffPost",
-   "url": "https://news.google.com/rss/articles/CBMi_wFBVV95cUxNSHlGYmc5Q29XUGNKOGVSQTRDV1B3WE51OURYa0JVYUNHbzZwTTJzdllneTVSUzZCekN5MlJicXBDeEo0WEsyOUJGdzUzWFk3YTBYUHgxbVF1QnFyWF9yWG12dnJreWNlMHdNdngwMngwVnVDS0pnY3dJVi1VSGMyZ1I5M1RRWHFVSHBISE1QZm1XTjFwNTdfQTM3aDdZend3dkMyYXQweW9MR3dvWmdkb21nelVMeWNSQ0JqNnRRVXV6cEdQb25BRl9aSktYeTRjMmVJV1NTUndzNWllRW1DZW5HMGI1ZHFuOTdhRDExRGJfVGtQMnJWMGs1Zy1ERW8?oc=5",
-   "published": "2026-10-28T12:00:11Z"
-  },
-  {
-   "title": "Elections législatives en Israël - Israël: un opposant arabe appelle à un partenariat \"judéo-arabe\" pour évincer Netanyahu",
+   "title": "Législatives en Israël : Eisenkot s'engage à renouveler les relations avec Washington s'il devient Premier ministre",
    "source": "La Libre.be",
-   "url": "https://news.google.com/rss/articles/CBMipAJBVV95cUxNVFpadnowcFo5bmxrSTktcUFDdjUtSU9JV1ZteFFSN1kwa3RLS05lS2tmek5WdVItVjYwbUFYQXZEVDRGZ2M1SnRlNEd4VUR2Sy1tNGdQSUJfUU0xdWNEUUQ0M1VmOUpWeE9Ca3VwTnU3YS02VVRvekJqb2NRWGdjZ182OXdhZnZWY3JzZV9GMFcxZHFUbE1YcE9LMU9RbVJyc3I2NTRMQVk1NTNXdzhBcmZ1MXpFck1mcVJLLUxhZkVUS1pIeEZBR3NfXzk3TVRFX0lRX2pJNHZ6MlhRXzFsaDlSVjhsWHhzaFBleGxvRE1mRmI4UHJpZHFnVTFoWVNnZFBfZi1fcW8yaXRORElOQzlyZmdIczIzMDhfWWF0T3V0dkJM?oc=5",
-   "published": "2026-10-28T11:47:00Z"
+   "url": "https://news.google.com/rss/articles/CBMipwJBVV95cUxQV3RNVjFLS3RMV2dJUzRiNzNmWUwzaEg5YjF2TG9KQUZBMmhfMUZFOUhlVFBqUktLWDJNVUV4VGtfeks5SXhiVzNhVGNsY3NmelBJTmxxQmdXa1g4ZHlQTW1XMlVZZjQ3bkY5WkJ1Wi1Ca045ZHNIX21XcmdsaHZzUjRDaVVHMmxwOHJJUU45UkZPaS04czdLZ2NYejVOeGJwV2ppLXVLckZEeFNGczVmMnh0c3FOUHhnM2M1STJ5R3E4Y3QtV2Z3ZU94YVJBOFlMTzFzdC1ZREJzUEljWVh4R0ZMSGpPTzdpQ1QxOTB1TzgyWmV6QVUtYUJXR3YwVzFnc19VZWJObXduaml0aXJPUklMVlZ4UlJJa2V3TVE0TmJuMDBuejhr?oc=5",
+   "published": "2026-11-04T19:58:00Z"
   },
   {
-   "title": "Coalition, gouvernement minoritaire, nouveau scrutin... Quels sont les scénarios possibles en Israël, après des législatives sans réel vainqueur",
-   "source": "franceinfo",
-   "url": "https://news.google.com/rss/articles/CBMixgJBVV95cUxPMWY2cHB3Q3JGVjdiaXJDcERJaUFOSDcxX1FYWWw1TTVsLTVtdm9NbDk3MlR1ckJDYS0zcDdrUVJ5SlpaSkhxOHVESk1iZzV4V0JYaW4wOTU0VUU1WkxVdUVsWmJBLUo0aU1nV0swdGIwXzJCamhnWUYycW10d19aM1dEOTRMbjRqWV9mcWtuQ0FHTHVZVmdDVmlpQUd1aHVkdEpmNzBtdjlKZHVodWtYMU9mdHVhSVZmakVvLTdjakVqNnVmTTN5TWdJZHNUZVFyb2YzSy1SYmZoZDA1dnV2amM0SFNEemhYS3VTcnBqelV0eXhYajNxT3JDOEt0YWEtOFhkLXh5QnBveWRSZEdYaHd4cWtvU1dpZnNTbjA1QnVwMm5DVG5hNXZRUnVTMVNrdkVuMHFjWUprSzl4RWpHWXVxU05uZw?oc=5",
-   "published": "2026-10-28T10:32:19Z"
-  },
-  {
-   "title": "Élections en Israël | Aucune majorité après le dépouillement des deux tiers des voix, Nétanyahou en tête",
+   "title": "Élections en Israël | Nétanyahou évoque « de graves soupçons » d’ingérence étrangère",
    "source": "La Presse",
-   "url": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxOd2plZnAxSTNfT0Jfc1ZMZktWRjl4Um9TMHUyZWxZTFdwYTRXWW1FVjA5dnJ2eXhTYmxaMVBtMWk1a1VWLUc3ZjVqcXV1M2JPaElsYW1mYkdQdHlBRV8xaDdnZ2RFU0trY1haRFktNVNSc1o4ME5zSmJVZXRQRGdfU0FOVnBXaFhvTTZJMU5IbzhFd2dhaHVvUFM0cnlGRkxwZkFBbHpTMEVRWjM2eWpkUEZ6NDJNZUxOZ21TaUU0Mk1lNDBibjhQYVAzX0pkUDJXR3BwMER4aHZfa0EwWFV4WUVaNy1vV0xSY0FBalYyOVdsTW0yZkdhYWU3NA?oc=5",
-   "published": "2026-10-28T10:21:40Z"
+   "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxOZU50NklKRHg0Xzg4enBHbU45cXp2aFJVQXRaWncxMGUtMV9BbnpueFlZS3p5WlR6bnY2N2ZjTEd2OURUdE95Wl9Bc3FndWkwTW9kZUhyanliNE94NTkwM2FJNGVCU3F6RlZMRHAxVy1fMGcybkl5SUlpeWp6MVFkdVczQzNpMWJTZWs2S1gxeGp2UHZBcWc0UkxkNEt6QlcxdlpkZ0FlMk50TnpobW9FMUgwLU5wNFZPd2Z0NU1NSHIxNmVEUDZaYkM4eG1oUUNvaGlRYkNyYmNuTl9v?oc=5",
+   "published": "2026-11-04T19:56:34Z"
   },
   {
-   "title": "EN DIRECT, législatives en Israël : après le dépouillement de plus de 85 % des bulletins, la coalition de droite et d’extrême droite de Benyamin Nétanyahou toujours en tête",
+   "title": "Législatives en Israël : le président Isaac Herzog appelle au compromis après des élections « sans vainqueur »",
+   "source": "Ouest-France",
+   "url": "https://news.google.com/rss/articles/CBMijwJBVV95cUxNNkowc3dxZXFjeWlKcXY3Tmk4T3YzbE5LMlVwQnhpdUI5bDJBUHplNWtyZU9JY0xWZU5DaFdKS1dxOVNPc1dvUlFPM1YzeHhQR3FlMWdfMWNISmJYWVMtZy1JZlZwdEhJaVFxd1NPM3VsNUgzcHBuUExkY1lQb2xaTUUtZDhpcnU1WEJTdk1rWWRQMHRPNGNNM2lQUFFOcm1DM25XMExQZG0yRlUzOS02NV84WEw5SmQ1ZFFhMzRjX3pvaHRaTmpfMmg1VFZtUUFEUkJqVm9FWENUbjlla3loNG5vcEJwdVJLT0lYeTlTdTBUdlc4bnA0aVcyTGRUZkp2OWVkaVZXOWhuZzF1Y3lN?oc=5",
+   "published": "2026-11-04T13:03:27Z"
+  },
+  {
+   "title": "Législatives en Israël : le président Isaac Herzog dénonce les attaques «racistes» contre les Arabes israéliens",
+   "source": "Le Figaro",
+   "url": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxQVFRsR0R5X1FhakVuX1gyT1B1czNjM1JLblJhUHNIUmNSeVd4RVptWHJxQnVMR3lWTjU5bFZqcnpMMG9CWEhNVUtMRnR3dENYX0xnN3M5WGxqZEdsMmQxQ2p3VVVvSnlqNVdBNllzWlJMU2dfWXd2a3VFYUhpc1VhUllKUnZLYjNLeHhhWUJfNUMxWnA1Yk9scW4xdzlEUEh3TDNKaDA3ZlZLeGVHMFFZVHpOcjFoZFJSUVdxa3J0TmdSZVRhS3FLN1U1Qzk1UDlkcUVGeTcyLS1Vb0RWS0VuTEFLbEVFMDE4OFE?oc=5",
+   "published": "2026-11-04T10:57:20Z"
+  },
+  {
+   "title": "Elections législatives en Israël : aucune preuve d’atteinte à l’intégrité des élections, selon la Commission électorale",
+   "source": "RTBF",
+   "url": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxQbExfamZBV1pQQXdiVU8xWFhQeFNDclNVY1ROdjZRaWlRczgtRkFKakV0c094NzhESTdJNER2bm5UQzNiSi0tV3l1eDZ0c3hCRzd4enRLMVdLYzdCaHRrMEhNd1k4WmhKelJiQnZPM256Rnl5ZFhtaFA3RElRUXNsQmx2ODQyNVlqNV9KTFE3NFAweURSTUVJMlMyWlBURmRTWG9MMG53Q3plYnMwcl9kTDRqZDVhQ0JZSm5oS3BCRUYzdG10WHF1TzNVUFJGbUlxRWZTTkdLWkQxajQ2RE9kRUZUSGhMUWFx?oc=5",
+   "published": "2026-11-04T10:53:44Z"
+  },
+  {
+   "title": "Israël : Isaac Herzog reçoit les résultats officiels des élections à la 26e Knesset (voir la cérémonie)",
+   "source": "i24NEWS",
+   "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxORU9HVnpTRDROSF84THBleTFJUktCWENLU1lFcWxRLTRYVFJpU0pOVlNqdjVoYWp1d0RYUTVRVC1HTzF3NUZGWWNtVnlTVTRjb3JlYko4RlZxanVkd2xzd2xkZGVfU2tSSVluZGlSMjhRbWZFcVhCdkFqUVVvOTM2QWpqYmlqX2xEVHVQd1JjdUt0d2tId016NjVmbkxDVGtkVkRWbi1hVDZIWmVreVd6a2lIVnJqY3NYOHI4UmFTY0VEdw?oc=5",
+   "published": "2026-11-04T10:21:13Z"
+  },
+  {
+   "title": "Midterms : le jour du vote, Trump met fin à l'aide sécuritaire en Israël",
+   "source": "France 24",
+   "url": "https://www.france24.com/fr/vid%C3%A9o/20261104-midterms-le-jour-du-vote-trump-met-fin-%C3%A0-l-aide-s%C3%A9curitaire-en-isra%C3%ABl",
+   "published": "2026-11-04T10:05:41Z"
+  },
+  {
+   "title": "Législatives en Israël : le président, Isaac Herzog, lance les consultations pour la formation du gouvernement",
+   "source": "Libération",
+   "url": "https://news.google.com/rss/articles/CBMiogJBVV95cUxPaUlScGpIRzJGRTJyTXAyVzcyMzlRLTc2QXpmVllYRTFMZkVsUEVudU9fdnY0WkY2YVZYZHVhblFnOWQyRGdaeDRqb1RKeEMyT0lJajJuNjhhdU0wOTlSNk9KWExaRWtWTnhFYXNZLTVpLXlsUUdoc29CaWJZUk96WkVPQTUtcVU5SDhISUlTWWxtNG4xZkRCdk5vTXd6VTh5bE5pMnJ0cUNIU1R0Nnp2MWdTMmhzTUpwZndWOFlfbnVodmpfaTJIQ2pDa2NmekhhVnVkUFQwOFVXWktOdDdtSkhnZ0lENG5VcFhsakUyLWw5VFE0MkV4WEI4ai1WVDJ4NlhIamxGeWRQdXpPQ20wN3RoSlZudTc2WWE2am9GNUd4UQ?oc=5",
+   "published": "2026-11-04T08:56:43Z"
+  },
+  {
+   "title": "Législatives en Israël : la procureur générale réclame des preuves de fraudes après les accusations de Netanyahou",
+   "source": "Ouest-France",
+   "url": "https://news.google.com/rss/articles/CBMioAJBVV95cUxPWGJYUU1RRFJqOGtvZzRWUW1GQ1NWM085OWM1LUxxLXpiMVBqTFZzeURQQ2MxRC1QZldVU3pGX01TR3R4VjBKaEJhZC16eGw1dmdkdUxSa294UC11MURTRklZcTNvSFlSdkVWelJxb2RvWGFVUXRNTWFNX0piNU12aXV0QXREa3FIOTB3SHB0S1hQQUh3Wl9QcWFJVVRWTUxLY1I2X1QwX2RzeFdTU2V0ZFJZUG5maE1Dbm5OMEUtTEpuVmdQUFBoYTVrNUltQ3k0OHNDdk1aQTRJQnNhSzZwMTNyQzBOcEswTTZIYmFtNVg5QkZRcFVmYlJCVk5zY0VKcUhpQWdsanBmcjBXaDN0cXFXWWZydTYzZnJ0YlMtb0o?oc=5",
+   "published": "2026-11-03T23:59:33Z"
+  },
+  {
+   "title": "Législatives en Israël: le «bloc du changement» uni pour évincer Benyamin Netanyahu du pouvoir",
+   "source": "RFI",
+   "url": "https://www.rfi.fr/fr/moyen-orient/20261103-l%C3%A9gislatives-en-isra%C3%ABl-le-bloc-du-changement-uni-pour-%C3%A9vincer-benyamin-netanyahu-du-pouvoir",
+   "published": "2026-11-03T16:49:43Z"
+  },
+  {
+   "title": "Législatives en Israël : l’opposition veut former un gouvernement sans Benyamin Nétanyahou, mais reste divisée sur une alliance avec les partis arabes",
    "source": "Le Monde",
-   "url": "https://www.lemonde.fr/international/live/2026/10/28/en-direct-legislatives-en-israel-apres-le-depouillement-de-70-des-bulletins-le-camp-de-benyamin-netanyahou-en-tete-les-partis-arabes-credites-de-19-sieges-un-niveau-sans-precedent_6801217_3210.html",
-   "published": "2026-10-28T10:21:09Z"
+   "url": "https://news.google.com/rss/articles/CBMiwwJBVV95cUxOWHRYbTdKTDY3WTZwb3g5TEk3SmdQRE1XRmRVaV9tRlE1cUF1VmpxYkVCYjdtdlFpcmRPY25LQUkyT3U3X0l6TU9SUUJZRTh0ZUV6YV8yM3RDUmtCTy1aX194Qm5UQzIwVThPLUJ1SWtGb1hFRXlOc0drd1VKNUNJYTBmTXoxZkdmLW1pMS04WWtPNTVZamR1NFdnSEhPckg2ZXhmSnF2T0duTWlkbHJtc21qWU1EQ3N5bGRzRVlBN1BZUVBJb3FTYVN1MTkyQnJVY2U2aVVYUm9rUmhiQ1J2QmEtTnBGWk8zaHAtSDFuNE5EanhiSDBEZnNGQ1EtNE0zRU1GSVhWbnRTZDk1M0g2RFNtV2dLV2kteFBIWlI4MGRUR2tPS1ZpTVBQWmJtQ1N6b2w2ZTg4N1l3emU2SFJnTTUxNA?oc=5",
+   "published": "2026-11-03T16:30:05Z"
+  },
+  {
+   "title": "Législatives en Israël : les coulisses de la couverture des élections",
+   "source": "France 24",
+   "url": "https://www.france24.com/fr/vid%C3%A9o/20261103-l%C3%A9gislatives-en-isra%C3%ABl-les-coulisses-de-la-couverture-des-%C3%A9lections",
+   "published": "2026-11-03T15:46:51Z"
+  },
+  {
+   "title": "Élections en Israël : comment sera désigné le prochain Premier ministre et quels sont les délais",
+   "source": "i24NEWS",
+   "url": "https://news.google.com/rss/articles/CBMi7wFBVV95cUxQQnNqMU9maG93UVpZOFFDazZOaTZQY3JsUUJseHk0cElhSEszRzI0NkpWVVl1OFdOV05MSHhqemtoSEtOWXk2VnFsTXZCZjdVVF9tTTBIeU84cG1WdEl3MlZhZ3JRQTdEbURGWTJZRDYtbkFmS0ZwR2YxOS1meTdGekF3S1V6TnlfbG1tY3FhLWc0SkgtLXJtZnBFMFJRWUhEN1cxdl84V2d1eEdkLW1sUERoQTdxdjZaWjU1UnZSRFNaM3V6a1Y0ck1YRVhmME5iS1ctMXNJYXF0Ml9IeTF5dHV6WjI3bFA0XzBqM1k5SQ?oc=5",
+   "published": "2026-11-03T13:00:55Z"
   }
  ]
 }
