@@ -309,7 +309,7 @@ function renderBuilder() {
     const hand = model.live.source && model.live.source.manual_cec;
     const at = (s) => (s.asOf ? `, relevé de ${esc(s.asOf)}` : "");
     const parts = {
-      cec: (s) => `<b>Calcul CEC</b> : ${fmt(s.valid)} bulletins valides${hand ? ` (saisie, relevé de ${esc(hand.as_of || "?")})` : ""}`,
+      cec: (s) => `<b>Calcul CEC</b> : ${fmt(s.valid)} bulletins valides${hand ? ` (saisie${hand.as_of ? `, relevé de ${esc(hand.as_of)}` : model.live.status === "final" ? ", chiffres définitifs" : ""})` : ""}`,
       wiki: (s) => `<b>Wikipédia</b> : ${fmt(s.valid)} bulletins (${pc(s.share, 1)} des urnes${at(s)})`,
       press: (s) => `<b>Relais</b> : ${fmt(s.valid)} bulletins (${pc(s.share, 1)} des urnes${at(s)})`,
     };

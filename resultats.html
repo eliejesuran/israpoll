@@ -65,7 +65,7 @@ function renderKpis() {
     k("Votants", fmt(t.voters), t.eligible ? `${pc(t.voters / t.eligible, 1)} des inscrits (urnes dépouillées)` : ""),
     k("Inscrits", fmt(t.eligible), "électeurs inscrits"),
     k("Bulletins nuls", fmt(t.invalid), t.voters ? `${pc(t.invalid / t.voters, 2)} des votants` : ""),
-    k("Origine des chiffres", fromWiki ? "Wikipédia" : hand ? "Tableau de la CEC" : "Fichier de la CEC", fromWiki ? `d’après le tableau de la CEC${model.voteSource.asOf ? `, relevé de ${esc(model.voteSource.asOf)} (heure d’Israël)` : ""}` : hand ? `recopié, relevé de ${esc(hand.as_of || "?")} (heure d’Israël)` : `fichier par localité, publié à ${hhmmss(live.updated_at)}`, true),
+    k("Origine des chiffres", fromWiki ? "Wikipédia" : hand ? "Tableau de la CEC" : "Fichier de la CEC", fromWiki ? `d’après le tableau de la CEC${model.voteSource.asOf ? `, relevé de ${esc(model.voteSource.asOf)} (heure d’Israël)` : ""}` : hand ? `recopié${hand.as_of ? `, relevé de ${esc(hand.as_of)} (heure d’Israël)` : live.status === "final" ? ", chiffres définitifs" : ""}` : `fichier par localité, publié à ${hhmmss(live.updated_at)}`, true),
   ].join("");
 }
 
