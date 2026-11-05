@@ -48,7 +48,7 @@
 <noscript><div class="wrap"><div class="notice bad">Cette page a besoin de JavaScript pour afficher les résultats. Les résultats officiels sont sur <a href="https://votes26.bechirot.gov.il/nationalresults">votes26.bechirot.gov.il</a>.</div></div></noscript>
 
 <script src="js/seats.js"></script>
-<script src="js/common.js"></script>
+<script src="js/common.js?v=20261105"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -61,8 +61,8 @@ function renderKpis() {
   if (!t) { $("#kpis").innerHTML = ""; return; }
   const k = (label, value, sub, small) => `<div class="stat"><div class="k">${label}</div><div class="v num"${small ? ' style="font-size:20px"' : ""}>${value}</div><div class="s">${sub || ""}</div></div>`;
   $("#kpis").innerHTML = [
-    k("Bulletins valides", fmt(t.valid), "comptés à ce stade"),
-    k("Votants", fmt(t.voters), t.eligible ? `${pc(t.voters / t.eligible, 1)} des inscrits (urnes dépouillées)` : ""),
+    k("Bulletins valides", fmt(t.valid), live.status === "final" ? "résultat définitif" : "comptés à ce stade"),
+    k("Votants", fmt(t.voters), t.eligible ? `${pc(t.voters / t.eligible, 1)} des inscrits${live.status === "final" ? "" : " (urnes dépouillées)"}` : ""),
     k("Inscrits", fmt(t.eligible), "électeurs inscrits"),
     k("Bulletins nuls", fmt(t.invalid), t.voters ? `${pc(t.invalid / t.voters, 2)} des votants` : ""),
     k("Origine des chiffres", fromWiki ? "Wikipédia" : hand ? "Tableau de la CEC" : "Fichier de la CEC", fromWiki ? `d’après le tableau de la CEC${model.voteSource.asOf ? `, relevé de ${esc(model.voteSource.asOf)} (heure d’Israël)` : ""}` : hand ? `recopié${hand.as_of ? `, relevé de ${esc(hand.as_of)} (heure d’Israël)` : live.status === "final" ? ", chiffres définitifs" : ""}` : `fichier par localité, publié à ${hhmmss(live.updated_at)}`, true),
@@ -70,11 +70,11 @@ function renderKpis() {
 }
 
 function turnoutBlock() {
-  const t = model.manual.turnout || [];
+  const t = turnoutRows();
   if (!t.length) return `<span class="sub" style="margin:0">Pas encore de relevé.</span>`;
   return t.map(x => {
     const d = x.prev2022 != null ? x.pct - x.prev2022 : null;
-    return `<div class="tchip"><div class="t">${esc(x.time)}</div><div class="p num">${String(x.pct).replace(".", ",")} %</div><div class="d ${d == null ? "" : d >= 0 ? "up" : "down"}">${d == null ? "&nbsp;" : (d >= 0 ? "▲ +" : "▼ ") + d.toFixed(1).replace(".", ",") + " pt vs 2022"}</div></div>`;
+    return `<div class="tchip"><div class="t">${x.final ? "Définitif" : esc(x.time)}</div><div class="p num">${String(x.pct).replace(".", ",")} %</div><div class="d ${d == null ? "" : d >= 0 ? "up" : "down"}">${d == null ? "&nbsp;" : (d >= 0 ? "▲ +" : "▼ ") + d.toFixed(1).replace(".", ",") + " pt vs 2022"}</div></div>`;
   }).join("");
 }
 
@@ -108,7 +108,7 @@ function renderResults() {
   $("#resNotice").innerHTML = notice;
 
   $("#turnout").innerHTML = turnoutBlock();
-  const tsrc = [...new Map((model.manual.turnout || []).filter(x => x.url).map(x => [x.url, { label: x.source || "CEC", url: x.url }])).values()];
+  const tsrc = [...new Map(turnoutRows().filter(x => x.url).map(x => [x.url, { label: x.source || "CEC", url: x.url }])).values()];
   $("#turnoutSrc").innerHTML = tsrc.length ? srcLine(tsrc) : srcLine([{ label: "CEC", url: CEC.national }]);
 
   // tableau

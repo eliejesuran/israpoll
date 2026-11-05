@@ -105,7 +105,7 @@
 <noscript><div class="wrap"><div class="notice bad">Cette page a besoin de JavaScript pour afficher les résultats. Les résultats officiels sont sur <a href="https://votes26.bechirot.gov.il/nationalresults">votes26.bechirot.gov.il</a>.</div></div></noscript>
 
 <script src="js/seats.js"></script>
-<script src="js/common.js"></script>
+<script src="js/common.js?v=20261105"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -201,7 +201,7 @@ function renderStatus() {
   const steps = [
     ["Vote", "Bureaux ouverts de 7 h à 22 h (Israël)"],
     ["Clôture · 22:00", `Fermeture des bureaux à ${closeIL} (Israël) · ${closeLocal} chez toi`],
-    ["Dépouillement", "Fichiers officiels de la CEC, mis à jour en continu"],
+    ["Dépouillement", ph === "final" ? "Terminé : résultats définitifs de la CEC" : "Fichiers officiels de la CEC, mis à jour en continu"],
     ["Certification", `Journal officiel au plus tard le ${FINAL_BY}`],
   ];
   $("#steps").innerHTML = steps.map(([t, d], i) => `<li class="${i < stepsNow ? "done" : i === stepsNow ? "now" : ""}"${i === stepsNow ? ' aria-current="step"' : ""}><span class="mk" aria-hidden="true">${i < stepsNow ? "✓" : i + 1}</span><b>${t}</b>${d}</li>`).join("");
@@ -216,14 +216,14 @@ function renderHero() {
   $("#heroSrc").innerHTML = chipFor(a);
   $("#heroLegend").innerHTML = top.slice(0, 9).map(p => `<li style="list-style:none;display:flex;gap:8px;align-items:center;font-size:13.5px"><span class="dotc" style="width:10px;height:10px;border-radius:50%;background:${p.color};flex:none"></span>${esc(p.fr)}<b style="margin-left:auto">${seats[p.id]}</b></li>`).join("");
 
-  const t = model.manual.turnout || [];
+  const t = turnoutRows();
   const last = t[t.length - 1];
   const tot = model.totals;
   const cec = model.sources.cec;
   const stats = [];
-  stats.push(`<div class="stat"><div class="k">Participation</div><div class="v num">${last ? String(last.pct).replace(".", ",") + " %" : "—"}</div><div class="s">${last ? `à ${esc(last.time)} · CEC` : "en attente du premier relevé"}</div></div>`);
+  stats.push(`<div class="stat"><div class="k">Participation</div><div class="v num">${last ? String(last.pct).replace(".", ",") + " %" : "—"}</div><div class="s">${last ? `${turnoutWhen(last)} · CEC` : "en attente du premier relevé"}</div></div>`);
   const relay = a.key === "press" || a.key === "wiki";          // bases qui donnent le pourcentage d'urnes dépouillées
-  stats.push(`<div class="stat"><div class="k">Dépouillement</div><div class="v num">${relay ? pc(a.share, 1) : cec ? "≈ " + Math.round(cec.share * 100) + " %" : "0 %"}</div><div class="s">${relay ? `${fmt(a.valid)} bulletins valides${a.asOf ? ` · relevé de ${esc(a.asOf)}` : ""}` : tot ? fmt(tot.valid) + " bulletins valides" : "aucun bulletin compté"}</div></div>`);
+  stats.push(`<div class="stat"><div class="k">Dépouillement</div><div class="v num">${relay ? pc(a.share, 1) : ph === "final" ? "Terminé" : cec ? "≈ " + Math.round(cec.share * 100) + " %" : "0 %"}</div><div class="s">${relay ? `${fmt(a.valid)} bulletins valides${a.asOf ? ` · relevé de ${esc(a.asOf)}` : ""}` : tot ? fmt(tot.valid) + " bulletins valides" : "aucun bulletin compté"}</div></div>`);
   const lead = top[0];
   stats.push(`<div class="stat wide"><div class="k">En tête</div><div class="v">${lead ? esc(lead.fr) + ` <span class="num" style="color:var(--muted)">· ${seats[lead.id]}</span>` : "—"}</div><div class="s">${esc(a.label)}</div></div>`);
   $("#heroStats").innerHTML = stats.join("");

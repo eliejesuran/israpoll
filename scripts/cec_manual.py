@@ -56,6 +56,7 @@ def main():
     ap.add_argument("--voters", help="votants (מצביעים)")
     ap.add_argument("--valid", help="bulletins valides (כשרים)")
     ap.add_argument("--invalid", help="bulletins nuls (פסולים) ; par défaut votants − valides")
+    ap.add_argument("--seats", help="sièges attribués par la CEC (facultatif, 120 au total), ex. likud=27,yashar=21,… ; la page passe de « estimation » à « sièges attribués »")
     ap.add_argument("--url", default=fetch_cec.HTML_URL)
     ap.add_argument("--clear", action="store_true", help="retire la saisie de secours")
     ap.add_argument("--file", default=MANUAL)
@@ -79,6 +80,16 @@ def main():
     if a.invalid:
         totals["invalid"] = number(a.invalid)
     cec = {"as_of": a.as_of, "url": a.url, "totals": totals, "votes": votes}
+    if a.seats:
+        seats = {}
+        for item in a.seats.split(","):
+            key, sep, n = item.strip().partition("=")
+            if not sep:
+                ap.error(f"--seats : « {item} » : attendu liste=sièges")
+            if key in seats:
+                ap.error(f"--seats : {key} saisi deux fois")
+            seats[key] = number(n)
+        cec["seats"] = seats
     try:
         res = fetch_cec.parse_manual_cec(cec)
     except ValueError as e:
@@ -88,7 +99,9 @@ def main():
     letters = {l: i for i, l in fetch_cec.PARTY_LETTERS.items()}
     print(f"saisie enregistrée : {t['valid']:,} bulletins valides, {t['voters']:,} votants ({100 * t['voters'] / t['eligible']:.1f} %), {sum(v.values()) / t['valid']:.1%} des voix réparties sur {len(v)} listes")
     for l, n in sorted(v.items(), key=lambda kv: -kv[1]):
-        print(f"  {letters.get(l, l):<11} {n:>10,}  {n / t['valid']:6.2%}")
+        print(f"  {letters.get(l, l):<11} {n:>10,}  {n / t['valid']:6.2%}" + (f"  {res['seats'][l]:>3} sièges" if res["seats"].get(l) else ""))
+    if res["seats"]:
+        print(f"sièges attribués saisis : {sum(res['seats'].values())}")
     print("puis : git diff data/manual.json && git commit -am 'Totaux CEC (saisie manuelle)' && git push")
 
 

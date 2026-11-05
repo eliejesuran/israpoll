@@ -318,6 +318,16 @@ function phaseInfo() {
   };
   return { ph, info: map[ph] };
 }
+// Relevés de participation du jour + (résultat définitif publié) la participation finale, tirée des totaux de la CEC.
+// La ligne finale est marquée `final` : pas d'heure, pas de valeur 2022 « à la même heure ».
+function turnoutRows() {
+  const rows = (model.manual && model.manual.turnout) || [];
+  const t = model.live && model.live.status === "final" ? model.live.totals : null;
+  if (!t || !(t.eligible > 0) || !(t.voters > 0)) return rows;
+  return rows.concat([{ time: "final", pct: Math.round(1e4 * t.voters / t.eligible) / 100, prev2022: null, source: "CEC, résultats définitifs", url: CEC.national, final: true }]);
+}
+const turnoutWhen = (x) => (x.final ? "résultat définitif" : "à " + esc(x.time));
+
 function renderStatusRow(el) {
   const [cls, a, b] = phaseInfo().info;
   const demo = state.demo ? ` <span class="src-chip nonoff">DÉMO · chiffres simulés</span>` : "";

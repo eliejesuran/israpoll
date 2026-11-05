@@ -57,6 +57,19 @@
       "זץ": 252,
       "כן": 0,
       "צבי": 0
+    },
+    "seats": {
+      "likud": 27,
+      "yashar": 21,
+      "together": 12,
+      "joint": 11,
+      "democrats": 8,
+      "raam": 8,
+      "yb": 7,
+      "otzma": 7,
+      "utj": 7,
+      "shas": 6,
+      "rzp": 6
     }
   }
 }

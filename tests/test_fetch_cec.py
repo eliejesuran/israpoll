@@ -260,6 +260,30 @@ class ManualCec(unittest.TestCase):
                 fetch_cec.parse_manual_cec(m)
             self.assertEqual(self.cycle({}, m)["status"], "waiting", str(m))
 
+    def test_seats_typed_with_the_votes_become_official_seats(self):
+        seats = {"likud": 60, "together": 60}                                 # 52 % et 48 % des voix : les deux franchissent le seuil
+        r = fetch_cec.parse_manual_cec(cec(seats=seats))
+        self.assertEqual(r["seats"], {"מחל": 60, "רק": 60})
+        self.assertEqual(fetch_cec.parse_manual_cec(cec())["seats"], {})      # facultatif
+        cur = self.cycle({}, cec(seats=seats))
+        self.assertEqual(cur["official_seats"], {"מחל": 60, "רק": 60})
+        self.assertEqual(self.cycle({}, cec())["official_seats"], None)       # sans sièges saisis : estimation, comme avant
+        # une saisie plus ancienne, sans sièges, corrigeant la précédente, n'hérite pas de ses sièges
+        a = self.cycle({}, cec(5000, seats=seats))
+        self.assertEqual(self.cycle(a, cec(4000))["official_seats"], None)
+
+    def test_a_wrong_seat_table_is_refused_not_published(self):
+        bad = [cec(seats={"likud": 60, "together": 59}), cec(seats={"likud": 61, "together": 60}),         # ≠ 120
+               cec(seats={"likud": 60, "together": 60, "nope": 0}), cec(seats={"likud": 60, "מחל": 60}),    # liste inconnue / même liste deux fois
+               cec(seats={"likud": 60.0, "together": 60}), cec(seats={"likud": "60", "together": 60}),      # pas des entiers
+               cec(seats=[60, 60]),
+               cec(votes={"likud": 500, "together": 460, "ני": 20}, seats={"likud": 60, "together": 59, "noam": 1})]  # Noam à 2 % : sous le seuil
+        for m in bad:
+            with self.assertRaises(ValueError, msg=str(m)):
+                fetch_cec.parse_manual_cec(m)
+            self.assertEqual(self.cycle({}, m)["status"], "waiting", str(m))
+            self.assertIsNone(self.cycle({}, m)["official_seats"])
+
     def test_used_while_the_collector_is_blocked_and_never_goes_stale(self):
         cur = self.cycle({}, cec())
         self.assertEqual((cur["status"], cur["totals"]["valid"], cur["stale"]), ("counting", 1000, False))

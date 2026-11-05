@@ -86,6 +86,7 @@ META_COLS = {"סמל ועדה", "שם ישוב", "סמל ישוב", "בזב", "�
 MAX_BYTES = 20 * 1024 * 1024
 FAILS_BEFORE_STALE = 3          # ~90 s à raison d'un relevé toutes les 30 s
 SUM_TOLERANCE = 0.005           # écart toléré entre la somme des listes et les bulletins valides
+SEAT_THRESHOLD = 0.0325         # seuil électoral : part minimale des bulletins valides pour avoir des sièges
 WAITING_MARK = "ממתינים לספירת הקולות"
 # Lettres de vote des 38 listes de 2026 (en-tête du CSV officiel) ; sert à reconnaître les lignes du tableau HTML.
 KNOWN_LETTERS = set(
@@ -432,7 +433,8 @@ def parse_manual_cec(m):
     liste inconnue, total incohérent) : mieux vaut ne rien publier qu'un chiffre faux.
 
     m = {"as_of": "23:40", "url": "...", "totals": {"eligible": n, "voters": n, "valid": n, "invalid": n (facultatif)},
-         "votes": {"likud": n, "yashar": n, ...}}   (clés : identifiants de parti, ou lettres de vote pour les petites listes)
+         "votes": {"likud": n, "yashar": n, ...},    (clés : identifiants de parti, ou lettres de vote pour les petites listes)
+         "seats": {"likud": 27, "yashar": 21, ...}}  (facultatif : sièges attribués par la CEC, 120 au total, sinon ValueError)
     """
     if not isinstance(m, dict) or not isinstance(m.get("votes"), dict) or not isinstance(m.get("totals"), dict):
         raise ValueError("saisie « cec » incomplète (totals et votes attendus)")
@@ -458,7 +460,26 @@ def parse_manual_cec(m):
     listed = sum(votes.values())
     if listed > valid * (1 + SUM_TOLERANCE) or listed < 0.85 * valid:
         raise ValueError(f"somme des listes saisies ({listed}) incompatible avec les bulletins valides ({valid})")
-    return {"votes": votes, "totals": {"eligible": eligible, "voters": voters, "invalid": invalid, "valid": valid},
+    # sièges attribués par la CEC (facultatif, recopiés du tableau) : mêmes garde-fous que la lecture automatique
+    # (liste connue, exactement 120 sièges), plus : une liste qui a des sièges a franchi le seuil de 3,25 % dans les voix saisies.
+    raw_seats = m.get("seats")
+    if raw_seats is not None and not isinstance(raw_seats, dict):
+        raise ValueError("sièges : objet {liste: sièges} attendu")
+    seats = {}
+    for key, n in (raw_seats or {}).items():
+        letters = PARTY_LETTERS.get(key, key)
+        if letters not in KNOWN_LETTERS:
+            raise ValueError(f"sièges : liste inconnue {key!r}")
+        if letters in seats:
+            raise ValueError(f"sièges saisis deux fois : {key!r}")
+        n = count(n, f"sièges {key}")
+        if n:
+            if votes.get(letters, 0) < SEAT_THRESHOLD * valid:
+                raise ValueError(f"sièges : {key!r} a des sièges mais moins de 3,25 % des bulletins valides saisis")
+            seats[letters] = n
+    if seats and sum(seats.values()) != 120:
+        raise ValueError(f"sièges : {sum(seats.values())} saisis, 120 attendus")
+    return {"votes": votes, "totals": {"eligible": eligible, "voters": voters, "invalid": invalid, "valid": valid}, "seats": seats,
             "rows": 0, "as_of": str(m.get("as_of") or "")[:20], "url": str(m.get("url") or HTML_URL)}
 
 
@@ -559,6 +580,8 @@ def build(prev, manual, csv_res, html_res, log, polled=True):
             else:
                 votes, totals, n_rows, stale = m["votes"], m["totals"], 0, False
                 manual_cec = {"as_of": m["as_of"], "url": m["url"]}
+                # sièges saisis avec les voix ; une saisie sans sièges efface ceux d'une saisie précédente (correction vers un relevé plus ancien)
+                seats = m["seats"] or ({} if from_manual else seats)
                 log["cec_manual"] = f"utilisée ({m['totals']['valid']} bulletins valides, relevé de {m['as_of'] or '?'})"
         except (ValueError, TypeError) as e:
             log["cec_manual"] = f"rejetée : {e}"

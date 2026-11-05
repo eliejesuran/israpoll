@@ -49,7 +49,7 @@
 <script src="js/seats.js"></script>
 <script src="js/data2022.js"></script>
 <script src="js/compare.js"></script>
-<script src="js/common.js"></script>
+<script src="js/common.js?v=20261105"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -66,6 +66,7 @@ const siege = (n) => (Math.abs(n) > 1 ? "sièges" : "siège");
 // pour le relevé de clôture (22:00) — comparer 14:00 en 2026 au total de 2022 serait trompeur.
 function turnoutRef(last) {
   if (!last) return null;
+  if (last.final) return TURNOUT_2022;
   if (last.prev2022 != null) return last.prev2022 / 100;
   return String(last.time) >= "22:00" ? TURNOUT_2022 : null;
 }
@@ -90,6 +91,7 @@ function renderAnNotice() {
   const a = model.active;
   let html;
   if (a.key === "none") html = `<div class="notice warn"><b>En attente des premiers chiffres de 2026.</b> Seuls les résultats de 2022 sont affichés ; la comparaison se remplira avec le dépouillement.</div>`;
+  else if (a.key === "official" && model.live.status === "final") html = `<div class="notice"><b>Résultats définitifs de la CEC.</b> Sièges attribués par la CEC ; les parts de voix 2026 portent sur l’ensemble des bulletins valides.</div>`;
   else if (a.key === "official") html = `<div class="notice"><b>Sièges attribués par la CEC.</b> Les parts de voix 2026 portent sur les bulletins valides publiés ; les chiffres définitifs seront proclamés d’ici le ${FINAL_BY}.</div>`;
   else html = `<div class="notice warn"><b>Comparaison provisoire.</b> Le dépouillement n’est pas terminé : les urnes restantes peuvent encore déplacer quelques sièges. Les sièges 2026 sont une <b>estimation</b> (${esc(a.key === "wiki" ? "voix Wikipédia" : a.label)}) ; les parts de voix portent sur les bulletins valides déjà comptés.${a.key === "press" ? " <b>Source non officielle</b> : les voix par liste ne sont pas disponibles, seuls les sièges sont comparés." : ""}${a.key === "wiki" ? " <b>Source non officielle</b> : voix d’après l’article Wikipédia, qui reprend le tableau de la CEC ; les petites listes y sont regroupées." : ""}</div>`;
   $("#anNotice").innerHTML = html;
@@ -98,7 +100,7 @@ function renderAnNotice() {
 function renderAnKpis() {
   const d = analysis();
   const g = Object.fromEntries(d.groups.map(x => [x.id, x]));
-  const t = model.manual.turnout || [], last = t[t.length - 1], ref = turnoutRef(last);
+  const t = turnoutRows(), last = t[t.length - 1], ref = turnoutRef(last);
   const card = (k, v, s) => `<div class="stat"><div class="k">${k}</div><div class="v num">${v}</div><div class="s">${s}</div></div>`;
   const camp = (id, label) => {
     const x = g[id].tot;
@@ -106,8 +108,8 @@ function renderAnKpis() {
   };
   $("#anKpis").innerHTML = [
     card("Participation", last ? `${String(last.pct).replace(".", ",")} %` : "—", !last ? `${pc(TURNOUT_2022, 2)} au total en 2022`
-      : ref == null ? `à ${esc(last.time)} · pas de relevé 2022 à la même heure`
-      : `à ${esc(last.time)} · <span class="delta ${dcls(last.pct / 100 - ref)}">${signedPts(last.pct / 100 - ref)}</span> vs ${pc(ref, 2)} en 2022`),
+      : ref == null ? `${turnoutWhen(last)} · pas de relevé 2022 à la même heure`
+      : `${turnoutWhen(last)} · <span class="delta ${dcls(last.pct / 100 - ref)}">${signedPts(last.pct / 100 - ref)}</span> vs ${pc(ref, 2)} en 2022`),
     camp("netanyahu", "Droite & ultra-orthodoxes"),
     camp("eisenkot", "Centre & gauche"),
     camp("arab", "Partis arabes"),
@@ -164,11 +166,11 @@ function renderInsights() {
   const up = [...rows].sort((a, b) => b.dSeats - a.dSeats)[0], down = [...rows].sort((a, b) => a.dSeats - b.dSeats)[0];
   if (up && up.dSeats > 0) L.push(`Plus forte progression en sièges : <b>${esc(up.name)}</b> (${up.seats22} → ${up.seats26}, ${signed(up.dSeats)}).`);
   if (down && down.dSeats < 0) L.push(`Plus fort recul en sièges : <b>${esc(down.name)}</b> (${down.seats22} → ${down.seats26}, ${signed(down.dSeats)}).`);
-  const t = model.manual.turnout || [], last = t[t.length - 1];
+  const t = turnoutRows(), last = t[t.length - 1];
   const ref = turnoutRef(last);
-  if (last && ref != null) L.push(`Participation : <b>${String(last.pct).replace(".", ",")} %</b> à ${esc(last.time)} contre ${pc(ref, 2)} ${last.prev2022 != null ? "à la même heure" : "au total"} en 2022 (<span class="delta ${dcls(last.pct / 100 - ref)}">${signedPts(last.pct / 100 - ref)}</span>).`);
+  if (last && ref != null) L.push(`Participation : <b>${String(last.pct).replace(".", ",")} %</b> ${last.final ? "au résultat définitif" : "à " + esc(last.time)} contre ${pc(ref, 2)} ${last.prev2022 != null ? "à la même heure" : "au total"} en 2022 (<span class="delta ${dcls(last.pct / 100 - ref)}">${signedPts(last.pct / 100 - ref)}</span>).`);
   if (d.wasted26 != null) L.push(`Les listes sous le seuil rassemblent <b>${pc(d.wasted26, 1)}</b> des voix comptées, contre ${pc(d.wasted22, 1)} en 2022.`);
-  L.push(`<i>Lecture prudente : les fusions et scissions (Ensemble, Yashar, Démocrates, Liste commune) rendent certaines comparaisons approximatives, et le dépouillement n’est pas terminé.</i>`);
+  L.push(`<i>Lecture prudente : les fusions et scissions (Ensemble, Yashar, Démocrates, Liste commune) rendent certaines comparaisons approximatives${model.live.status === "final" ? "" : ", et le dépouillement n’est pas terminé"}.</i>`);
   $("#insights").innerHTML = `<div class="eyebrow">Ce qu’on peut en dire</div><h3 id="h-ins">Les faits, sans interprétation</h3><ul class="ins">${L.map(l => `<li>${l}</li>`).join("")}</ul>`;
 }
 
@@ -177,7 +179,7 @@ function renderMethod() {
     <li><b>2022</b> : résultats officiels de la <a href="${RESULTS_2022.source.url}" rel="noopener" target="_blank">CEC</a> (voix = somme du fichier par localité, qui reproduit exactement le tableau national : 4 764 742 bulletins valides, participation ${pc(TURNOUT_2022, 2)}).</li>
     <li><b>2026</b> : sièges attribués par la CEC dès qu’elle les publie ; sinon estimation Bader-Ofer avec les accords de surplus, sur les voix de la base choisie — par défaut le tableau de l’article <a href="${WIKI.url}" rel="noopener" target="_blank">Wikipédia</a> qui reprend celui de la CEC (non officiel), ou les voix de la CEC quand elles sont plus avancées. À défaut, projection d’un relais non officiel, signalée comme telle.</li>
     <li><b>Familles</b> : lecture éditoriale d’après les positions publiques des listes avant le scrutin. Quand des listes fusionnent ou se scindent, 2022 est additionné pour correspondre à 2026 (voir la note de chaque ligne).</li>
-    <li><b>Parts de voix</b> : 2026 = part des bulletins valides déjà comptés ; 2022 = part du résultat final. Les premiers bureaux dépouillés ne sont pas représentatifs.</li></ul>`;
+    <li><b>Parts de voix</b> : ${model.live.status === "final" ? "2026 et 2022 = parts des bulletins valides du résultat définitif." : "2026 = part des bulletins valides déjà comptés ; 2022 = part du résultat final. Les premiers bureaux dépouillés ne sont pas représentatifs."}</li></ul>`;
 }
 
 App.start({

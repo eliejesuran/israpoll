@@ -76,4 +76,16 @@ run('state.live = sanitizeLive(' + JSON.stringify({ wiki: WIKI }) + '); state.se
 assert.equal(run('model.active.key'), 'wiki');
 assert.equal(run('Object.values(model.seats).reduce((a, b) => a + b, 0)'), 120);                 // y compris sur les voix de Wikipédia
 
+// 4. Participation : relevés du jour, plus la participation finale (totaux CEC) une fois le résultat définitif
+const rowsOf = (live) => { run('state.live = sanitizeLive(' + JSON.stringify(live) + '); state.seatSource = null; model = derive()'); return JSON.parse(run('JSON.stringify(turnoutRows())')); };
+const TURN = { turnout: [{ time: '22:00', pct: 77.7, prev2022: 70.6 }] };
+assert.equal(rowsOf({ ...LIVE, manual: TURN }).length, 1);                                // en cours : seulement les relevés du jour
+const fin = rowsOf({ ...LIVE, status: 'final', manual: TURN });
+assert.equal(fin.length, 2);
+assert.deepEqual([fin[1].final, fin[1].prev2022], [true, null]);                          // pas de valeur 2022 « à la même heure »
+assert.equal(fin[1].pct, Math.round(1e4 * LIVE.totals.voters / LIVE.totals.eligible) / 100);
+assert.equal(run('turnoutWhen(turnoutRows()[1])'), 'résultat définitif');
+assert.equal(run('turnoutWhen(turnoutRows()[0])'), 'à 22:00');
+assert.equal(rowsOf({ status: 'final', manual: TURN }).length, 1);                       // sans totaux : pas de ligne inventée
+
 console.log('common.test.mjs : OK');
