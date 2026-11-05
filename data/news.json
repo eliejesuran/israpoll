@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "updated_at": "2026-11-05T10:21:54Z",
+ "updated_at": "2026-11-05T10:29:20Z",
  "query": "élections israéliennes OR \"législatives en Israël\" OR Knesset when:3d",
  "feeds": {
   "Google Actualités": "ok (24)",

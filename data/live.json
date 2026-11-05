@@ -1,13 +1,26 @@
 {
  "blocked": null,
  "cec_waiting": false,
- "checked_at": "2026-11-05T10:21:38Z",
+ "checked_at": "2026-11-05T10:29:23Z",
  "collector": "local",
- "digest": "9d4e7d348487e56595c82d95f2b9fd4091b42c89",
+ "digest": "93792c171fb8505eda8d8e0610e9e057d59541d9",
  "fails": 0,
  "manual": {
   "cec": {
    "as_of": "",
+   "seats": {
+    "democrats": 8,
+    "joint": 11,
+    "likud": 27,
+    "otzma": 7,
+    "raam": 8,
+    "rzp": 6,
+    "shas": 6,
+    "together": 12,
+    "utj": 7,
+    "yashar": 21,
+    "yb": 7
+   },
    "totals": {
     "eligible": 7331981,
     "invalid": 25971,
@@ -106,7 +119,19 @@
   ]
  },
  "names": {},
- "official_seats": null,
+ "official_seats": {
+  "אמת": 8,
+  "ב": 7,
+  "ג": 7,
+  "דרך": 21,
+  "ודם": 11,
+  "ט": 6,
+  "ל": 7,
+  "מחל": 27,
+  "עם": 8,
+  "רק": 12,
+  "שס": 6
+ },
  "press": {
   "as_of": "07:47",
   "counted_pct": 99.37,
@@ -157,7 +182,7 @@
   "valid": 5691426,
   "voters": 5717397
  },
- "updated_at": "2026-11-05T10:21:38Z",
+ "updated_at": "2026-11-05T10:29:23Z",
  "votes": {
   "אמת": 366278,
   "ב": 326793,
