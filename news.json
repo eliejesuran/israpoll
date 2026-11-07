@@ -1,0 +1,133 @@
+{
+ "schema": 1,
+ "updated_at": "2026-11-07T09:25:05Z",
+ "query": "élections israéliennes OR \"législatives en Israël\" OR Knesset when:3d",
+ "feeds": {
+  "Google Actualités": "ok (21)",
+  "Le Monde": "ok (2)",
+  "France 24": "ok (10)",
+  "RFI": "ok (5)"
+ },
+ "items": [
+  {
+   "title": "Elections législatives en Israël - Un pilier de l'opposition prêt à des concessions avec les ultra-orthodoxes",
+   "source": "La Libre.be",
+   "url": "https://news.google.com/rss/articles/CBMilgJBVV95cUxQOHVDcmdodWtKSUJhY1BFQjV0R2hIUC0xYTdpZzRRbWNBWE9TYVBUbDNoV0poYUVrUU5TenQzMTF6SndvbWloZDYtWFF0cVhYWkFRSkc4MWRpVW01Q05WaExxODNMWGNMdy1DbnF5WXpubkRoT05VNWtOb014ZGlrbkJOejF3T0xKZndmWnRTdkswUEUxclF1bGlNYjFxSUhvRGRYRUhzbUFYUnRubzZxT2d6LUhTVTNDeEJHaVRjNDh3Sl9fSHZwd0lqbTM2WXItd1lLdkhMY0x4UDRMVnltMjU2ZkxQUVRGVjhGeUhYWmNsaEdhVC0wOUNnbHJ6QnkzREh6ZS12OG9kVFRTTnJ0Yi1qLTNGZw?oc=5",
+   "published": "2026-11-06T11:34:00Z"
+  },
+  {
+   "title": "Israël : qui de Netanyahu ou de Eisenkot peut réunir une majorité?",
+   "source": "RFI",
+   "url": "https://www.rfi.fr/fr/podcasts/appels-sur-l-actualit%C3%A9/20261106-isra%C3%ABl-qui-de-netanyahu-ou-de-eisenkot-peut-r%C3%A9unir-une-majorit%C3%A9",
+   "published": "2026-11-06T09:50:50Z"
+  },
+  {
+   "title": "Législatives en Israël: une majorité se dégage autour de Gadi Eisenkot, fin du suspense le 8 novembre",
+   "source": "RFI",
+   "url": "https://news.google.com/rss/articles/CBMi9AFBVV95cUxNbzN3VXRlR3R4ZzhhTFpVcHh1VDBGZTl2NXZ1RjVMT3JOLWNGdGpuclNWdklzZE81Tkh6ckxJUnEtRU1ISXAtdExsRDUwN05keHg3TUQ3aXNleGdPVTBaLUNzUTF3LUFXT0ZaNUMxSmpReFgtV0J2Y0VKQl80SFJJbVFrMnBubHF0X0dublZsbVBJbFVDNWdRWEVXRDc1d01tUzhfZUc2aWJkenI3Y2JnYW92UXREN0RVaThEajA3WGdDQUZveHk0bzdKSDIwdExZMmFWc3dBMkJGQ0taUFRxb1lhcDVZbS1YQ2pKYUlzYUpNWUZi?oc=5",
+   "published": "2026-11-06T07:28:11Z"
+  },
+  {
+   "title": "Israël : la principale liste arabe soutient Eisenkot, celui-ci saura dimanche s’il est chargé par le président de former un gouvernement",
+   "source": "Libération",
+   "url": "https://news.google.com/rss/articles/CBMipwJBVV95cUxOY1ZLbFlFNHNyYU0tUTZ5ajVkSkdvcURLSnVudVFKbVRQZEZpTWpQTkpFRTVZdlNlRzFSbl9UakVST0h1a2VSd0VyTGhQRjRyMzQ0NVdROGFXTlF4MXdldUlxWDZoQjE1NkplQ29xWFhNOTV4OWlTX1BBRkN0dFVXWVZqZHBLUVJNNi1WUXRpNC0zY2VwSDNxcm5wd1VZWmxzaXdpaXFKQ1R2MmdoNWFBQ0Z1TGZiSWtsV0FKdkRVOXpfbFNDVUpmOWphZ2cxVzlBNXVDcFZGSXRxUm5BN29PYXF5SEQ5cy1RRGVJbGZGODhsOWg2Z0lRWkI0UVQ3RDYxZmh0M1BER0lvcUl1NDJPTm84NnJXeXpvd0NZeml5R1M5OEFKOFY4?oc=5",
+   "published": "2026-11-05T20:15:00Z"
+  },
+  {
+   "title": "Législatives en Israël : le président, Isaac Herzog, lance les consultations pour la formation du gouvernement",
+   "source": "Libération",
+   "url": "https://news.google.com/rss/articles/CBMiogJBVV95cUxPaUlScGpIRzJGRTJyTXAyVzcyMzlRLTc2QXpmVllYRTFMZkVsUEVudU9fdnY0WkY2YVZYZHVhblFnOWQyRGdaeDRqb1RKeEMyT0lJajJuNjhhdU0wOTlSNk9KWExaRWtWTnhFYXNZLTVpLXlsUUdoc29CaWJZUk96WkVPQTUtcVU5SDhISUlTWWxtNG4xZkRCdk5vTXd6VTh5bE5pMnJ0cUNIU1R0Nnp2MWdTMmhzTUpwZndWOFlfbnVodmpfaTJIQ2pDa2NmekhhVnVkUFQwOFVXWktOdDdtSkhnZ0lENG5VcFhsakUyLWw5VFE0MkV4WEI4ai1WVDJ4NlhIamxGeWRQdXpPQ20wN3RoSlZudTc2WWE2am9GNUd4UQ?oc=5",
+   "published": "2026-11-05T16:26:45Z"
+  },
+  {
+   "title": "Le bloc Eisenkot exige le remplacement du président de la Knesset dès mardi, le Likoud tente de retarder le vote",
+   "source": "i24NEWS",
+   "url": "https://news.google.com/rss/articles/CBMihgJBVV95cUxNLXdHYzgzSDdwSlFqamhDYllSX2R2NEFKS2tqcFg1UXJid0cwRnRhQUI3d2k3VWQ3UzV1YzlrMDBaUXZKWklJaEd1bk9pZkxWOGFmQWltcnRYOUpObVF1aG9LZWFfTUpDSXdlRmR3SHV6SVRJNFZkUHhRdXJ0cUtkMlZIbUdyQnZyNDhlNHhVYk9Zb0NwZVQtcFM3b1NJNDQwMjdkRUY1VTAyQ2loeXJSWFhLSXBhX2V4TlNXeW9hZGZFV0hYdnFZNlRDSlVrdV9vZlJHNU8tOTBNbEFqVVhZNGtyUTRpd09janBQTVY4R2ZFRHJKRERfdlY4ck1SdUFzc2NNRnhB?oc=5",
+   "published": "2026-11-05T16:01:53Z"
+  },
+  {
+   "title": "Élections législatives en Israël : où en sont les négociations pour former un gouvernement ?",
+   "source": "Ouest-France",
+   "url": "https://news.google.com/rss/articles/CBMi-gFBVV95cUxNWmhXYlRfRVNzZF9HV1hsTi1NZ0xGZHhNTmE2X29GeWZBT2l2QzFsalpNMGJVaUplSHZnNWNjTlJOa0tabjljd19WbVo4X1dOaHNqTXZUSWFZZm50MXdMRWc5cUlwc3Z5dG9pOEprMEJETWo1eW0xN0RObXNYZTBhTkpfZnVzaXY2ZmhwOWctdXFLejhUMUFWanNtZ2Y4SmZseHp2WEJBUktvcm4yUzhBbXJwdEJSUFRaNEpGb1pLamF0MjhRVHhscUdWVW9VeTEyQkx6czFjZjVZa1NmTEQ4QlJzbnpyX1MwNWJHbWxpV3VFYnp3T01FZy1B?oc=5",
+   "published": "2026-11-05T14:54:22Z"
+  },
+  {
+   "title": "Législatives en Israël : Eisenkot veut \"renforcer les relations\" avec les États-Unis",
+   "source": "France 24",
+   "url": "https://www.france24.com/fr/vid%C3%A9o/20261105-l%C3%A9gislatives-en-isra%C3%ABl-eisenkot-veut-renforcer-les-relations-avec-les-%C3%A9tats-unis",
+   "published": "2026-11-05T14:53:52Z"
+  },
+  {
+   "title": "Elections législatives en Israël - La principale liste arabe annonce soutenir Eisenkot pour former le prochain gouvernement",
+   "source": "La Libre.be",
+   "url": "https://news.google.com/rss/articles/CBMiqgJBVV95cUxOcE9aOWlaUWlaRE8wbjhZZHRod1laYVBhc1BoTTV6eVJiMExHSFZoT1ZMVE5iMDdIc1lOUGp2TV9pWXU3U2V1bmRHRVpORnJNQmhaMWxWU3Z2M0FMNWZmelp1THEyaXRqNGNvdThZWnBUbkVzQ295Wklyek1Od3IwMmp4M19DLUJ6TnhWQWZiMUhZS1kxTDJZOEtyQkNyT1pvRURZYzJXSl9LRUtGY1Exb2ZBVTU4bWxHTU9uOHAyLWpfLWdZbWRJN2tZd0FLNlc1YXFEQlFNMUlRcUhEaV9TQ2VoeHlwLWZfdVJ2RmZKWFBWOWhnLWdXenk2V3EtbXhMb3lOVm5rcE11N05vQXQ1NWkxdHB1REg5YzVYV0pkeWdQSmxBa2R4N3RB?oc=5",
+   "published": "2026-11-05T14:44:00Z"
+  },
+  {
+   "title": "Elections en Israël : la principale liste arabe annonce soutenir Eisenkot pour former le prochain gouvernement",
+   "source": "La Libre.be",
+   "url": "https://news.google.com/rss/articles/CBMiowJBVV95cUxQbGtmd2NJOG1VamRkLWttMjRQSkhiSW5OeEk2TGtYVWs1bE83TTB2TkVxV0N5alVuZXNyZDFTeEtvN0xfOVRrX1RsY184UzAtM3FzX1dIOWN3WHE4a3pJbHJ4UlJOZU9xazhOWHE0THBVelA3WEpjTWdvMHpDNlhpVldLa1dUM0J4bGZHSTcyeVZINmR1OUtfeWN6bzNHN0V6OXVybVBvZzJfUVBpbVF1bTF1SmhNX1kxc0hRVHRTMlFXY3ZZd3ZNRTJrS3M1S0E3eFFpQkxsaXNNWmRMLWdZLVQyWlVFYWE1SU5Yb0dUelRSY3pnOGExQVZub0ktTjhjWUw0TWRNa3dndWl4dWpuNExBQ3BZTkh2RnZmVUhxTmowbkU?oc=5",
+   "published": "2026-11-05T14:23:00Z"
+  },
+  {
+   "title": "'Graves soupçons' d'ingérence aux législatives en Israël: Benjamin Netanyahu maintient ses accusations de fraude électorale",
+   "source": "TV5Monde",
+   "url": "https://news.google.com/rss/articles/CBMihAJBVV95cUxPVGV3MTk3Vjd0am5aRC1nTW16MU5YOTkyeG9jckdXMnBKZU0zY0hPenlDZ2lpQW1Rb21BdWVjY1Bva0VIa2RxNXBIdzVZTXRSRFRFdU82VFBwbFp6THVTMTY4VTdZdEVhblN3a092TUxUS2h2eUNmYVItYS1FbFJOZU5yXzZWQlQ1bzByY1dmTXQ5MHR4Ty05U216S21JTk1IakhzcXN6LV9xZnAxUDFRREhxV2V4RHJETkpDdlUwVF92U1FPQ0VJdEFpVzlORW02N21BNENtS3ZHOVA0QkVreVpSVEVlOFlTZmFkYldDdmpkeFVPRDZ1cnZ3RDN6UnF2Y3FTRA?oc=5",
+   "published": "2026-11-05T11:16:00Z"
+  },
+  {
+   "title": "Législatives en Israël : Netanyahou persiste et signe sur les accusations de fraude électorale",
+   "source": "Ouest-France",
+   "url": "https://news.google.com/rss/articles/CBMi_wFBVV95cUxNbDFiUjRaTmhFRHB1djNxRnBJMFJ1eU1xQmNiQmhOUlVyMi04SGJtUkotUnNJZmpyUmlGaUlFTmxvaUtZQUJfNDkzODVWcDNubml3QkpuNnFNRHB3SGt5VS1RZEtaRTdpVUdGM21rd1YxTVlZSGNBU0d5RG9CTVh3aVN2bFNUb0ZXaDZsS3dSRjZHUVhLUnNLMGh4czdkVEk0Wl9PTGdGSzl3cl9kRzY2aG1OcGhGcFVYSmZJMVNRUE9WQ0NuVEVFZXk2MU9WNlZZaXAyYUVUWWdTLU53SHhnLS1Jd3dSZ2JFcExib1R1cXZxX0MtOUZtUWRhLU9lams?oc=5",
+   "published": "2026-11-04T22:38:43Z"
+  },
+  {
+   "title": "Législatives en Israël : Benyamin Nétanyahou évoque \"de graves soupçons\" d'ingérences étrangères",
+   "source": "franceinfo",
+   "url": "https://news.google.com/rss/articles/CBMiiAJBVV95cUxOU3hMRElQaUxHUnF6N2gtQ3E1VDZtUmZPN3hXVFR1YnROTFI0ZVIyMWVlQS11YnktWllURDRSLXhMZm1pMUZKVk51Umg5ZFItQ3V4YThJOU9SbGN5YmRBMHJMb05ySFhFZllLcHAwSUtWWFZGR0IyNTUyUndjdExhTXM4NnpYVnZ3R1NJaDI4REVFYW1tbi1iOHRLRG1ob3hDcndvQW4tYWFVOEtfRlFqYzNnVzdOakxzV2ZyclNFUnBpcHZPcVBGWFdzcmVSbWJfMXBQTXpGeUliaGxsckpRWGZldU10V1dZSXFQZDJBNDRXR3BwME9oU1hiZHY2THNqTF9ycjQydmU?oc=5",
+   "published": "2026-11-04T22:05:26Z"
+  },
+  {
+   "title": "Législatives en Israël : Netanyahu assure qu'il existe de \"graves soupçons\" d'ingérence étrangère",
+   "source": "France 24",
+   "url": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxNOHJpVFF1b2NsWnVRbnhNWFVwLWxONjhFN1NWSzRWT3QtZ2RKQ1JBQ2FVWl9XNW9XUE5tX1N1cmhXMEdGNV9mX2ZLSDFFb3dKbW9vX1lyaEVOeWV6c3VpbmtIQ253NDg2SlRObzlhbWJwelh4MTE1R25DVnlBUF9HejVOU2JobzN5aDBCVzdYREUtd2RCVG5ZeXl4Z1h1NTRtVzNLamh4bFAxSm5qRGx6NkZ2UlJ4S0pnS09DVE5LVnBxaTMzQlk5bXc5bE8yNUhoeWxoSThFYllQa0xQUWhXUXF4Vl90VXRMRWE1U21jTjU?oc=5",
+   "published": "2026-11-04T21:56:30Z"
+  },
+  {
+   "title": "Législatives en Israël : Netanyahou dit qu’il « existe de graves soupçons » d’ingérence étrangère",
+   "source": "Le Soir",
+   "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQWndNYjBvQ0ZGS2VuNTRWMFFwM1kxQ2l2bWR1b0RRd1l3UGYwRG4wSnNaQldYUHpoTWlJMHBZeUZndHdDNGpnMV9tVkU1Q2xtUm5JM0NLWm9jQUkxLWFmTF9TQUFIWEp1cHlOUjJmekR3alZGZmd3cXBWelBoYVpLcVBmWU5rY2RhT3hra0VLazBGOU9QZnM4NUZyY3BTdFJyMVpybFEwYm5jNG51blBOOWltZEh1NUhOTXNGQ2hvSmxOVTd1YVE?oc=5",
+   "published": "2026-11-04T20:13:54Z"
+  },
+  {
+   "title": "Législatives en Israël : Netanyahou accuse l’ingérence étrangère",
+   "source": "Le Soir",
+   "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQak0zNW9lT01Sdjd5cjB1b3FMLS1KMmhPYmhlZ2NSZ0lMakJFeFFObGpUN091YkszZzFfUURXZi1zU0pXTW1qbS1DNnRRN1dGU3FHR2tXeFczT1hDTnJDdGhhNjR2b1FmcENRVmkzMUh1aHVQcUxaN3A3ZWo2OHVVREstLXFyR0pkOHJ0VFAzdFZVRVJwYUg0SGZQUGV5V1ZHVW5VWjZYQklGYnRZSjFN?oc=5",
+   "published": "2026-11-04T20:13:54Z"
+  },
+  {
+   "title": "Élections en Israël | Nétanyahou évoque « de graves soupçons » d’ingérence étrangère",
+   "source": "La Presse",
+   "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxOZU50NklKRHg0Xzg4enBHbU45cXp2aFJVQXRaWncxMGUtMV9BbnpueFlZS3p5WlR6bnY2N2ZjTEd2OURUdE95Wl9Bc3FndWkwTW9kZUhyanliNE94NTkwM2FJNGVCU3F6RlZMRHAxVy1fMGcybkl5SUlpeWp6MVFkdVczQzNpMWJTZWs2S1gxeGp2UHZBcWc0UkxkNEt6QlcxdlpkZ0FlMk50TnpobW9FMUgwLU5wNFZPd2Z0NU1NSHIxNmVEUDZaYkM4eG1oUUNvaGlRYkNyYmNuTl9v?oc=5",
+   "published": "2026-11-04T19:56:34Z"
+  },
+  {
+   "title": "Israël: Gadi Eisenkot s'engage à renouveler les relations avec Washington s'il devient Premier ministre",
+   "source": "RFI",
+   "url": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxQS09OOTFjRlc2aHd5QVVZRVR1cThVaVBDWk9ubk9zSEtIelpqOXk4Y1JfS201cnhSVkNPSFdFTmxMNjN3Q0JhYnJxdFF6ZW5jV25fdnowbUpTYTlaTmcxQm5ucS1xTTFLOUtMS0R6NkF1WnlkdE1ydVRaR0VqX1R1OThvX0R4WXIyQ0FXYnlSTEU5UDJUejVpR0NtRFAwa1dyNGNEY2pFcnFrMXNlcFBBSFZtMy13RkpOdkFVVnBBdFI4Z2V1RmJRMXpxYzI3cWRjWTZ1ZWhzTG5mRzhfeHFjYlFJVVAyRURRbmdMLQ?oc=5",
+   "published": "2026-11-04T19:25:58Z"
+  },
+  {
+   "title": "Élections en Israël: le président appelle au compromis après un scrutin \"sans vainqueur\"",
+   "source": "BFMTV",
+   "url": "https://news.google.com/rss/articles/CBMi9AFBVV95cUxQQlFySDhMT0FyUkNnMDl5UGYzVDVSZ1k0RzNWNnJONTJBaVlUVUp2ajV3Uk9BcE1VWF9lZVFkVmhEWU1ZeXA0VkUzbk95SW5TbXpPNGRQRV9FaFVJaDFJWjdoa21vcm05alNmYnFXdjZUZ3VfdWFBUHcwSHQ4Yk1rTFhGUGpULUh5SkkxLW5mMWlhQnRkNjJNTmQ2Mk9kMGlBbzV0Wkg2VWdrUlBfcW5CZ3hRSzBvaGE2czd0dTZEQVZsWVVYdFZZVHBoekllN1gydWUta1NEV0ZPS29jbmRaTnpQS0xpb1pwT2V2TThJZTJMZzFl?oc=5",
+   "published": "2026-11-04T13:13:10Z"
+  },
+  {
+   "title": "Législatives en Israël : le président Isaac Herzog appelle au compromis après des élections « sans vainqueur »",
+   "source": "Ouest-France",
+   "url": "https://news.google.com/rss/articles/CBMijwJBVV95cUxNNkowc3dxZXFjeWlKcXY3Tmk4T3YzbE5LMlVwQnhpdUI5bDJBUHplNWtyZU9JY0xWZU5DaFdKS1dxOVNPc1dvUlFPM1YzeHhQR3FlMWdfMWNISmJYWVMtZy1JZlZwdEhJaVFxd1NPM3VsNUgzcHBuUExkY1lQb2xaTUUtZDhpcnU1WEJTdk1rWWRQMHRPNGNNM2lQUFFOcm1DM25XMExQZG0yRlUzOS02NV84WEw5SmQ1ZFFhMzRjX3pvaHRaTmpfMmg1VFZtUUFEUkJqVm9FWENUbjlla3loNG5vcEJwdVJLT0lYeTlTdTBUdlc4bnA0aVcyTGRUZkp2OWVkaVZXOWhuZzF1Y3lN?oc=5",
+   "published": "2026-11-04T13:03:27Z"
+  }
+ ]
+}
