@@ -1,0 +1,109 @@
+{
+ "schema": 1,
+ "updated_at": "2026-11-14T09:27:08Z",
+ "query": "élections israéliennes OR \"législatives en Israël\" OR Knesset when:3d",
+ "feeds": {
+  "Google Actualités": "ok (3)",
+  "Le Monde": "ok (3)",
+  "France 24": "ok (2)",
+  "RFI": "ok (6)"
+ },
+ "items": [
+  {
+   "title": "Israël: première rencontre officielle entre Benyamin Netanyahu et Gadi Eisenkot depuis les élections",
+   "source": "RFI",
+   "url": "https://www.rfi.fr/fr/moyen-orient/20261113-en-isra%C3%ABl-premi%C3%A8re-rencontre-officielle-depuis-les-%C3%A9lections-entre-benyamin-netanyahu-et-gadi-eisenkot",
+   "published": "2026-11-13T08:36:45Z"
+  },
+  {
+   "title": "Élections En Israël : Le Likoud Prépare Un Recours Pour Contester Les Résultats Du Scrutin",
+   "source": "i24NEWS",
+   "url": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxPRVFEeHF0YklWbWNJY2E0NWM2SjZUbk9hZHhrY1FrbWc0djdRRmdaWUdXbEx0em5HcU9fTnpFMklSbml6RmpxQkdSVnZiRmcyU3NEWU5qUDR2SFhsa3ota05QWlNGR1hxNGk2REtxVFpUSVV6ekdqb3BuT0M0NTJYV3ZCQmdEa1IybVMwUDZTQmpzbjI1SDBFQTczNmxHalpjX0FGYlpSeXhzelhKN0podm11TTctZHlKV0FuZFFXdmJhOExlbXVZRXRQdGdaNzhjVS14ZWtRZHZRb1d0LTl0bWE0NjBxa0U?oc=5",
+   "published": "2026-11-12T19:29:38Z"
+  },
+  {
+   "title": "Des frappes israéliennes tuent au moins 11 personnes dans la bande de Gaza, le jour le plus meurtrier depuis les élections en Israël",
+   "source": "franceinfo",
+   "url": "https://news.google.com/rss/articles/CBMiuwJBVV95cUxPa1J4ZlBOX3RKZi1UZ19XMjI1bGRrS0w1LXkwNEd0UEVVUUNjN0RibVJKa2FhbEZkMUFUbnlhYWF2cmFyM0NqcDFnaU54VUVHY1BldjgyemZJczlVeHkxSkxlZjdFY3I2RmVoQW05YzlLV0pVcmMyb1NSVVVQN3lvSkw1LTZyN05MYkgyWEI1SC1vTHdXTWY0NklHODh4VjdFSVBHUHdkMVRuM0laNC1JMmc1N0lMd0ZSMENpMmJmaGFoM2ZjREhfZENmMU5oM3RiS2F3YjFibERKYnhBRXBxMUtEMWFZUzN6S1NNUTVXWTM1anhFUXJTU2NpVXloWGFQUXFEX01LaEpBcGk3Y0lPcjR6ZnhhS2VEZVYwcXBvMkhyY1h6R2FYNnVPcUNYRW9YemV0WldVNHllSVE?oc=5",
+   "published": "2026-11-12T18:59:51Z"
+  },
+  {
+   "title": "11 morts dans des frappes israéliennes à Gaza, jour le plus meurtrier depuis les élections en Israël",
+   "source": "Le Devoir",
+   "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxPQUM5OE4tcEVDTFN6YWZiU0QzVGFWWDdvOWV2VXNXR0VoTU5FeHo3bHduVElDaFlLUWcxZUF4bDBTMllMcFZRdDZYYnNkRGZSeGs3SU80ZkdiVVJleGFSVmUxTlV0amhuZFBMZ0NEQUZaMHJWVzRBWVNrX3l1NFVHUURUTTV1MENCWGVMVk0zX1Bidm5QazZLYjNadV9YMEIwSnZzRHczZlNMay0xdm9UUVctaVlGdmJod2o0NGJKLWpxRkpBNWZNVXNn?oc=5",
+   "published": "2026-11-12T16:53:00Z"
+  },
+  {
+   "title": "Gaza : 11 morts dans des frappes israéliennes, jour le plus meurtrier depuis les élections en Israël",
+   "source": "Courrier international",
+   "url": "https://news.google.com/rss/articles/CBMihwJBVV95cUxOWEhmanMtbmt0V2h2bnp1ZW0tcVZMT3k1Tk1sRzZjYWJOYVl2MnhEZTg1bW9PbVdsX3ZYU3oyU096UDhnbzVOZWNvVHFfNkh5TWQxcmluWkRuaUhiV1N1NjY5aEhaMTlUY0pOaWtXelYtc1o3cGZjU0pnQ1R3eVk2VzMzTzFoempyZU9wUFd4UG9rZHdmSlJSNUNWdllmekplZ2lORHBiV3lVVVlzdkZ1MEpBR2VhWGxCVEllVUxxR3FYVnVKcTdCWmVtS1VVRHI0b1FpZnpkLVZsX1dPcWRZQ0NLWU1Idmk2SmZIcGZhNlJ0YV9YY19YYUg2Vk1SZDFhbnpESk5mOA?oc=5",
+   "published": "2026-11-12T15:54:00Z"
+  },
+  {
+   "title": "Gaza : frappes israéliennes sur un hôpital, jour le plus meurtrier depuis les législatives en Israël",
+   "source": "France 24",
+   "url": "https://news.google.com/rss/articles/CBMi9wFBVV95cUxQRWhXZ0JWSjhNOGstWjE2Z0VnLVM0ZjIyR241N0g1ZTc1a3ltOFpaNV95ck5fVE5XWXkwb3hORGdRY01lLWx4OU1XSWtyendRRUZTTUpKcG1BUjhsdTZ2S0xoQjJYS3FrQzVwSXZKdGY3TDBLR0t3YnBnT0NZNldpcmp0bFF3VVVWeTNIbDlGTEZpTEFqWm02ZHRJa1htbHFVcXJOU01HTDhlZm1naTN2UDBHZ0hzR2VBcktBUGJRdndyU3dVbnZYS2I1RnlOcWNvUmdOY0ljS2N2OVNXYXRqc2FkNFFBRTNRb0QydG5HdjJoZ0ozTWlz?oc=5",
+   "published": "2026-11-12T12:35:30Z"
+  },
+  {
+   "title": "En Israël, en images, la première session sous tension à la Knesset",
+   "source": "Le Monde",
+   "url": "https://www.lemonde.fr/international/video/2026/11/11/en-israel-en-images-premiere-session-sous-tension-a-la-knesset_6808946_3210.html",
+   "published": "2026-11-11T08:13:42Z"
+  },
+  {
+   "title": "Israël : après les élections législatives, une première session mouvementée au Parlement",
+   "source": "franceinfo",
+   "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxOZXpBa2c3RDl5RHVWWmo2U2VKd0JSdVhhcGoyRUY4ZzlWSGlRdG9sU1ZULWYtZXR6Yi1PdjR3R2hFQ3d2aEF4WnplMG94Yk1QeGlBc3hzczZXTEJuMDlneDVoWFFTYk9iUkpoSWRYMnZ4a0N4ckhEVEkycEp0MldienB3cUJHNU1ESkpuTHNRVGFLVzhBdm5OMFg0aEpaYlVyb1hnRktNSEhCaFhwZnJka2RiNHl4WFM0VVpOdllhNTNRTjVjMjhtMUgwaEpJb3BpcTVV?oc=5",
+   "published": "2026-11-11T07:08:11Z"
+  },
+  {
+   "title": "Israël : devant la Knesset, Gadi Eisenkot promet des réformes législatives rapides avant même la formation du gouvernement",
+   "source": "Le Monde",
+   "url": "https://www.lemonde.fr/international/article/2026/11/10/israel-devant-la-knesset-gadi-eisenkot-promet-des-reformes-legislatives-rapides-avant-meme-la-formation-du-gouvernement_6808907_3210.html",
+   "published": "2026-11-10T21:22:14Z"
+  },
+  {
+   "title": "En Israël, la première session sous tension à la Knesset laisse présager des tractations difficiles dans les semaines à venir",
+   "source": "Le Monde",
+   "url": "https://www.lemonde.fr/international/article/2026/11/10/en-israel-la-premiere-session-sous-tension-a-la-knesset-laisse-presager-des-tractations-difficiles-dans-les-semaines-a-venir_6808849_3211.html",
+   "published": "2026-11-10T18:22:43Z"
+  },
+  {
+   "title": "\"Un gouvernement avec des terroristes est une trahison envers nos soldats\", accusent des manifestants devant la Knesset",
+   "source": "i24NEWS",
+   "url": "https://news.google.com/rss/articles/CBMijAJBVV95cUxOeE1jUHR4VzMtcFpHa3ZuYjNMejVjcXhiaFlSWU1tTE90MlNVWTlidXhmRjBmVVpobkhxWU9PUDBXSWdZenQ4MFAzWTV1bGIyY0VncG5JVHl6QmRXQXEwVFNBeExQVmh6bV91ckF4Z3R1RHJrcmVMdzRWLXAzX3I4M2FYWlNhYy02MFFNUmlubEdtTmZIV1kwaE5Xa0FGVXpzOXpZS1lfYjY1T3BuMmpNbG5nZ2YyZkpMUDM0eGMtQ0RLRXVRbjU5NnVCbFg3c1JZRXVVeG4tQ0w0Uk1CYldBUXNVMWs4Vy1KeUZWM3ZMWFhwUVBXVEhXN3ZrcE5oc2UxZ1BWaC1ndUd5Tkpn?oc=5",
+   "published": "2026-11-10T17:37:27Z"
+  },
+  {
+   "title": "Elections législatives en Israël - Netanyahu appelle à un gouvernement d'union nationale face à la menace nucléaire iranienne",
+   "source": "La Libre.be",
+   "url": "https://news.google.com/rss/articles/CBMiqwJBVV95cUxNOGltZGNTVWtRNVJibWpfeHBjNkJBMnhRaTRTbkdRV1Z4YzZwZHBQRXF6U1FUSldlcmxBYlAzS3pabzc4NVFPMVQ5QVJyRHBMTUI1U1hoTlkwRlNOaEM0R3RoUEh4WFBhQVhmbF85Y1A2S1ZURzRHMEVCeXBGWUl5cUFFeDZ2RHRRRjRyeS1iRDZ2Q1FXZlFzU1NTUWVxSE1mVzJIdWdteFY3blB6UTdLendBZHZQWXpvXzJlRTNTczBEZ2RKcmRyRC1iN1JhMjB4bTQ1SF9CekRadEVkQk5TdW9HWTBaYnc5MEk4amdRQ1o1QUVuT0RhSTBSZy1MdVg1LVhaa2EtakNpeEhiVVhaaEVyQ0sySm1UT0l2cDFIRGpSdTJHNjVYSlczUQ?oc=5",
+   "published": "2026-11-10T16:35:00Z"
+  },
+  {
+   "title": "Elections législatives en Israël - Yashar dépose un projet de loi pour créer une commission d'enquête sur le 7-Octobre",
+   "source": "La Libre.be",
+   "url": "https://news.google.com/rss/articles/CBMiogJBVV95cUxQUVd6cGlOVmpVZGtvMU4wbUNBaGRQVG1nd2JVSmJtSUUzcy11RWRDY25rREt1UXd1d0N4VEl1ZEZqa2xENENrVzQtLVZOUFU5Yld4Ni0wQVdyS0VMakt5OW53TlJqUUFGZXVFOW43cGhiTHRNNmdmT2gtWFRVUW03YUJVbEhvc1RkaDZUY2w4bzFDMS1zVVh6aEhMc0hJcVEwLVk4ZzdHSkpmT2llQlMwdnJGczlvTm53dFB2MHBUaVFZOGxNMTJXVXhmUUFkc1ZMY1U5ZkRyUDVnZHlJSzBseW9hSHRBNm1CZ1lSN3lxczJ6cDBEcUlKdXZoRXo2SUwwbjEwYWlMTmJPaUJTRGI3cjlxQ2NjeDI5N1ZKTHpNaDY3Zw?oc=5",
+   "published": "2026-11-10T16:16:00Z"
+  },
+  {
+   "title": "Elections législatives en Israël - Le président Isaac Herzog appelle les partis à des compromis pour former un gouvernement",
+   "source": "La Libre.be",
+   "url": "https://news.google.com/rss/articles/CBMiqgJBVV95cUxORG5PMXBKdTdPQVpJYWFGSnBiWnZ4eDdweHlwQ2YxTkNteU5lWm55WEtHV3RWTTNfbVE1c25hUkNfV3UzU1YtYllsNXFTaTQ2LU5DN2JtbHJFU09HcTNxUF9SOW1fbUlqM2djLUVINXZ0a0JpOGpDR1lHUWJ0MHNGbWx5aFdqaC1abFpjdy1sbnlqLWdJYWM2Y2ZZNkwwWm01RHgtNEkxNmdqSGlUNkE1NDVKeHE0M1ZNNmJxT0JwLUI5OUxiQllKQ0d3UEUtSk1GLTlMN05acVdZUnNwazJ1QWc2bGFyTTVocmo5TzkyUXRHVXV4amFxb054QmRFQnU0RDc2Qms3aVFlYkVTYTFpVlhKTy1BOGRReEdVMjd2dFFHc3ZrM2szZ0d3?oc=5",
+   "published": "2026-11-10T15:15:00Z"
+  },
+  {
+   "title": "Isaac Herzog à la nouvelle Knesset : \"Vous devez tout faire pour éviter de nouvelles élections\"",
+   "source": "i24NEWS",
+   "url": "https://news.google.com/rss/articles/CBMi6wFBVV95cUxPTDVQMG5lRTVSaDdQSVloMHlTSnRaUy1kSkM0bjRvd3VPUTdjaHhUeGNQQUZnSThEZGttTTFQSzVQaEw4ZnJwUU1PbElQNzV1S3hwZnVZZHJ4RFg1bmZVQ1VUSmRvQVhVWUZ3djM0VDVrZEdyVnFiTExQNUVWd3FvZm1TdjJpXzQwbVhmT3ZzdGd5SU1KaHFLdmpSQ19RM3ozX0pOdGw1RVdiUjZ3OE9yU1YyTVc0X05fckVjQ0o4TUJUdjNJY3dpTE5nZmQyUU51SXdCdzlCc0lRS09ZRlRsa2NRVl9NVDNkTmkw?oc=5",
+   "published": "2026-11-10T15:02:11Z"
+  },
+  {
+   "title": "Israël: les nouveaux députés de la Knesset prêtent serment, Gadi Eisenkot cherche une majorité",
+   "source": "RFI",
+   "url": "https://www.rfi.fr/fr/moyen-orient/20261110-isra%C3%ABl-nouveaux-d%C3%A9put%C3%A9s-de-la-knesset-pr%C3%AAtent-serment-gadi-eisenkot-cherche-une-majorit%C3%A9",
+   "published": "2026-11-10T13:53:18Z"
+  }
+ ]
+}
