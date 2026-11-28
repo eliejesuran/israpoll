@@ -1,0 +1,91 @@
+{
+ "schema": 1,
+ "updated_at": "2026-11-28T12:25:46Z",
+ "query": "élections israéliennes OR \"législatives en Israël\" OR Knesset when:3d",
+ "feeds": {
+  "Google Actualités": "ok (6)",
+  "Le Monde": "ok (2)",
+  "France 24": "ok (6)",
+  "RFI": "ok (1)"
+ },
+ "items": [
+  {
+   "title": "Le Likoud accuse Mansour Abbas de vouloir tromper Gadi Eisenkot pour entrer au gouvernement",
+   "source": "i24NEWS",
+   "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxNck1nVWQ3X19sZzdsZXNnY3RoMDdYYkIxZHlBZTRuYlhwT1lpRUtjdE9GQTFWeDZPcDVOM2NfNHdmWWdWWnM5bjA2MG5wN1ZBRUcyay1RRDd3bVJVSEdvQXBrenJXNDRra0w4VzdLNXd5VldEYWZubmZ1eEVONmJUYlpiQUpZOWlySHg0cGlPMlpMaTJpeG9ZSWFlVHMxSC1QSklwdFdfTTd3TmJiN2NGcDJoTDItYUxDNU9HN2RINld4TFNuT1d2ZHhLX2w0S0l6LWRXZzc1cGl5NDN6?oc=5",
+   "published": "2026-11-27T11:56:47Z"
+  },
+  {
+   "title": "Matan Kahana Accuse Benjamin Netanyahou De Vouloir Provoquer De Nouvelles Élections",
+   "source": "i24NEWS",
+   "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPMGRsNk1VaGVrNk5ucEozQ0FzQ1Z1N09XcmJQZlpUUVhZMHRlMnEzMFUzR0wwZS02ZU1rQnJxN3VMamZaVHZfV3VMQUFabVY5enZmWEt5cDB1NjNqN1VaTGZ6NVlZVjZFYmNwQk1sQ3F1cTZISFF0M2ZLZWFuVExua3FiRFM4b2tpcEt0U2s1LVJZclBoYjV0V1gzanpjNzA5d0dRMEkxRjF3VHVLWDJkYndScldMR2taTVJrSFJvcjA4Qm9GS3NxS1ZCMVhIWlpnRlE?oc=5",
+   "published": "2026-11-27T10:44:04Z"
+  },
+  {
+   "title": "Israël : Gadi Eisenkot et Yaïr Golan nouent un accord de coalition en vue d'un futur gouvernement",
+   "source": "France 24",
+   "url": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxNbVJXMjlOS0Y0T0h0RlBnd2g1eFFVRS05M3BQS3NzOXJZeElrY2RIOEdrdWF4dGF5aG9ZNnBCYVREQUliSUxPWG11UHYtTl9vMnlPUVc5MkRTU29rZDVuUlM4S1Fwei1HLXFsUW5sOW5yWEtieGtDODAwVHJhZjhzakx1ZWNyNklmYTYybzgwV2lvM1FMU09wVjMwekdjcUNpREg3aVFnUmpnWE9iZ0JSWlA5YjhyZVk1LWoxMFZLSXRQNjBGR24wS2hjWC1mV0dudmRPWFpDbElxQVNpNXp1MFRVMk9TU3k5VEl4R3pFdkFyRFQyMUZzdWVvZHI1Zw?oc=5",
+   "published": "2026-11-27T04:46:03Z"
+  },
+  {
+   "title": "Israël: Gadi Eisenkot et le parti de gauche nouent un accord de coalition",
+   "source": "RFI",
+   "url": "https://www.rfi.fr/fr/moyen-orient/20261126-isra%C3%ABl-gadi-eisenkot-et-le-parti-de-gauche-nouent-un-accord-de-coalition",
+   "published": "2026-11-26T17:21:38Z"
+  },
+  {
+   "title": "Israël : Gadi Eisenkot et le parti de gauche Les Démocrates nouent un accord de coalition, premier pas vers la formation d’un gouvernement",
+   "source": "Le Monde",
+   "url": "https://www.lemonde.fr/international/article/2026/11/26/israel-gadi-eisenkot-et-le-parti-de-gauche-les-democrates-nouent-un-accord-de-coalition-premier-pas-vers-la-formation-d-un-gouvernement_6815576_3210.html",
+   "published": "2026-11-26T17:08:19Z"
+  },
+  {
+   "title": "Israël : la Knesset adopte un projet de loi pour une comission d'enquête sur le 7 Octobre",
+   "source": "France 24",
+   "url": "https://www.france24.com/fr/vid%C3%A9o/20261126-isra%C3%ABl-la-knesset-adopte-un-projet-de-loi-pour-une-comission-d-enqu%C3%AAte-sur-le-7-octobre",
+   "published": "2026-11-26T10:27:07Z"
+  },
+  {
+   "title": "La Knesset Adopte En Première Lecture L'abrogation De La Loi Karhi Sur L'audiovisuel",
+   "source": "i24NEWS",
+   "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxQenlhSnM2cm5lVkRidDZ3aGhLSTI0NTdOa2lsNlVmR3ZXTG1XNHRnOUp3dkcwblVoOE1Hb1JyRmM1LWNoVUxVcmcxVHFYTDJjNWNpTUNfQnFXSE45ZFl0TGJfWlBQUnBuTl9zYkVjXzB0MlN5TDY3RVBXMDhudDhZWkx6dFVIT29Qd1JxTHN2S0JXRVc3aldIby1aQUwzaHhTZWYzTTc5WnVRUnRHSGwzVTJXNU1QU05QenBaYkt0a21qcW1Pem1PWDA0UUF0YVBwOFBv?oc=5",
+   "published": "2026-11-26T06:53:00Z"
+  },
+  {
+   "title": "En Israël, les négociations pour former un nouveau gouvernement avancent à tout petits pas",
+   "source": "Ouest-France",
+   "url": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxPRkxVQm1ZbTNaU2I4NmdiMEIyOVVHMWY4MmpHNjJyaXN0czRCRlloWTZheU9LYlFENXVaeEY0czZRTWdwRl9mZHBqWUN1M1ZjV0lIWGJUSVJrZlFrdkpCN3U0SnVFcXlkdWYyRkdrZFZQTm15Zk45ZU1mb1ZoRVVRSldhLXRoZlhhcVBYNkl4V1l6ZGptblc0X21BM1ZBeG12bDFfUWVlUzFZcWNHSXJQb0wwWEkxVS1JNGQ1QUhCV0hWaVg5NzV3a0lZSXBVQ202TDM1dVNUS3lBWGc3S1ZSRHg5Xzk0cjVvd3oyanl6MXh0Q3lQaXVsSEhEbw?oc=5",
+   "published": "2026-11-25T16:13:39Z"
+  },
+  {
+   "title": "législatives en Israël : les tractations pour un nouveau gouvernement se poursuivent",
+   "source": "France 24",
+   "url": "https://www.france24.com/fr/vid%C3%A9o/20261125-l%C3%A9gislatives-en-isra%C3%ABl-les-tractations-pour-un-nouveau-gouvernement-se-poursuivent",
+   "published": "2026-11-25T15:19:06Z"
+  },
+  {
+   "title": "Israël : premier obstacle franchi pour créer une commission d'enquête sur le 7-Octobre",
+   "source": "TV5Monde",
+   "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxQamZtb2lUVEFkaUt1eFFqMFRUNjN6cDZFVFJfUzkzSWllTUtlZHN4cjJ1STFfTTluR2dVVkZhT1F0OTBYYlFyTGh5WUt2MG5EVU9TZEdodWpIeWw2b0FjMDZhMktYcEZsQlJOelZwTUNwMDViVGRkV0x5b181SmVVMGJ5WkdQZEh3YnNjWTdqWXVZTjdNRWthdHVtM1pCWkJldVdFbm9nTkpiV2c1SEFWWFEyQ2JtcXF2eGxTanRLbXpzZVdacmxlRm53WkZmVlNfaERJSWZGZzd3QQ?oc=5",
+   "published": "2026-11-25T14:26:40Z"
+  },
+  {
+   "title": "7-Octobre : en Israël, la Knesset approuve en lecture préliminaire la création d’une commission d’enquête",
+   "source": "Le Monde",
+   "url": "https://www.lemonde.fr/international/article/2026/11/25/7-octobre-en-israel-la-knesset-approuve-en-lecture-preliminaire-la-creation-d-une-commission-d-enquete_6815104_3210.html",
+   "published": "2026-11-25T13:46:30Z"
+  },
+  {
+   "title": "Israël : le parti de gauche Les Démocrates suspend les négociations de coalition avec Gadi Eisenkot",
+   "source": "Le Monde",
+   "url": "https://www.lemonde.fr/international/article/2026/11/25/israel-le-parti-de-gauche-les-democrates-suspend-les-negociations-avec-celui-de-gadi-eisenkot_6814903_3210.html",
+   "published": "2026-11-25T00:15:12Z"
+  },
+  {
+   "title": "Elections législatives en Israël - Le parti de gauche suspend les pourparlers avec Eisenkot",
+   "source": "La Libre.be",
+   "url": "https://news.google.com/rss/articles/CBMi_wFBVV95cUxNYURxR1AxMEpoV0VMak1VNnNhc0oyLS14ZWVzb1NkbWtRR2JKdWFMVWxia1ZURFdCQkRWa1pTc2dnMVRUQ3JfbnBjNnluWEtJeWxTa0laYjd1QzNtWkZaRHBiSWhCU3d0Q2w4RF9CYURzWU0zWXFCMGdNNmQ5dEFxanhSVXJtTE5lUlFVc0o3eXFtekNWTEw5OXFVbk5FWkdJQW9rbVN1UEg0VFpPc0drVS1OcklWbDk1bEtEaF9fVV9SZ1FFMGhfQVVScTFtcWh4dUhmWFJVT3B6RkdyZno3bGFmME1iSS1wN1lDTTFhQjZnV01rZkRITl9oYzBsYzQ?oc=5",
+   "published": "2026-11-24T23:24:00Z"
+  }
+ ]
+}
